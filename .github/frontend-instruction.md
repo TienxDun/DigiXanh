@@ -142,12 +142,14 @@ src/app/
 - Tách logic vào service, component chỉ giữ vai trò presentation.
 - Sử dụng async pipe trong template thay vì subscribe thủ công.
 
-### 5.3. Commit message
-- Format: `[USxx] Mô tả ngắn gọn` (ví dụ: `[US01] Implement register form`)
-- Nếu liên quan nhiều story, có thể ghi `[US01][US02] ...`
+### 5.3. Báo cáo thay đổi
+- Sau khi hoàn tất task, liệt kê rõ danh sách file đã sửa.
+- Ghi kèm cách test local để PO kiểm tra nhanh.
+- Nếu PO yêu cầu commit thủ công, có thể đề xuất message: `[USxx] Mô tả ngắn gọn`.
 
-### 5.4. Branch naming
-- Từ nhánh `develop`, tạo nhánh: `feature/USxx-ten-ngan` (ví dụ: `feature/US01-auth`)
+### 5.4. Quy ước Git
+- Mặc định FE Agent **không tự tạo nhánh/commit/push/PR**.
+- PO là người quản lý Git workflow; agent chỉ thao tác Git khi PO yêu cầu rõ ràng.
 
 ## 6. Routing & Guards
 
@@ -367,18 +369,19 @@ export class PlantService {
 1. **Đọc task** từ PO (ví dụ: US01 - Đăng ký tài khoản).
 2. **Đọc lại context.md** và **frontend-instruction.md** để nắm vững quy tắc.
 3. **Trao đổi với BE agent** nếu task liên quan đến API để thống nhất contract.
-4. **Tạo nhánh** từ `develop`: `feature/US01-auth`.
-5. **Phát triển**:
+4. **Phát triển**:
    - Tạo component mới trong module phù hợp (auth).
    - Viết form với ngx-formly.
    - Viết service gọi API.
    - Xử lý response/error.
    - Đảm bảo style theo đúng thiết kế.
-6. **Tự kiểm thử** trên local.
-7. **Commit** với message chuẩn, push lên remote.
-8. **Tạo Pull Request** vào `develop`, gán PO review.
-9. **Phản hồi feedback**, sửa nếu cần.
-10. **Sau khi merge**, xoá nhánh, cập nhật board.
+5. **Tự kiểm thử** trên local.
+6. **Bàn giao cho PO**:
+  - Tóm tắt thay đổi.
+  - Liệt kê file đã sửa.
+  - Gửi hướng dẫn test và đề xuất commit message (nếu cần).
+7. **Phản hồi feedback**, sửa nếu cần.
+8. **Cập nhật board** khi PO yêu cầu.
 
 ---
 

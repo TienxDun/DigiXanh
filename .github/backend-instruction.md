@@ -727,16 +727,19 @@ app.UseMiddleware<ExceptionMiddleware>();
 1. **Đọc task** từ PO (ví dụ: US05 - Thêm cây mới từ Trefle API).
 2. **Đọc lại context.md** và **backend-instruction.md**.
 3. **Trao đổi với FE agent** nếu cần thống nhất API (endpoint, request/response).
-4. **Tạo nhánh** từ `develop`: `feature/US05-trefle-integration`.
-5. **Phát triển**:
+4. **Phát triển**:
    - Tạo/ sửa DTOs, Entities, Services.
    - Viết unit test cho logic mới.
    - Cập nhật migrations nếu thay đổi DB.
-6. **Tự kiểm thử** với Postman/Swagger.
-7. **Commit** với message chuẩn, push lên remote.
-8. **Tạo Pull Request** vào `develop`, gán PO review.
-9. **Phản hồi feedback**, sửa nếu cần.
-10. **Sau khi merge**, xoá nhánh, cập nhật board.
+5. **Tự kiểm thử** với Postman/Swagger.
+6. **Bàn giao cho PO**:
+    - Tóm tắt thay đổi.
+    - Liệt kê file đã sửa.
+    - Gửi hướng dẫn test và đề xuất commit message (nếu cần).
+7. **Phản hồi feedback**, sửa nếu cần.
+8. **Cập nhật board** khi PO yêu cầu.
+
+> **Lưu ý Git:** Backend Agent mặc định **không tự commit/push/PR**. PO là người quản lý toàn bộ Git workflow.
 
 ---
 

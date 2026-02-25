@@ -261,19 +261,17 @@ $dark: #343a40;
 
 ## 9. Quy trình làm việc với Git
 
-- **Nhánh chính:** `main` – luôn ổn định, đã deploy.
-- **Nhánh phát triển:** `develop` – tích hợp các feature.
-- **Quy tắc đặt tên nhánh feature:** `feature/USxx-ten-ngan` (vd: `feature/US01-auth`)
-- **Commit message:** `[USxx] Mô tả ngắn gọn` (vd: `[US01] Implement register API`)
-- **Pull Request:** Khi hoàn thành feature, tạo PR từ feature branch vào `develop`. PO sẽ review.
-- **Sau mỗi Sprint:** Tạo tag `sprint-x`.
+- Git workflow do **PO quản lý** (branch/commit/push/PR/merge).
+- Agent mặc định chỉ làm việc trên code local và báo cáo thay đổi sau khi hoàn thành task.
+- Agent chỉ thao tác Git khi PO yêu cầu rõ ràng trong task.
+- Nếu PO cần chuẩn hóa message, có thể dùng format: `[USxx] Mô tả ngắn gọn`.
 
 ## 10. Định nghĩa "Xong" (Definition of Done)
 - Code hoạt động trên môi trường local (FE + BE).
 - Unit test cho các logic quan trọng (tính giá, xử lý order) đã được viết và pass.
 - Tích hợp API thật (hoặc mock) thành công.
 - Giao diện hiển thị đúng trên các trình duyệt (Chrome, Firefox) và responsive cơ bản.
-- Code đã được review bởi PO và merge vào `develop`.
+- Đã bàn giao rõ danh sách file sửa + cách test để PO tự commit/push/PR nếu cần.
 - Không có lỗi console hay cảnh báo nghiêm trọng.
 
 ## 11. Môi trường và Cấu hình
