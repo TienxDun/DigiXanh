@@ -13,7 +13,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<Plant> Plants => Set<Plant>();
     public DbSet<Category> Categories => Set<Category>();
-    public DbSet<Order> Orders => Set<Order>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -44,9 +43,5 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(category => category.Plants)
             .HasForeignKey(plant => plant.CategoryId)
             .OnDelete(DeleteBehavior.SetNull);
-
-        builder.Entity<Order>()
-            .Property(order => order.TotalAmount)
-            .HasPrecision(18, 2);
     }
 }

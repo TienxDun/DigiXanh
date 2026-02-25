@@ -1,4 +1,57 @@
 :host {
-  display: block;
+  display: flex !important;
+  flex-direction: column;
   min-height: 100vh;
+  background: linear-gradient(135deg, #f0f7f4 0%, #ffffff 100%);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.glass-header {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  z-index: 1030;
+  transition: all 0.3s ease;
+}
+
+.nav-link {
+  color: #495057;
+  transition: all 0.2s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+
+  &:hover {
+    color: #198754;
+    background: rgba(25, 135, 84, 0.05);
+  }
+}
+
+.active-link {
+  color: #198754 !important;
+  font-weight: 600;
+}
+
+.btn-custom {
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.main-content {
+  flex: 1;
+}
+
+.footer-glass {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
 }
