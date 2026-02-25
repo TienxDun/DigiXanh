@@ -1,0 +1,39 @@
+<div class="bg-light min-vh-100 d-flex flex-row align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-9 col-lg-7 col-xl-6">
+                <c-card class="mx-4">
+                    <c-card-body class="p-4">
+                        <form [formGroup]="form" (ngSubmit)="register()">
+                            <h1>Đăng ký</h1>
+                            <p class="text-medium-emphasis">Tạo tài khoản của bạn</p>
+
+                            <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+
+                            <div class="d-grid mt-4">
+                                <button cButton color="success" type="submit" [disabled]="form.invalid || isLoading">
+                                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
+                                        aria-hidden="true"></span>
+                                    Tạo tài khoản
+                                </button>
+                            </div>
+
+                            <div class="mt-3 text-center">
+                                <span class="text-muted">Đã có tài khoản? </span>
+                                <a routerLink="/auth/login" class="text-decoration-none">Đăng nhập</a>
+                            </div>
+                        </form>
+                    </c-card-body>
+                </c-card>
+            </div>
+        </div>
+    </div>
+</div>
+
+<c-toaster class="p-3" position="fixed" placement="top-end">
+    <c-toast [visible]="showToast" [color]="toastColor" (visibleChange)="showToast = $event">
+        <c-toast-body>
+            {{ toastMessage }}
+        </c-toast-body>
+    </c-toast>
+</c-toaster>

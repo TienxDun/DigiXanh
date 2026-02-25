@@ -1,5 +1,5 @@
 ---
-description: Quy trình làm việc
+trigger: always_on
 ---
 
 Dưới đây là **quy trình làm việc chuẩn** dành cho các Agent (FE và BE) khi nhận task từ Product Owner (PO). Hãy tuân thủ nghiêm ngặt để đảm bảo hiệu quả và đồng bộ.

@@ -1,4 +1,5 @@
 using System.Text;
+using DigiXanh.API.Constants;
 using DigiXanh.API.Data;
 using DigiXanh.API.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -58,6 +59,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+await SeedRolesAsync(app.Services);
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -78,3 +81,14 @@ app.MapGet("/api/health", () => "OK")
     .WithOpenApi();
 
 app.Run();
+
+static async Task SeedRolesAsync(IServiceProvider serviceProvider)
+{
+    using var scope = serviceProvider.CreateScope();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    if (!await roleManager.RoleExistsAsync(DefaultRoles.User))
+    {
+        await roleManager.CreateAsync(new IdentityRole(DefaultRoles.User));
+    }
+}
