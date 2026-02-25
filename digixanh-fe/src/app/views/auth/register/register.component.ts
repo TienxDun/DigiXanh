@@ -6,7 +6,6 @@ import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { CardModule, FormModule, ButtonModule, SpinnerModule, ToastModule, ToasterComponent, ToastBodyComponent } from '@coreui/angular';
-import { IconDirective } from '@coreui/icons-angular';
 
 @Component({
   selector: 'app-register',
@@ -23,8 +22,7 @@ import { IconDirective } from '@coreui/icons-angular';
     SpinnerModule,
     ToastModule,
     ToasterComponent,
-    ToastBodyComponent,
-    IconDirective
+    ToastBodyComponent
   ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',

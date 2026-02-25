@@ -1,0 +1,134 @@
+.premium-card {
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.btn-custom-shadow {
+    box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);
+
+    &:hover {
+        box-shadow: 0 6px 14px rgba(25, 135, 84, 0.35);
+    }
+}
+
+.search-box {
+    .search-icon {
+        position: absolute;
+        top: 50%;
+        left: 1.25rem;
+        transform: translateY(-50%);
+        color: #adb5bd;
+    }
+
+    .form-control {
+        height: 3rem;
+        font-size: 0.95rem;
+
+        &:focus {
+            box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.15);
+    }
+    }
+
+    .search-btn {
+        font-weight: 600;
+        background: transparent;
+
+        &:hover {
+            background-color: rgba(25, 135, 84, 0.1);
+    }
+    }
+}
+
+.premium-table {
+    border-collapse: separate;
+    border-spacing: 0 0.75rem;
+
+    thead th {
+        border-bottom: none;
+        letter-spacing: 0.5px;
+        font-size: 0.75rem;
+    }
+
+    tbody tr:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+    }
+}
+
+.image-wrapper {
+    width: 60px;
+    height: 60px;
+    padding: 2px;
+    overflow: hidden;
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+    background: #fff;
+
+    .plant-img {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+    }
+}
+
+.action-buttons .btn-icon {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background-color: #fff;
+
+    &:hover {
+        transform: scale(1.08);
+    }
+
+    &.btn-light-info {
+        background-color: rgba(13, 202, 240, 0.1);
+    }
+
+    &.btn-light-warning {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+
+    &.btn-light-danger {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+}
+
+.pagination .page-link {
+    width: 36px;
+    height: 36px;
+    margin: 0 4px;
+
+    &:focus {
+        box-shadow: none;
+    }
+
+    &:not(.bg-success):hover {
+        color: #198754 !important;
+        background-color: #f8f9fa;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.35s ease-out forwards;
+}
+
+.spinner-delay-1 {
+    animation-delay: 0.2s;
+}
+
+.spinner-delay-2 {
+    animation-delay: 0.4s;
+}

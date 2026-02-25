@@ -10,6 +10,8 @@ namespace DigiXanh.API.Tests.Infrastructure;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
+    private readonly string _databaseName = $"DigiXanhTestDb-{Guid.NewGuid()}";
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
@@ -20,7 +22,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             services.RemoveAll(typeof(ApplicationDbContext));
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseInMemoryDatabase($"DigiXanhTestDb-{Guid.NewGuid()}"));
+                options.UseInMemoryDatabase(_databaseName));
 
             services.AddAuthentication(options =>
                 {

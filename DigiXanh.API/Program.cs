@@ -2,6 +2,8 @@ using System.Text;
 using DigiXanh.API.Constants;
 using DigiXanh.API.Data;
 using DigiXanh.API.Models;
+using DigiXanh.API.Services.Implementations;
+using DigiXanh.API.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +14,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// HttpClient cho Trefle proxy
+builder.Services.AddHttpClient("Trefle", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
+builder.Services.AddMemoryCache();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -48,6 +57,11 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddHttpClient<ITrefleService, TrefleService>(client =>
+{
+    client.BaseAddress = new Uri("https://trefle.io/api/v1/");
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
 
 builder.Services.AddCors(options =>
 {
@@ -60,6 +74,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 await SeedIdentityDataAsync(app.Services);
+await SeedCategoriesAsync(app.Services);
 
 if (app.Environment.IsDevelopment())
 {
@@ -131,6 +146,37 @@ static async Task SeedIdentityDataAsync(IServiceProvider serviceProvider)
             throw new InvalidOperationException($"Unable to assign Admin role to default admin user: {errors}");
         }
     }
+}
+
+static async Task SeedCategoriesAsync(IServiceProvider serviceProvider)
+{
+    using var scope = serviceProvider.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    var defaultCategoryNames = new[]
+    {
+        "Cây để bàn",
+        "Cây văn phòng",
+        "Cây phong thủy"
+    };
+
+    var existingNames = await dbContext.Categories
+        .AsNoTracking()
+        .Select(category => category.Name)
+        .ToListAsync();
+
+    var toInsert = defaultCategoryNames
+        .Where(name => !existingNames.Contains(name, StringComparer.OrdinalIgnoreCase))
+        .Select(name => new Category { Name = name })
+        .ToList();
+
+    if (toInsert.Count == 0)
+    {
+        return;
+    }
+
+    dbContext.Categories.AddRange(toInsert);
+    await dbContext.SaveChangesAsync();
 }
 
 public partial class Program

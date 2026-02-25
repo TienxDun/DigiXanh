@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { IconDirective } from '@coreui/icons-angular';
 import { RouterLink } from '@angular/router';
 import {
   ButtonDirective,
@@ -11,6 +10,6 @@ import {
 @Component({
   selector: 'app-page403',
   templateUrl: './page403.component.html',
-  imports: [ContainerComponent, RowComponent, ColComponent, IconDirective, ButtonDirective, RouterLink]
+  imports: [ContainerComponent, RowComponent, ColComponent, ButtonDirective, RouterLink]
 })
 export class Page403Component { }

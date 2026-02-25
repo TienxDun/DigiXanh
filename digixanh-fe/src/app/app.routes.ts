@@ -31,7 +31,7 @@ export const routes: Routes = [
       },
       {
         path: 'plants',
-        loadComponent: () => import('./views/plants/plants.component').then((m) => m.PlantsComponent),
+        loadChildren: () => import('./views/admin/admin.module').then(m => m.AdminModule),
         data: {
           title: 'Quản lý cây'
         }

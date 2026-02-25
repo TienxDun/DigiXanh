@@ -1,0 +1,240 @@
+<div class="row fade-in">
+    <div class="col-12">
+        <div class="card add-plant-card border-0 shadow-sm mb-4">
+
+            <!-- Header -->
+            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-4">
+                <div class="d-flex align-items-center gap-2">
+                    <a routerLink="/admin/plants" class="btn btn-sm btn-outline-secondary rounded-circle back-btn"
+                        title="Quay lại danh sách" aria-label="Quay lại danh sách">
+                        <i class="fa-solid fa-arrow-left fa-xs"></i>
+                    </a>
+                    <h4 class="mb-0 fw-bold text-dark">
+                        <i class="fa-solid fa-seedling text-success me-2"></i>{{ isEditMode ? 'Chỉnh sửa cây' : 'Thêm cây mới' }}
+                    </h4>
+                </div>
+                <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2 fw-semibold" *ngIf="!isEditMode">
+                    <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Tích hợp Trefle
+                </span>
+            </div>
+
+            <div class="card-body px-4 pb-4">
+                <div class="row g-4">
+
+                    <!-- LEFT: Trefle Search + Form -->
+                    <div class="col-lg-8">
+
+                        <!-- Trefle Search Box -->
+                        <div class="trefle-search-section mb-4" *ngIf="!isEditMode">
+                            <label class="form-label fw-semibold text-dark mb-2">
+                                <i class="fa-solid fa-magnifying-glass text-success me-1"></i>
+                                Tìm kiếm từ Trefle (tự động chuẩn bị import hàng loạt)
+                            </label>
+                            <p class="text-muted small mb-2">
+                                Gõ tên cây, hệ thống sẽ lấy toàn bộ kết quả, tự động random giá + danh mục và auto chọn sẵn để nhập DB.
+                            </p>
+                            <div class="position-relative">
+                                <input type="text" class="form-control rounded-pill pe-4 ps-4 shadow-sm border-1"
+                                    placeholder="VD: Bamboo, Pine, Oak..." [formControl]="searchControl"
+                                    (input)="onSearchInput($event)" (blur)="closeDropdown()" id="trefle-search-input"
+                                    autocomplete="off" />
+                                <!-- Spinner -->
+                                <div class="position-absolute top-50 end-0 translate-middle-y pe-3"
+                                    *ngIf="searching$ | async">
+                                    <div class="spinner-border spinner-border-sm text-success" role="status">
+                                        <span class="visually-hidden">Đang tìm...</span>
+                                    </div>
+                                </div>
+
+                                <!-- Dropdown kết quả -->
+                                <div class="trefle-dropdown shadow-lg"
+                                    *ngIf="showDropdown && (searchResults$ | async) as results">
+                                    <div *ngIf="searchError && !(searching$ | async)" class="dropdown-empty text-danger">
+                                        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                                        {{ searchError }}
+                                    </div>
+                                    <div *ngIf="results.length === 0 && !(searching$ | async) && !searchError" class="dropdown-empty">
+                                        <i class="fa-solid fa-circle-exclamation me-2 text-warning"></i>
+                                        Không tìm thấy kết quả nào
+                                    </div>
+                                    <div *ngFor="let result of results" class="trefle-result-item"
+                                        (mousedown)="onSelectTrefleResult(result)"
+                                        [attr.title]="result.scientificName">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="trefle-thumb-wrapper">
+                                                <img *ngIf="result.imageUrl; else noThumb" [src]="result.imageUrl"
+                                                    [alt]="result.scientificName" title="{{ result.scientificName }}" class="trefle-thumb" />
+                                                <ng-template #noThumb>
+                                                    <div class="trefle-thumb-placeholder">
+                                                        <i class="fa-solid fa-leaf text-success fa-xs"></i>
+                                                    </div>
+                                                </ng-template>
+                                            </div>
+                                            <div class="flex-grow-1 overflow-hidden">
+                                                <div class="fw-semibold text-dark text-truncate">
+                                                    {{ result.commonName || result.scientificName }}
+                                                </div>
+                                                <div class="text-muted small fst-italic text-truncate">
+                                                    {{ result.scientificName }}
+                                                </div>
+                                            </div>
+                                            <i
+                                                class="fa-solid fa-circle-plus text-success opacity-50 flex-shrink-0"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bulk-section mt-3" *ngIf="(bulkItems$ | async) as bulkItems">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="fw-semibold text-dark">
+                                        <i class="fa-solid fa-layer-group text-success me-1"></i>
+                                        Danh sách import: {{ bulkItems.length }} cây
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-secondary rounded-pill"
+                                        *ngIf="bulkItems.length > 0"
+                                        (click)="clearBulkItems()">
+                                        Xoá danh sách
+                                    </button>
+                                </div>
+
+                                <div class="bulk-list" *ngIf="bulkItems.length > 0">
+                                    <div class="bulk-item" *ngFor="let item of bulkItems">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <input
+                                                type="checkbox"
+                                                class="form-check-input mt-0"
+                                                [checked]="item.selected"
+                                                title="Chọn nhập cây"
+                                                aria-label="Chọn nhập cây"
+                                                (change)="toggleBulkSelection(item.id, $any($event.target).checked)" />
+                                            <img *ngIf="item.imageUrl" [src]="item.imageUrl" [alt]="item.scientificName" title="{{ item.scientificName }}" class="bulk-thumb" />
+                                            <div *ngIf="!item.imageUrl" class="bulk-thumb-placeholder">
+                                                <i class="fa-solid fa-leaf text-success fa-xs"></i>
+                                            </div>
+                                            <div class="text-truncate flex-grow-1">
+                                                <div class="fw-semibold text-truncate">{{ item.name }}</div>
+                                                <div class="small text-muted fst-italic text-truncate">{{ item.scientificName }}</div>
+                                                <div class="small text-muted text-truncate">
+                                                    Danh mục: <strong>{{ item.categoryName }}</strong> · Giá: <strong>{{ item.price | number:'1.0-0' }} VNĐ</strong>
+                                                </div>
+                                                <div class="small text-muted text-truncate" *ngIf="item.family || item.genus">
+                                                    {{ item.family || 'N/A' }} · {{ item.genus || 'N/A' }}
+                                                </div>
+                                                <div class="small text-danger" *ngIf="item.error">{{ item.error }}</div>
+                                            </div>
+                                            <div *ngIf="item.loading" class="spinner-border spinner-border-sm text-success" role="status"></div>
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-outline-danger rounded-circle"
+                                                title="Xoá cây"
+                                                aria-label="Xoá cây"
+                                                (click)="removeBulkItem(item.id)">
+                                                <i class="fa-solid fa-xmark"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="divider-with-text mb-4">
+                            <span>Thông tin cây</span>
+                        </div>
+
+                        <!-- Formly Form -->
+                        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                            <formly-form [form]="form" [fields]="fields" [model]="model"
+                                (modelChange)="onModelChange($event)"></formly-form>
+
+                            <!-- Error Alert -->
+                            <div class="alert alert-danger rounded-3 mt-3 d-flex align-items-center gap-2"
+                                *ngIf="submitError" role="alert">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                                <span>{{ submitError }}</span>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="d-flex gap-3 mt-4">
+                                <button type="submit"
+                                    class="btn btn-success btn-submit rounded-pill px-5 fw-semibold shadow-sm"
+                                    [disabled]="submitting$ | async" id="btn-submit-plant">
+                                    <ng-container *ngIf="submitting$ | async; else submitLabel">
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        {{ isEditMode ? 'Đang cập nhật...' : 'Đang lưu...' }}
+                                    </ng-container>
+                                    <ng-template #submitLabel>
+                                        <i class="fa-solid fa-floppy-disk me-2"></i>{{ isEditMode ? 'Cập nhật cây' : 'Lưu cây mới' }}
+                                    </ng-template>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-success rounded-pill px-4 fw-semibold"
+                                    [disabled]="(submitting$ | async) || (searching$ | async)"
+                                    (click)="onBulkImport()"
+                                    *ngIf="!isEditMode">
+                                    <i class="fa-solid fa-layer-group me-1"></i>Nhập hàng loạt
+                                </button>
+                                <a routerLink="/admin/plants"
+                                    class="btn btn-outline-secondary rounded-pill px-4 fw-semibold">
+                                    <i class="fa-solid fa-xmark me-1"></i>Huỷ
+                                </a>
+                            </div>
+                        </form>
+
+                    </div>
+
+                    <!-- RIGHT: Image Preview -->
+                    <div class="col-lg-4">
+                        <div class="image-preview-panel">
+                            <div class="preview-label fw-semibold text-dark mb-3">
+                                <i class="fa-solid fa-image text-success me-2"></i>Xem trước ảnh
+                            </div>
+                            <div class="preview-box" [class.has-image]="previewImage">
+                                <ng-container *ngIf="previewImage; else noPreview">
+                                    <img [src]="previewImage" alt="Ảnh xem trước" class="preview-img"
+                                        (error)="previewImage = null" />
+                                </ng-container>
+                                <ng-template #noPreview>
+                                    <div class="no-preview-content">
+                                        <i class="fa-solid fa-image fa-3x text-muted opacity-30 mb-3"></i>
+                                        <p class="text-muted small mb-0">Chưa có ảnh</p>
+                                        <p class="text-muted small">Nhập URL ảnh hoặc chọn cây từ Trefle</p>
+                                    </div>
+                                </ng-template>
+                            </div>
+
+                            <!-- Trefle badge nếu đã chọn -->
+                            <div class="trefle-badge mt-3" *ngIf="selectedTrefleId">
+                                <i class="fa-solid fa-check-circle text-success me-1"></i>
+                                Dữ liệu từ Trefle ID: <strong>#{{ selectedTrefleId }}</strong>
+                            </div>
+
+                            <!-- Tips -->
+                            <div class="tips-box mt-4">
+                                <div class="tips-title">
+                                    <i class="fa-solid fa-lightbulb text-warning me-2"></i>Hướng dẫn
+                                </div>
+                                <ul class="tips-list mt-2" *ngIf="!isEditMode">
+                                    <li>Sau khi tìm kiếm, toàn bộ kết quả sẽ tự vào danh sách import</li>
+                                    <li>Mỗi cây được random sẵn giá và danh mục</li>
+                                    <li>Checkbox đã auto chọn, bạn có thể bỏ chọn cây không muốn nhập</li>
+                                    <li>Chỉ cần bấm <strong>Nhập hàng loạt</strong> để lưu vào DB</li>
+                                </ul>
+                                <ul class="tips-list mt-2" *ngIf="isEditMode">
+                                    <li>Chỉnh sửa thông tin cây theo nhu cầu</li>
+                                    <li>Giá và danh mục là bắt buộc</li>
+                                    <li>Bấm <strong>Cập nhật cây</strong> để lưu thay đổi</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

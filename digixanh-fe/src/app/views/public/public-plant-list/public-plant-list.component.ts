@@ -1,11 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface PublicPlant {
-  name: string;
-  description: string;
-  price: string;
-}
+import { catchError, Observable, of } from 'rxjs';
+import { PlantDto } from '../../../core/models/plant.model';
+import { PublicPlantService } from '../../../core/services/public-plant.service';
 
 @Component({
   selector: 'app-public-plant-list',
@@ -15,21 +12,11 @@ interface PublicPlant {
   styleUrl: './public-plant-list.component.scss'
 })
 export class PublicPlantListComponent {
-  plants: PublicPlant[] = [
-    {
-      name: 'Cây Monstera',
-      description: 'Phù hợp không gian nội thất, dễ chăm sóc.',
-      price: '450.000đ'
-    },
-    {
-      name: 'Cây Lưỡi Hổ',
-      description: 'Thanh lọc không khí tốt, thích hợp văn phòng.',
-      price: '220.000đ'
-    },
-    {
-      name: 'Cây Trầu Bà',
-      description: 'Tăng mảng xanh cho bàn làm việc và phòng khách.',
-      price: '180.000đ'
-    }
-  ];
+  plants$: Observable<PlantDto[]>;
+
+  constructor(private publicPlantService: PublicPlantService) {
+    this.plants$ = this.publicPlantService.getPlants().pipe(
+      catchError(() => of([]))
+    );
+  }
 }

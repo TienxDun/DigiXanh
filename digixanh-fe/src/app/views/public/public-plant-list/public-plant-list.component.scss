@@ -1,3 +1,8 @@
 :host {
   display: block;
 }
+
+.card-img-top {
+  height: 220px;
+  object-fit: cover;
+}
