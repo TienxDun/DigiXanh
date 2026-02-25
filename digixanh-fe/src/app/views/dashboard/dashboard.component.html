@@ -1,11 +1,79 @@
 <c-row>
-  <c-col xs="12" lg="8">
+  <c-col xs="12">
     <c-card class="mb-4">
       <c-card-header>Dashboard quản trị</c-card-header>
       <c-card-body>
-        <p class="mb-3">Khu vực này chỉ giữ các nội dung cần thiết cho quản trị hệ thống DigiXanh.</p>
-        <a cButton color="primary" routerLink="/admin/plants">Đi đến quản lý cây</a>
+        <div class="dashboard-actions mb-3">
+          <a cButton color="secondary" routerLink="/admin/plants">Đi đến quản lý cây</a>
+          <button cButton color="primary" type="button" (click)="loadDashboard()" [disabled]="loading">
+            Refresh dữ liệu
+          </button>
+        </div>
+
+        @if (loading) {
+          <div class="dashboard-loading">
+            <c-spinner size="sm" class="me-2" />
+            <span>Đang tải dữ liệu...</span>
+          </div>
+        }
+
+        @if (errorMessage) {
+          <c-alert color="danger" [dismissible]="false" class="mb-0">{{ errorMessage }}</c-alert>
+        }
       </c-card-body>
     </c-card>
   </c-col>
 </c-row>
+
+@if (dashboard) {
+  <c-row class="mb-4">
+    <c-col xs="12" sm="6" xl="3" class="mb-3 mb-xl-0">
+      <c-card>
+        <c-card-body>
+          <div class="dashboard-label">Tổng số đơn hàng</div>
+          <div class="dashboard-value">{{ dashboard.totalOrders }}</div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+
+    <c-col xs="12" sm="6" xl="3" class="mb-3 mb-xl-0">
+      <c-card>
+        <c-card-body>
+          <div class="dashboard-label">Tổng doanh thu</div>
+          <div class="dashboard-value">{{ formatCurrency(dashboard.totalRevenue) }}</div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+
+    <c-col xs="12" sm="6" xl="3" class="mb-3 mb-sm-0">
+      <c-card>
+        <c-card-body>
+          <div class="dashboard-label">Đơn hàng hôm nay</div>
+          <div class="dashboard-value">{{ dashboard.todayOrders }}</div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+
+    <c-col xs="12" sm="6" xl="3">
+      <c-card>
+        <c-card-body>
+          <div class="dashboard-label">Doanh thu hôm nay</div>
+          <div class="dashboard-value">{{ formatCurrency(dashboard.todayRevenue) }}</div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+
+  <c-row>
+    <c-col xs="12">
+      <c-card>
+        <c-card-header>Số lượng đơn hàng trong 7 ngày gần nhất</c-card-header>
+        <c-card-body>
+          <div class="chart-wrap">
+            <c-chart type="bar" [data]="chartData" [options]="chartOptions" />
+          </div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+}

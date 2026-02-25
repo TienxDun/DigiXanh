@@ -75,6 +75,10 @@ var app = builder.Build();
 
 await SeedIdentityDataAsync(app.Services);
 await SeedCategoriesAsync(app.Services);
+if (app.Environment.IsDevelopment())
+{
+    await SeedOrdersAsync(app.Services);
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -176,6 +180,86 @@ static async Task SeedCategoriesAsync(IServiceProvider serviceProvider)
     }
 
     dbContext.Categories.AddRange(toInsert);
+    await dbContext.SaveChangesAsync();
+}
+
+static async Task SeedOrdersAsync(IServiceProvider serviceProvider)
+{
+    using var scope = serviceProvider.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    var hasOrders = await dbContext.Orders.AnyAsync();
+    if (hasOrders)
+    {
+        return;
+    }
+
+    var today = DateTime.UtcNow.Date;
+    var sampleOrders = new[]
+    {
+        new Order
+        {
+            TotalAmount = 550_000m,
+            Status = OrderStatus.Paid,
+            OrderDate = today.AddHours(9)
+        },
+        new Order
+        {
+            TotalAmount = 320_000m,
+            Status = OrderStatus.Delivered,
+            OrderDate = today.AddHours(14)
+        },
+        new Order
+        {
+            TotalAmount = 280_000m,
+            Status = OrderStatus.Pending,
+            OrderDate = today.AddHours(16)
+        },
+        new Order
+        {
+            TotalAmount = 410_000m,
+            Status = OrderStatus.Delivered,
+            OrderDate = today.AddDays(-1).AddHours(10)
+        },
+        new Order
+        {
+            TotalAmount = 250_000m,
+            Status = OrderStatus.Paid,
+            OrderDate = today.AddDays(-2).AddHours(11)
+        },
+        new Order
+        {
+            TotalAmount = 190_000m,
+            Status = OrderStatus.Cancelled,
+            OrderDate = today.AddDays(-3).AddHours(9)
+        },
+        new Order
+        {
+            TotalAmount = 670_000m,
+            Status = OrderStatus.Delivered,
+            OrderDate = today.AddDays(-4).AddHours(15)
+        },
+        new Order
+        {
+            TotalAmount = 230_000m,
+            Status = OrderStatus.Pending,
+            OrderDate = today.AddDays(-5).AddHours(13)
+        },
+        new Order
+        {
+            TotalAmount = 730_000m,
+            Status = OrderStatus.Paid,
+            OrderDate = today.AddDays(-6).AddHours(8)
+        },
+        new Order
+        {
+            TotalAmount = 360_000m,
+            Status = OrderStatus.Shipped,
+            OrderDate = today.AddDays(-8).AddHours(12)
+        }
+    };
+
+    dbContext.Orders.AddRange(sampleOrders);
     await dbContext.SaveChangesAsync();
 }
 
