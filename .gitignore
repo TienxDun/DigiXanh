@@ -11,6 +11,7 @@
 ## IDE folders
 .vs/
 .vscode/
+.agents/
 
 ## Logs
 *.log
