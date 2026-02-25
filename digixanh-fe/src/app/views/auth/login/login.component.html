@@ -1,1 +1,43 @@
-<p>login works!</p>
+<div class="bg-light min-vh-100 d-flex flex-row align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6 col-xl-5">
+                <c-card class="mx-4">
+                    <c-card-body class="p-4">
+                        <form [formGroup]="form" (ngSubmit)="login()">
+                            <h1>Đăng nhập</h1>
+                            <p class="text-medium-emphasis">Đăng nhập vào tài khoản của bạn</p>
+
+                            <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+                                {{ errorMessage }}
+                            </div>
+
+                            <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+
+                            <div class="d-grid mt-4">
+                                <button cButton color="primary" type="submit" [disabled]="isLoading">
+                                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
+                                        aria-hidden="true"></span>
+                                    Đăng nhập
+                                </button>
+                            </div>
+
+                            <div class="mt-3 text-center">
+                                <span class="text-muted">Chưa có tài khoản? </span>
+                                <a routerLink="/auth/register" class="text-decoration-none">Đăng ký</a>
+                            </div>
+                        </form>
+                    </c-card-body>
+                </c-card>
+            </div>
+        </div>
+    </div>
+</div>
+
+<c-toaster class="p-3" position="fixed" placement="top-end">
+    <c-toast [visible]="showToast" [color]="toastColor" (visibleChange)="showToast = $event">
+        <c-toast-body>
+            {{ toastMessage }}
+        </c-toast-body>
+    </c-toast>
+</c-toaster>

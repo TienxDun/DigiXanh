@@ -1,0 +1,18 @@
+<section>
+  <h2 class="mb-3">Danh sách cây công khai</h2>
+  <p class="text-medium-emphasis mb-4">Khám phá các loại cây nổi bật tại DigiXanh.</p>
+
+  <div class="row g-3">
+    @for (plant of plants; track plant.name) {
+      <div class="col-md-6 col-lg-4">
+        <article class="card h-100 border-0 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">{{ plant.name }}</h5>
+            <p class="card-text text-medium-emphasis">{{ plant.description }}</p>
+            <p class="fw-semibold mb-0">{{ plant.price }}</p>
+          </div>
+        </article>
+      </div>
+    }
+  </div>
+</section>

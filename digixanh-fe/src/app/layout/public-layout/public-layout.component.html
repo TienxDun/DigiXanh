@@ -1,0 +1,18 @@
+<header class="border-bottom bg-white">
+  <div class="container d-flex justify-content-between align-items-center py-3">
+    <a class="navbar-brand fw-semibold" routerLink="/">DigiXanh</a>
+    <nav class="d-flex gap-3 align-items-center">
+      <a class="text-decoration-none" routerLink="/">Trang chủ</a>
+      @if (!authService.isAuthenticated()) {
+        <a class="btn btn-sm btn-primary" routerLink="/auth/login">Đăng nhập</a>
+      } @else {
+        <a class="btn btn-sm btn-outline-secondary" routerLink="/admin/dashboard">Admin</a>
+        <button class="btn btn-sm btn-outline-danger" type="button" (click)="logout()">Đăng xuất</button>
+      }
+    </nav>
+  </div>
+</header>
+
+<main class="container py-4">
+  <router-outlet />
+</main>
