@@ -45,5 +45,12 @@ export const routes: Routes = [
       title: 'Auth'
     }
   },
+  {
+    path: '403',
+    loadComponent: () => import('./views/pages/page403/page403.component').then(m => m.Page403Component),
+    data: {
+      title: 'Access Denied'
+    }
+  },
   { path: '**', redirectTo: '' }
 ];

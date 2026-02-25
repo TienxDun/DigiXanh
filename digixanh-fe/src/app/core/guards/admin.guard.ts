@@ -13,7 +13,7 @@ export const adminGuard: CanActivateFn = (_route, state): boolean | UrlTree => {
   }
 
   if (!authService.isAdmin()) {
-    return router.createUrlTree(['/']);
+    return router.createUrlTree(['/403']);
   }
 
   return true;

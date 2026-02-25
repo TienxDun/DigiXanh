@@ -30,6 +30,9 @@ export class AuthService {
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.hasToken());
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
+  private userSubject = new BehaviorSubject<StoredUser | null>(this.getStoredUser());
+  public user$ = this.userSubject.asObservable();
+
   private hasToken(): boolean {
     return !!localStorage.getItem('token');
   }
@@ -43,7 +46,11 @@ export class AuthService {
   }
 
   isAdmin(): boolean {
-    return this.getUserRole() === 'Admin';
+    return this.hasRole('Admin');
+  }
+
+  hasRole(role: string): boolean {
+    return this.getUserRole() === role;
   }
 
   getUserRole(): string | null {
@@ -77,6 +84,7 @@ export class AuthService {
           };
           localStorage.setItem('user', JSON.stringify(user));
 
+          this.userSubject.next(user);
           this.isAuthenticatedSubject.next(true);
         }
       })
@@ -86,6 +94,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    this.userSubject.next(null);
     this.isAuthenticatedSubject.next(false);
     this.router.navigate(['/']);
   }

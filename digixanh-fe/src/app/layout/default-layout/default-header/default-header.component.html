@@ -115,7 +115,12 @@
           Settings
         </h6>
       </li>
-      <li></li>
+      <li *ngIf="authService.isAdmin()">
+        <a cDropdownItem routerLink="/admin">
+          <svg cIcon class="me-2" name="cilSettings"></svg>
+          Quản trị
+        </a>
+      </li>
       <li>
         <a cDropdownItem routerLink="">
           <svg cIcon class="me-2" name="cilUser"></svg>

@@ -106,8 +106,8 @@ public class AuthController : ControllerBase
         }
 
         var roles = await _userManager.GetRolesAsync(user);
-        var role = roles.Contains("Admin", StringComparer.OrdinalIgnoreCase)
-            ? "Admin"
+        var role = roles.Contains(DefaultRoles.Admin, StringComparer.OrdinalIgnoreCase)
+            ? DefaultRoles.Admin
             : DefaultRoles.User;
 
         var token = GenerateJwtToken(user, role);
@@ -161,8 +161,10 @@ public class AuthController : ControllerBase
 
         var claims = new[]
         {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             new Claim(JwtRegisteredClaimNames.NameId, user.Id),
             new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
+            new Claim(ClaimTypes.Role, role),
             new Claim("role", role)
         };
 
