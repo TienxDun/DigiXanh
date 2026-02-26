@@ -33,11 +33,13 @@ echo [7] FE - npm start
 echo [8] Chay ca BE ^& FE (2 cua so moi)
 echo [9] Chay unit test backend (dotnet test DigiXanh.sln)
 echo [A] Mo Swagger (http://localhost:5000/swagger)
+echo [B] Dung cac dotnet run cua API
 echo [Q] Thoat
 echo ================================================
-choice /c 123456789AQ /n /m "Nhap lua chon: "
+choice /c 123456789ABQ /n /m "Nhap lua chon: "
 
-if errorlevel 11 goto END
+if errorlevel 12 goto END
+if errorlevel 11 goto STOP_BE
 if errorlevel 10 goto OPEN_SWAGGER
 if errorlevel 9 goto TEST_BE
 if errorlevel 8 goto RUN_BOTH
@@ -168,6 +170,16 @@ goto MENU
 echo.
 echo Thu mo Swagger tai http://localhost:5000/swagger
 start "" "http://localhost:5000/swagger"
+call :WAIT
+goto MENU
+
+:STOP_BE
+echo.
+echo [BE] Dung cac tien trinh DigiXanh.API dang chay
+powershell -NoProfile -Command "$procs = Get-CimInstance Win32_Process | Where-Object { $_.Name -ieq 'DigiXanh.API.exe' -or ($_.Name -ieq 'dotnet.exe' -and $_.CommandLine -like '*DigiXanh.API*') -or ($_.Name -ieq 'dotnet-watch.exe' -and $_.CommandLine -like '*DigiXanh.API*') }; if (-not $procs) { Write-Host 'Khong tim thay tien trinh API dang chay.'; exit 0 }; $count = 0; foreach ($p in $procs) { Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue; if (-not (Get-Process -Id $p.ProcessId -ErrorAction SilentlyContinue)) { $count++ } }; Write-Host ('Da dung ' + $count + ' tien trinh API.')"
+set "CODE=%ERRORLEVEL%"
+echo.
+echo Exit code: %CODE%
 call :WAIT
 goto MENU
 

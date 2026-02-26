@@ -22,7 +22,17 @@ export const routes: Routes = [
       {
         path: 'checkout',
         canActivate: [authGuard],
-        loadComponent: () => import('./views/cart/checkout-confirmation.component').then((m) => m.CheckoutConfirmationComponent)
+        loadComponent: () => import('./views/cart/checkout.component').then((m) => m.CheckoutComponent)
+      },
+      {
+        path: 'order-success',
+        canActivate: [authGuard],
+        loadComponent: () => import('./views/cart/order-success.component').then((m) => m.OrderSuccessComponent)
+      },
+      {
+        path: 'payment-return',
+        canActivate: [authGuard],
+        loadComponent: () => import('./views/cart/payment-return.component').then((m) => m.PaymentReturnComponent)
       }
     ]
   },

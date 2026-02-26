@@ -14,6 +14,8 @@ import {
   SidebarTogglerDirective
 } from '@coreui/angular';
 
+import { IconDirective } from '@coreui/icons-angular';
+
 import { DefaultFooterComponent, DefaultHeaderComponent } from './';
 import { navItems } from './_nav';
 
@@ -35,7 +37,8 @@ import { navItems } from './_nav';
     NgScrollbar,
     RouterOutlet,
     RouterLink,
-    ShadowOnScrollDirective
+    ShadowOnScrollDirective,
+    IconDirective
   ]
 })
 export class DefaultLayoutComponent {

@@ -85,8 +85,8 @@
           <p class="text-muted small mb-0">Thống kê số lượng đơn hàng theo ngày gần nhất</p>
         </div>
         <div class="card-body p-4 pt-0">
-          <div class="chart-wrap w-100" style="height: 350px;">
-            <c-chart type="bar" [data]="chartData" [options]="chartOptions" />
+          <div class="chart-wrap w-100">
+            <canvas #ordersChart aria-label="Biểu đồ đơn hàng 7 ngày"></canvas>
           </div>
         </div>
       </div>

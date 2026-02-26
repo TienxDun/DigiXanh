@@ -1,88 +1,138 @@
-<section class="container py-4 py-lg-5">
-  <h2 class="fw-bold mb-4">Giỏ hàng của bạn</h2>
+<section class="container py-3 mt-2 min-vh-100 cart-page">
+  <div class="d-flex align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-10">
+    <h1 class="fw-bolder fs-3 mb-0 text-dark">
+      <i class="fa-solid fa-cart-shopping me-2 text-success"></i>Giỏ hàng của bạn
+    </h1>
+  </div>
 
   @if (errorMessage) {
-  <div class="alert alert-danger" role="alert">{{ errorMessage }}</div>
+  <div class="alert alert-danger shadow-sm rounded-4 border-0 d-flex align-items-center mb-3" role="alert">
+    <i class="fa-solid fa-circle-exclamation fs-4 me-3"></i>
+    <div>{{ errorMessage }}</div>
+  </div>
   }
 
   @if (isLoading) {
-  <div class="d-flex align-items-center gap-2 text-muted">
-    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-    <span>Đang tải giỏ hàng...</span>
+  <div class="d-flex flex-column align-items-center justify-content-center py-5 text-muted">
+    <div class="spinner-border text-success mb-3" style="width: 3rem; height: 3rem;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <span class="fs-5 fw-medium">Đang tải giỏ hàng...</span>
   </div>
   } @else {
   @if (hasItems && cartSummary; as summary) {
-  <div class="cart-card border rounded-4 bg-white shadow-sm p-3 p-lg-4">
-    <div class="table-responsive">
-      <table class="table align-middle mb-0">
-        <thead>
-          <tr>
-            <th scope="col">Sản phẩm</th>
-            <th scope="col" class="text-end">Đơn giá</th>
-            <th scope="col" class="text-center">Số lượng</th>
-            <th scope="col" class="text-end">Thành tiền</th>
-            <th scope="col" class="text-end">Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
+  <div class="row g-4">
+    <!-- Cột danh sách sản phẩm -->
+    <div class="col-12 col-xl-8">
+      <div class="cart-card bg-white rounded-5 shadow-sm p-3 p-md-4 h-100 border border-secondary border-opacity-10">
+        <h5 class="fw-bold mb-3 fs-5 text-dark px-2">Danh sách sản phẩm ({{ summary.items.length }})</h5>
+
+        <div class="cart-items-wrapper pe-2">
           @for (item of summary.items; track trackByItemId($index, item)) {
-          <tr>
-            <td>
-              <div class="d-flex align-items-center gap-3">
-                <img [src]="resolveImageUrl(item.imageUrl)" [alt]="item.plantName" class="cart-image rounded-3 border" (error)="onImageError($event)" />
-                <div>
-                  <div class="fw-semibold">{{ item.plantName }}</div>
-                  <small class="text-muted fst-italic">{{ item.scientificName }}</small>
-                </div>
+          <div
+            class="cart-item d-flex flex-column flex-md-row align-items-center justify-content-between p-2 mb-2 bg-light bg-opacity-50 rounded-4 border border-secondary border-opacity-10 position-relative transition-all">
+
+            <div class="d-flex align-items-center gap-3 w-100 mb-2 mb-md-0">
+              <div class="position-relative">
+                <img [src]="resolveImageUrl(item.imageUrl)" [alt]="item.plantName"
+                  class="cart-image rounded-3 shadow-sm" (error)="onImageError($event)" />
               </div>
-            </td>
-            <td class="text-end fw-semibold">{{ item.price | currency:'VND':'symbol' }}</td>
-            <td>
-              <div class="d-flex align-items-center justify-content-center gap-2">
-                <button class="btn btn-outline-secondary btn-sm" type="button"
-                  [disabled]="item.quantity <= 1 || isItemProcessing(item.id)"
-                  (click)="decreaseQuantity(item)">-</button>
-                <input class="form-control form-control-sm text-center quantity-input" type="number" min="1" max="99"
-                  [value]="item.quantity"
-                  [disabled]="isItemProcessing(item.id)"
+              <div class="flex-grow-1">
+                <h6 class="fw-bold text-dark mb-1 fs-6 plant-name">{{ item.plantName }}</h6>
+                <p class="text-muted fst-italic mb-1 small font-monospace" style="font-size: 0.8rem;">{{
+                  item.scientificName }}</p>
+                <div class="text-success fw-bold fs-6">{{ item.price | currency:'VND':'symbol' }}</div>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between w-100 w-md-auto ms-md-4 gap-3">
+              <!-- Inline Quantity Controller -->
+              <div
+                class="quantity-controller d-flex align-items-center bg-white rounded-pill p-1 shadow-sm border border-secondary border-opacity-10 flex-shrink-0">
+                <button class="btn btn-light rounded-circle btn-icon text-secondary" type="button"
+                  [disabled]="item.quantity <= 1 || isItemProcessing(item.id)" (click)="decreaseQuantity(item)">
+                  <i class="fa-solid fa-minus" style="font-size: 0.7rem;"></i>
+                </button>
+                <input
+                  class="form-control border-0 bg-transparent text-center quantity-input fw-bold px-0 shadow-none small"
+                  type="number" min="1" max="99" [value]="item.quantity" [disabled]="isItemProcessing(item.id)"
                   (change)="onQuantityInput(item, $any($event.target).value)" />
-                <button class="btn btn-outline-secondary btn-sm" type="button"
-                  [disabled]="item.quantity >= 99 || isItemProcessing(item.id)"
-                  (click)="increaseQuantity(item)">+</button>
+                <button class="btn btn-light rounded-circle btn-icon text-secondary" type="button"
+                  [disabled]="item.quantity >= 99 || isItemProcessing(item.id)" (click)="increaseQuantity(item)">
+                  <i class="fa-solid fa-plus" style="font-size: 0.7rem;"></i>
+                </button>
               </div>
-            </td>
-            <td class="text-end fw-semibold text-success">{{ item.lineTotal | currency:'VND':'symbol' }}</td>
-            <td class="text-end">
-              <button class="btn btn-outline-danger btn-sm" type="button" [disabled]="isItemProcessing(item.id)"
-                (click)="removeItem(item)">
-                Xóa
+
+              <div class="text-end d-none d-lg-block w-100" style="min-width: 100px;">
+                <div class="text-muted small mb-1" style="font-size: 0.75rem;">Thành tiền</div>
+                <div class="fw-bold text-success fs-6">{{ item.lineTotal | currency:'VND':'symbol' }}</div>
+              </div>
+
+              <!-- Delete Button -->
+              <button class="btn btn-outline-danger btn-delete rounded-circle shadow-sm" type="button"
+                title="Xóa khỏi giỏ hàng" [disabled]="isItemProcessing(item.id)" (click)="removeItem(item)">
+                <i class="fa-solid fa-trash-can" style="font-size: 0.85rem;"></i>
               </button>
-            </td>
-          </tr>
+            </div>
+          </div>
           }
-        </tbody>
-      </table>
+        </div>
+      </div>
     </div>
 
-    <hr class="my-4" />
+    <!-- Cột Tổng kết thanh toán (Sticky Sidebar) -->
+    <div class="col-12 col-xl-4">
+      <div class="summary-card bg-white rounded-5 shadow-sm p-4 border border-secondary border-opacity-10 sticky-top"
+        style="top: 80px;">
+        <h5 class="fw-bold mb-3 text-dark border-bottom pb-2">Tổng Đơn Hàng</h5>
 
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
-      <div>
-        <div class="text-muted">Tổng số lượng: {{ summary.totalQuantity }}</div>
-        <div class="h5 mb-0 fw-bold text-success">Tổng tiền: {{ summary.totalAmount | currency:'VND':'symbol' }}</div>
+        <div class="d-flex justify-content-between align-items-center mb-2 text-muted small">
+          <span>Tổng số lượng</span>
+          <span class="fw-bold text-dark fs-6">{{ summary.totalQuantity }} sản phẩm</span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-dashed small">
+          <span class="text-muted">Tạm tính</span>
+          <span class="fw-bold text-dark fs-6">{{ summary.totalAmount | currency:'VND':'symbol' }}</span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-nowrap">
+          <span class="fw-bold fs-6 text-dark text-nowrap me-2">Tổng cộng</span>
+          <span class="fw-bolder fs-3 text-success text-end text-nowrap">{{ summary.totalAmount |
+            currency:'VND':'symbol' }}</span>
+        </div>
+
+        <button
+          class="btn btn-success w-100 text-white rounded-pill shadow-lg checkout-btn py-2 fw-bold text-uppercase d-flex justify-content-center align-items-center gap-2"
+          type="button" [disabled]="isCheckingOut" (click)="proceedToCheckout()">
+          <span *ngIf="isCheckingOut" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          <i *ngIf="!isCheckingOut" class="fa-solid fa-credit-card fs-5"></i>
+          <span>Thanh toán ngay</span>
+        </button>
+
+        <div class="text-center mt-3">
+          <a routerLink="/"
+            class="text-success text-decoration-none fw-medium d-inline-flex align-items-center hover-link small">
+            <i class="fa-solid fa-arrow-left me-1"></i> Tiếp tục mua sắm
+          </a>
+        </div>
       </div>
-
-      <button class="btn btn-success px-4 py-2" type="button" [disabled]="isCheckingOut" (click)="proceedToCheckout()">
-        <span *ngIf="isCheckingOut" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-        Tiến hành thanh toán
-      </button>
     </div>
   </div>
   } @else {
-  <div class="empty-cart border rounded-4 bg-white shadow-sm p-4 p-lg-5 text-center">
-    <h4 class="fw-semibold mb-3">Giỏ hàng trống</h4>
-    <p class="text-muted mb-4">Bạn chưa có sản phẩm nào trong giỏ hàng.</p>
-    <a class="btn btn-success px-4" routerLink="/">Mua sắm tiếp</a>
+  <!-- Blank State / Empty Cart -->
+  <div class="empty-cart-wrapper d-flex flex-column align-items-center justify-content-center py-5">
+    <div
+      class="empty-icon-box bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center mb-3">
+      <i class="fa-solid fa-basket-shopping display-1"></i>
+    </div>
+    <h3 class="fw-bold text-dark mb-2">Giỏ hàng của bạn đang trống</h3>
+    <p class="text-muted mb-4 text-center max-w-md">Lựa chọn những chậu cây xanh tươi nhất để tô điểm cho không
+      gian sống của bạn ngay hôm nay!</p>
+    <a routerLink="/"
+      class="btn btn-success rounded-pill px-4 py-2 shadow-lg hover-rise text-uppercase fw-bold tracking-wide">
+      <i class="fa-solid fa-leaf me-2"></i> Khám phá sản phẩm
+    </a>
   </div>
   }
   }

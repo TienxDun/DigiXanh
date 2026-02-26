@@ -1,0 +1,68 @@
+.success-icon {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(25, 135, 84, 0.3);
+  animation: scale-in 0.5s ease-out;
+  
+  i {
+    color: white;
+    font-size: 48px;
+  }
+}
+
+.failed-icon {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #dc3545 0%, #f44 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(220, 53, 69, 0.3);
+  animation: scale-in 0.5s ease-out;
+  
+  i {
+    color: white;
+    font-size: 48px;
+  }
+}
+
+@keyframes scale-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.card {
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+// Animation for card
+.card {
+  animation: slide-up 0.5s ease-out;
+}
+
+@keyframes slide-up {
+  0% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

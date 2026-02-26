@@ -67,7 +67,7 @@ h4:hover .icon-square {
         transition: all 0.3s ease;
 
         &:focus {
-            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.15) !important;
+            box-shadow: 0 0 0 4px rgba(var(--cui-primary-rgb), 0.15) !important;
         }
     }
 }
@@ -108,7 +108,7 @@ h4:hover .icon-square {
         background-color: #f8f9fa;
 
         .add-btn {
-            background-color: #198754 !important;
+            background-color: var(--cui-primary) !important;
             color: white !important;
             transform: scale(1.1);
         }
@@ -178,7 +178,7 @@ h4:hover .icon-square {
 
     &:hover:not(:disabled) {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(25, 135, 84, 0.3) !important;
+        box-shadow: 0 8px 20px rgba(var(--cui-primary-rgb), 0.3) !important;
     }
 
     &:active:not(:disabled) {
@@ -196,8 +196,8 @@ h4:hover .icon-square {
 
         &:focus {
             background-color: white;
-            border-color: #198754;
-            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.1);
+            border-color: var(--cui-primary);
+            box-shadow: 0 0 0 4px rgba(var(--cui-primary-rgb), 0.1);
         }
     }
 
@@ -217,12 +217,12 @@ h4:hover .icon-square {
     transition: all 0.2s;
 
     &:checked {
-        background-color: #198754;
-        border-color: #198754;
+        background-color: var(--cui-primary);
+        border-color: var(--cui-primary);
     }
 
     &:focus {
-        box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.2);
+        box-shadow: 0 0 0 3px rgba(var(--cui-primary-rgb), 0.2);
     }
 }
 
@@ -240,12 +240,13 @@ h4:hover .icon-square {
     }
 
     .backdrop-blur {
+        -webkit-backdrop-filter: blur(4px);
         backdrop-filter: blur(4px);
     }
 }
 
 .trefle-badge {
-    background-color: #f0fdf4;
+    background-color: rgba(var(--cui-primary-rgb), 0.08);
 }
 
 .btn-icon {

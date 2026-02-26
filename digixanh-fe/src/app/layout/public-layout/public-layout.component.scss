@@ -2,14 +2,14 @@
   display: flex !important;
   flex-direction: column;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f0f7f4 0%, #ffffff 100%);
+  background: linear-gradient(135deg, rgba(var(--cui-primary-rgb), 0.08) 0%, var(--cui-body-bg) 100%);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .glass-header {
   background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.4);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   z-index: 1030;
@@ -17,19 +17,19 @@
 }
 
 .nav-link {
-  color: #495057;
+  color: var(--cui-body-color);
   transition: all 0.2s ease;
   padding: 0.5rem 1rem;
   border-radius: 8px;
 
   &:hover {
-    color: #198754;
-    background: rgba(25, 135, 84, 0.05);
+    color: var(--cui-primary);
+    background: rgba(var(--cui-primary-rgb), 0.05);
   }
 }
 
 .active-link {
-  color: #198754 !important;
+  color: var(--cui-primary) !important;
   font-weight: 600;
 }
 
@@ -52,6 +52,7 @@
 
 .footer-glass {
   background: rgba(255, 255, 255, 0.6);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border-top: 1px solid rgba(255, 255, 255, 0.4);
 }

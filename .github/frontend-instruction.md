@@ -322,6 +322,17 @@ export class PlantService {
 - Sử dụng grid Bootstrap: `col-*`, `row`, v.v.
 - Test trên các kích thước màn hình (mobile, tablet, desktop).
 
+### 10.4. Nguyên tắc "Compact Premium UI"
+Dự án hướng tới giao diện gọn gàng, tinh tế và cao cấp, vừa vặn trong một khung hình (Compact View) mà không cần cuộn (scroll) quá nhiều:
+- **Từ bỏ White-space thừa thãi**: Sử dụng margin/padding nhỏ & vừa (`p-2`, `p-3`, `mb-3`, `gap-2`) thay vì các lớp `py-5`, `mb-5`, `g-5` tạo khoảng trắng quá rộng.
+- **Typography (Cỡ chữ)**: 
+  - Khuyến khích dùng heading nhỏ nhắn tinh tế (`fs-3`, `fs-4`, `fs-5`) thay vì `display-4` hoặc `display-6`.
+  - Các chú thích, thông tin phụ hoặc mô tả khoa học luôn dùng size nhỏ (`small`, `fs-6`, `0.8rem` - `0.9rem`).
+- **Kích thước phần tử (Elements Size)**:
+  - Cố định ảnh nhỏ: Giỏ hàng chỉ dùng `56px` (hoặc `48px` web mobile), ảnh thẻ sản phẩm cao ~`160px`, ảnh chi tiết cây to nhất không quá `400px`.
+  - Các input, button: Dùng `py-1`, `py-2`, `px-3` hoặc `btn-sm`. Thu nhỏ các nút bấm chức năng (ví dụ nút (+)/(-) chỉ `28px` - `32px` với icon siêu bé).
+- **Thẩm mỹ (Aesthetics)**: Sử dụng góc bo mềm mại nhưng tinh tế (`rounded-3`, `rounded-4`), kèm đổ bóng mờ nhẹ nhàng (`shadow-sm`) để hiện rõ nét "Premium" thay vì flat design thô cứng. Bo tròn mọi Card/Nút bấm để tạo ấn tượng thân thiện thiên nhiên.
+
 ## 11. Testing
 
 ### 11.1. Unit test với Jasmine/Karma

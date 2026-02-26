@@ -30,7 +30,7 @@ dotnet ef database update
 dotnet run
 ```
 
-- Swagger: `http://localhost:<port>/swagger`
+- Swagger: `http://localhost:5132/swagger`
 - Health check: `GET /api/health`
 
 ### 2) Chạy Frontend

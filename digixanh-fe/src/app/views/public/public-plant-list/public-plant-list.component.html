@@ -1,21 +1,21 @@
-<section class="hero-section text-center py-5 mb-5 position-relative overflow-hidden">
-  <div class="container position-relative z-1 py-4">
-    <h1 class="display-4 fw-bold text-success mb-3 animation-fade-up">
+<section class="hero-section text-center py-4 mb-4 position-relative overflow-hidden">
+  <div class="container position-relative z-1 py-3">
+    <h1 class="display-6 fw-bold text-success mb-2 animation-fade-up">
       DigiXanh - Không Gian Xanh
     </h1>
-    <p class="lead text-muted mb-5 animation-fade-up delay-1 mx-auto" style="max-width: 600px;">
+    <p class="text-muted mb-4 animation-fade-up delay-1 mx-auto" style="max-width: 600px; font-size: 0.95rem;">
       Mang những tác phẩm nghệ thuật từ thiên nhiên về với không gian của bạn.
       Lựa chọn những loại cây chất lượng nhất từ vườn ươm của chúng tôi.
     </p>
 
-    <div class="mx-auto animation-fade-up delay-2" style="max-width: 650px;">
+    <div class="mx-auto animation-fade-up delay-2" style="max-width: 600px;">
       <div class="input-group shadow rounded-pill overflow-hidden bg-white p-1 search-box">
-        <span class="input-group-text bg-transparent border-0 text-success ps-4">
+        <span class="input-group-text bg-transparent border-0 text-success ps-3">
           <i class="fa-solid fa-search"></i>
         </span>
-        <input type="text" class="form-control border-0 shadow-none bg-transparent ps-2 py-2 fs-5"
+        <input type="text" class="form-control border-0 shadow-none bg-transparent ps-2 py-1 fs-6"
           placeholder="Bạn đang tìm cây gì hôm nay?" [(ngModel)]="searchInput" (keyup.enter)="onSearch()" />
-        <button class="btn btn-success rounded-pill px-4 fs-6 fw-medium me-1" (click)="onSearch()">Tìm kiếm</button>
+        <button class="btn btn-success rounded-pill px-3 py-1 fw-medium me-1" (click)="onSearch()">Tìm kiếm</button>
       </div>
     </div>
   </div>
@@ -24,17 +24,17 @@
   <div class="hero-shape shape-2"></div>
 </section>
 
-<section class="container pb-5">
+<section class="container pb-4">
   @if (vm$ | async; as vm) {
-  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 animation-fade-up delay-3">
-    <h3 class="fw-bold mb-0">Danh sách cây</h3>
-    <p class="text-muted mb-0">{{ vm.totalCount }} sản phẩm</p>
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2 animation-fade-up delay-3">
+    <h4 class="fw-bold mb-0 fs-5">Danh sách cây</h4>
+    <p class="text-muted mb-0 small">{{ vm.totalCount }} sản phẩm</p>
   </div>
 
-  <div class="row g-3 mb-4 animation-fade-up delay-3">
-    <div class="col-12 col-md-6">
-      <label class="form-label fw-semibold mb-1" for="categoryFilter">Danh mục</label>
-      <select id="categoryFilter" class="form-select" [(ngModel)]="selectedCategory"
+  <div class="row g-2 mb-3 animation-fade-up delay-3">
+    <div class="col-12 col-md-4">
+      <label class="form-label fw-semibold mb-1 small" for="categoryFilter">Danh mục</label>
+      <select id="categoryFilter" class="form-select form-select-sm" [(ngModel)]="selectedCategory"
         (ngModelChange)="onCategoryChange($event)">
         <option value="">Tất cả danh mục</option>
         @if (categories$ | async; as categories) {
@@ -45,9 +45,10 @@
       </select>
     </div>
 
-    <div class="col-12 col-md-6">
-      <label class="form-label fw-semibold mb-1" for="sortBy">Sắp xếp</label>
-      <select id="sortBy" class="form-select" [(ngModel)]="selectedSort" (ngModelChange)="onSortChange($event)">
+    <div class="col-12 col-md-4">
+      <label class="form-label fw-semibold mb-1 small" for="sortBy">Sắp xếp</label>
+      <select id="sortBy" class="form-select form-select-sm" [(ngModel)]="selectedSort"
+        (ngModelChange)="onSortChange($event)">
         @for (option of sortOptions; track option.value) {
         <option [value]="option.value">{{ option.label }}</option>
         }
@@ -55,23 +56,28 @@
     </div>
   </div>
 
-  <div class="row g-4 animation-fade-up delay-4">
+  <div class="row g-3 animation-fade-up delay-4">
     @for (plant of vm.items; track plant.id) {
     <div class="col-6 col-lg-3">
-      <article class="plant-card card h-100 border-0">
-        <div class="card-img-wrapper position-relative overflow-hidden">
-          <img [src]="resolveImageUrl(plant.imageUrl)" [alt]="plant.name" class="card-img-top" loading="lazy" (error)="onImageError($event)" />
+      <article class="plant-card card h-100 border-0 shadow-sm rounded-4">
+        <div class="card-img-wrapper position-relative overflow-hidden rounded-top-4">
+          <img [src]="resolveImageUrl(plant.imageUrl)" [alt]="plant.name" class="card-img-top object-fit-cover"
+            style="height: 160px;" loading="lazy" (error)="onImageError($event)" />
         </div>
-        <div class="card-body mt-2 d-flex flex-column">
+        <div class="card-body mt-1 d-flex flex-column p-3">
           <span
-            class="badge bg-success-subtle text-success border border-success border-opacity-25 w-auto align-self-start rounded-pill mb-2 px-2 py-1 category-badge">{{
+            class="badge bg-success-subtle text-success border border-success border-opacity-25 w-auto align-self-start rounded-pill mb-2 px-2 py-1 category-badge"
+            style="font-size: 0.70rem;">{{
             plant.categoryName }}</span>
-          <h5 class="card-title fw-bold text-dark mb-1 text-truncate" [title]="plant.name">{{ plant.name }}</h5>
-          <p class="card-text text-muted small fst-italic mb-3 text-truncate" [title]="plant.scientificName">{{
+          <h6 class="card-title fw-bold text-dark mb-1 text-truncate" [title]="plant.name">{{ plant.name }}</h6>
+          <p class="card-text text-muted small fst-italic mb-2 text-truncate" [title]="plant.scientificName"
+            style="font-size: 0.8rem;">{{
             plant.scientificName }}</p>
-          <div class="mt-auto d-flex justify-content-between align-items-center">
-            <p class="price-tag fw-bold mb-0 fs-6">{{ plant.price | currency:'VND':'symbol' }}</p>
-            <a class="btn btn-sm btn-outline-success rounded-pill px-3 fw-medium" [routerLink]="['/plants', plant.id]">Xem chi tiết</a>
+          <div
+            class="mt-auto d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+            <p class="price-tag fw-bold mb-0 text-success fs-6">{{ plant.price | currency:'VND':'symbol' }}</p>
+            <a class="btn btn-sm btn-success rounded-pill px-3 py-1 fw-medium" style="font-size: 0.8rem;"
+              [routerLink]="['/plants', plant.id]">Chi tiết</a>
           </div>
         </div>
       </article>
@@ -79,33 +85,34 @@
     }
 
     @if (vm.items.length === 0) {
-    <div class="col-12 text-center py-5 animation-fade-up">
+    <div class="col-12 text-center py-4 animation-fade-up">
       <div
-        class="empty-state-icon mx-auto bg-light rounded-circle d-flex align-items-center justify-content-center mb-4 text-success"
-        style="width: 100px; height: 100px;">
-        <i class="fa-solid fa-seedling fs-1"></i>
+        class="empty-state-icon mx-auto bg-light rounded-circle d-flex align-items-center justify-content-center mb-3 text-success"
+        style="width: 80px; height: 80px;">
+        <i class="fa-solid fa-seedling fs-2"></i>
       </div>
-      <h4 class="text-secondary fw-semibold">Không tìm thấy cây nào</h4>
-      <p class="text-muted fs-6">Vui lòng thử lại từ khóa khác hoặc đổi bộ lọc.</p>
+      <h5 class="text-secondary fw-semibold">Không tìm thấy cây nào</h5>
+      <p class="text-muted small">Vui lòng thử lại từ khóa khác hoặc đổi bộ lọc.</p>
     </div>
     }
   </div>
 
   @if (vm.totalPages > 1) {
-  <nav aria-label="Plant pagination" class="mt-5 d-flex justify-content-center">
-    <ul class="pagination mb-0 flex-wrap gap-2">
+  <nav aria-label="Plant pagination" class="mt-4 d-flex justify-content-center">
+    <ul class="pagination pagination-sm mb-0 flex-wrap gap-1">
       <li class="page-item" [class.disabled]="vm.page === 1">
-        <button class="page-link rounded-pill" (click)="goToPage(vm.page - 1, vm.totalPages)">Trước</button>
+        <button class="page-link rounded-pill px-2" (click)="goToPage(vm.page - 1, vm.totalPages)">Trước</button>
       </li>
 
       @for (page of getPageRange(vm.totalPages); track page) {
       <li class="page-item" [class.active]="page === vm.page">
-        <button class="page-link rounded-pill" (click)="goToPage(page, vm.totalPages)">{{ page }}</button>
+        <button class="page-link rounded-circle d-flex justify-content-center align-items-center"
+          style="width: 30px; height: 30px;" (click)="goToPage(page, vm.totalPages)">{{ page }}</button>
       </li>
       }
 
       <li class="page-item" [class.disabled]="vm.page === vm.totalPages">
-        <button class="page-link rounded-pill" (click)="goToPage(vm.page + 1, vm.totalPages)">Sau</button>
+        <button class="page-link rounded-pill px-2" (click)="goToPage(vm.page + 1, vm.totalPages)">Sau</button>
       </li>
     </ul>
   </nav>

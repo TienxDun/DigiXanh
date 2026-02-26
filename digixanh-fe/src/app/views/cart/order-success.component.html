@@ -1,0 +1,149 @@
+<section class="container py-4 py-lg-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <!-- TC08: Thanh toán VNPay thành công || Đặt hàng tiền mặt thành công -->
+      <div *ngIf="isPaymentSuccess || isCashPayment" class="card border-0 shadow-lg">
+        <div class="card-body text-center p-5">
+          <!-- Success Icon -->
+          <div class="mb-4">
+            <div class="success-icon mx-auto">
+              <i class="fas fa-check"></i>
+            </div>
+          </div>
+
+          <h2 class="fw-bold text-success mb-3">{{ pageTitle }}</h2>
+          
+          <p class="text-muted mb-4">{{ pageDescription }}</p>
+
+          <!-- Order Details -->
+          <div *ngIf="order" class="text-start bg-light rounded-3 p-4 mb-4">
+            <h6 class="fw-bold mb-3 border-bottom pb-2">
+              <i class="fas fa-receipt text-success me-2"></i>
+              Thông tin đơn hàng #{{ order.id }}
+            </h6>
+            
+            <div class="row g-2 small">
+              <div class="col-6 text-muted">Ngày đặt:</div>
+              <div class="col-6 text-end">{{ formatDate(order.orderDate) }}</div>
+              
+              <div class="col-6 text-muted">NgườI nhận:</div>
+              <div class="col-6 text-end fw-semibold">{{ order.recipientName }}</div>
+              
+              <div class="col-6 text-muted">Số điện thoại:</div>
+              <div class="col-6 text-end">{{ order.phone }}</div>
+              
+              <div class="col-6 text-muted">Địa chỉ:</div>
+              <div class="col-6 text-end">{{ order.shippingAddress }}</div>
+              
+              <div class="col-6 text-muted">Thanh toán:</div>
+              <div class="col-6 text-end">{{ getPaymentMethodLabel(order.paymentMethod) }}</div>
+              
+              <div class="col-6 text-muted">Trạng thái:</div>
+              <div class="col-6 text-end fw-semibold" [class]="getStatusClass(order.status)">
+                {{ getStatusLabel(order.status) }}
+              </div>
+            </div>
+
+            <!-- Order Items Summary -->
+            <div class="mt-3 pt-3 border-top">
+              <div *ngFor="let item of order.items" class="d-flex justify-content-between small mb-1">
+                <span>{{ item.plantName }} x{{ item.quantity }}</span>
+                <span>{{ formatPrice(item.lineTotal) }}</span>
+              </div>
+            </div>
+
+            <!-- Price Summary -->
+            <div class="mt-3 pt-3 border-top">
+              <div class="d-flex justify-content-between">
+                <span class="text-muted">Tạm tính:</span>
+                <span>{{ formatPrice(order.totalAmount) }}</span>
+              </div>
+              <div *ngIf="order.discountAmount > 0" class="d-flex justify-content-between text-success">
+                <span>Giảm giá:</span>
+                <span>-{{ formatPrice(order.discountAmount) }}</span>
+              </div>
+              <div class="d-flex justify-content-between fw-bold fs-5 mt-2 pt-2 border-top">
+                <span>Tổng cộng:</span>
+                <span class="text-success">{{ formatPrice(order.finalAmount) }}</span>
+              </div>
+            </div>
+
+            <!-- TC08: Mã giao dịch VNPay -->
+            <div *ngIf="order.transactionId" class="mt-3 pt-3 border-top">
+              <div class="d-flex justify-content-between small">
+                <span class="text-muted">Mã giao dịch VNPay:</span>
+                <span class="font-monospace">{{ order.transactionId }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-grid gap-2">
+            <a routerLink="/" class="btn btn-success btn-lg">
+              <i class="fas fa-home me-2"></i>
+              Về trang chủ
+            </a>
+            <a routerLink="/plants" class="btn btn-outline-success">
+              <i class="fas fa-leaf me-2"></i>
+              Tiếp tục mua sắm
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- TC09: Thanh toán thất bại hoặc bị hủy -->
+      <div *ngIf="isPaymentFailed" class="card border-0 shadow-lg">
+        <div class="card-body text-center p-5">
+          <!-- Failed Icon -->
+          <div class="mb-4">
+            <div class="failed-icon mx-auto">
+              <i class="fas fa-times"></i>
+            </div>
+          </div>
+
+          <h2 class="fw-bold text-danger mb-3">{{ pageTitle }}</h2>
+          
+          <p class="text-muted mb-4">{{ pageDescription }}</p>
+
+          <!-- TC09: Thông tin đơn hàng (nếu có) -->
+          <div *ngIf="order" class="text-start bg-light rounded-3 p-4 mb-4">
+            <h6 class="fw-bold mb-3 border-bottom pb-2">
+              <i class="fas fa-receipt text-danger me-2"></i>
+              Thông tin đơn hàng #{{ order.id }}
+            </h6>
+            
+            <div class="alert alert-warning">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              Đơn hàng này đã bị hủy do thanh toán không thành công.
+            </div>
+
+            <div class="row g-2 small mt-3">
+              <div class="col-6 text-muted">Ngày đặt:</div>
+              <div class="col-6 text-end">{{ formatDate(order.orderDate) }}</div>
+              
+              <div class="col-6 text-muted">Tổng tiền:</div>
+              <div class="col-6 text-end fw-semibold">{{ formatPrice(order.finalAmount) }}</div>
+              
+              <div class="col-6 text-muted">Trạng thái:</div>
+              <div class="col-6 text-end fw-semibold text-danger">
+                Đã hủy
+              </div>
+            </div>
+          </div>
+
+          <!-- TC09: Action Buttons -->
+          <div class="d-grid gap-2">
+            <a routerLink="/checkout" class="btn btn-success btn-lg">
+              <i class="fas fa-redo me-2"></i>
+              Thử thanh toán lại
+            </a>
+            <a routerLink="/cart" class="btn btn-outline-secondary">
+              <i class="fas fa-shopping-cart me-2"></i>
+              Quay lại giỏ hàng
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

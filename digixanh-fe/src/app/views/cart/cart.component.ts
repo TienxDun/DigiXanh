@@ -92,6 +92,9 @@ export class CartComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (summary) => {
+          if (summary?.items) {
+            summary.items.sort((a, b) => a.id - b.id);
+          }
           this.cartSummary = summary;
           this.processingItemIds.delete(item.id);
         },
@@ -105,10 +108,11 @@ export class CartComponent {
 
   proceedToCheckout(): void {
     this.isCheckingOut = true;
-    this.router.navigate(['/checkout'])
-      .finally(() => {
-        this.isCheckingOut = false;
-      });
+    this.router.navigate(['/checkout']).then(() => {
+      this.isCheckingOut = false;
+    }).catch(() => {
+      this.isCheckingOut = false;
+    });
   }
 
   trackByItemId(_index: number, item: CartItemDto): number {
@@ -136,6 +140,9 @@ export class CartComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (summary) => {
+          if (summary?.items) {
+            summary.items.sort((a, b) => a.id - b.id);
+          }
           this.cartSummary = summary;
           this.isLoading = false;
         },
@@ -174,6 +181,9 @@ export class CartComponent {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (summary) => {
+          if (summary?.items) {
+            summary.items.sort((a, b) => a.id - b.id);
+          }
           this.cartSummary = summary;
           this.processingItemIds.delete(item.id);
         },

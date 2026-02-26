@@ -1,5 +1,5 @@
 .auth-wrapper {
-    background: linear-gradient(135deg, #f0f7f4 0%, #e3f2fd 100%);
+    background: linear-gradient(135deg, rgba(var(--cui-primary-rgb), 0.08) 0%, rgba(var(--cui-secondary-rgb), 0.2) 100%);
     position: relative;
     overflow: hidden;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -17,7 +17,7 @@
 .shape-1 {
     width: 400px;
     height: 400px;
-    background: rgba(25, 135, 84, 0.15);
+    background: rgba(var(--cui-primary-rgb), 0.15);
     /* text-success */
     top: -10%;
     left: -10%;
@@ -26,7 +26,7 @@
 .shape-2 {
     width: 500px;
     height: 500px;
-    background: rgba(13, 110, 253, 0.1);
+    background: rgba(var(--cui-secondary-rgb), 0.2);
     /* light blue accent */
     bottom: -20%;
     right: -10%;
@@ -36,7 +36,7 @@
 .shape-3 {
     width: 300px;
     height: 300px;
-    background: rgba(255, 193, 7, 0.1);
+    background: rgba(var(--cui-warning-rgb), 0.1);
     /* light yellow accent */
     top: 40%;
     left: 60%;
@@ -59,8 +59,8 @@
 
 .auth-card {
     background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 1);
     border-radius: 24px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08) !important;
@@ -89,13 +89,13 @@
     .auth-form .form-control {
         border-radius: 12px;
         padding: 0.75rem 1.25rem;
-        border: 1px solid #e0e0e0;
+        border: 1px solid var(--cui-border-color);
         transition: all 0.3s ease;
         background-color: rgba(255, 255, 255, 0.9);
 
         &:focus {
-            border-color: #198754;
-            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.1);
+            border-color: var(--cui-primary);
+            box-shadow: 0 0 0 4px rgba(var(--cui-primary-rgb), 0.1);
             background-color: #ffffff;
         }
     }
@@ -103,7 +103,7 @@
     .auth-form .form-label {
         font-weight: 500;
         font-size: 0.9rem;
-        color: #495057;
+        color: var(--cui-body-color);
         margin-bottom: 0.4rem;
         margin-left: 0.2rem;
     }
@@ -117,15 +117,15 @@
 
 .custom-checkbox .form-check-input {
     cursor: pointer;
-    border-color: #cdd4dc;
+    border-color: var(--cui-border-color);
 
     &:checked {
-        background-color: #198754;
-        border-color: #198754;
+        background-color: var(--cui-primary);
+        border-color: var(--cui-primary);
     }
 
     &:focus {
-        box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.2);
+        box-shadow: 0 0 0 3px rgba(var(--cui-primary-rgb), 0.2);
     }
 }
 
@@ -136,7 +136,7 @@
 
     &:hover:not(:disabled) {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(25, 135, 84, 0.2) !important;
+        box-shadow: 0 8px 20px rgba(var(--cui-primary-rgb), 0.2) !important;
     }
 
     &:active:not(:disabled) {
@@ -144,8 +144,8 @@
     }
 
     &:disabled {
-        background-color: #8cc3a3;
-        border-color: #8cc3a3;
+        background-color: var(--cui-secondary);
+        border-color: var(--cui-secondary);
     }
 }
 
@@ -173,5 +173,6 @@
 
 .custom-toast {
     background: rgba(255, 255, 255, 0.95);
+    -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
 }

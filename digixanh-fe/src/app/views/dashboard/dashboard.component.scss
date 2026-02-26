@@ -8,17 +8,17 @@
 }
 
 .welcome-banner {
-  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-  border: 1px solid rgba(25, 135, 84, 0.1);
+  background: linear-gradient(135deg, var(--cui-body-bg) 0%, rgba(var(--cui-primary-rgb), 0.08) 100%);
+  border: 1px solid rgba(var(--cui-primary-rgb), 0.1);
 }
 
 .btn-custom-shadow {
-  box-shadow: 0 4px 10px rgba(25, 135, 84, 0.2) !important;
+  box-shadow: 0 4px 10px rgba(var(--cui-primary-rgb), 0.2) !important;
   transition: all 0.2s ease;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(25, 135, 84, 0.3) !important;
+    box-shadow: 0 6px 14px rgba(var(--cui-primary-rgb), 0.3) !important;
   }
 }
 
@@ -107,7 +107,15 @@
 
 .chart-wrap {
   position: relative;
+  height: 350px;
   min-height: 350px;
+}
+
+.chart-wrap canvas {
+  width: 100% !important;
+  height: 350px !important;
+  max-height: 350px !important;
+  display: block;
 }
 
 /* Responsive adjustments */

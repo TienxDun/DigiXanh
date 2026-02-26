@@ -1,15 +1,15 @@
 <!--sidebar-->
-<c-sidebar
-  #sidebar1="cSidebar"
-  class="d-print-none sidebar sidebar-fixed border-end"
-  colorScheme="dark"
-  id="sidebar1"
-  visible
->
-  <c-sidebar-header class="border-bottom">
-    <c-sidebar-brand [routerLink]="[]">
-      <span class="sidebar-brand-full fw-semibold">DigiXanh Admin</span>
-      <span class="sidebar-brand-narrow fw-semibold">DX</span>
+<c-sidebar #sidebar1="cSidebar" class="d-print-none sidebar sidebar-fixed border-end" colorScheme="dark" id="sidebar1"
+  visible>
+  <c-sidebar-header class="border-bottom pb-2 pt-3">
+    <c-sidebar-brand [routerLink]="[]" class="text-decoration-none">
+      <div class="sidebar-brand-full d-flex align-items-center fw-bold fs-4">
+        <svg cIcon name="cilLeaf" size="xl" class="text-success me-2"></svg>
+        <span>Digi<span class="text-success">Xanh</span></span>
+      </div>
+      <div class="sidebar-brand-narrow fw-bold fs-5 text-success">
+        <svg cIcon name="cilLeaf" size="lg"></svg>
+      </div>
     </c-sidebar-brand>
   </c-sidebar-header>
 
@@ -18,21 +18,18 @@
   </ng-scrollbar>
 
   @if (!sidebar1.narrow) {
-    <c-sidebar-footer cSidebarToggle="sidebar1" class="border-top d-none d-lg-flex" toggle="unfoldable" style="cursor: pointer;">
-      <button cSidebarToggler aria-label="Toggle sidebar fold"></button>
-    </c-sidebar-footer>
+  <c-sidebar-footer cSidebarToggle="sidebar1" class="border-top d-none d-lg-flex" toggle="unfoldable"
+    style="cursor: pointer;">
+    <button cSidebarToggler aria-label="Toggle sidebar fold"></button>
+  </c-sidebar-footer>
   }
 </c-sidebar>
 
 <!--main-->
 <div class="wrapper d-flex flex-column min-vh-100">
   <!--app-header-->
-  <app-default-header
-    [cShadowOnScroll]="'sm'"
-    class="mb-4 d-print-none header header-sticky p-0 shadow-sm"
-    position="sticky"
-    sidebarId="sidebar1"
-  />
+  <app-default-header [cShadowOnScroll]="'sm'" class="mb-4 d-print-none header header-sticky p-0 shadow-sm"
+    position="sticky" sidebarId="sidebar1" />
   <!--app-body-->
   <div class="body flex-grow-1">
     <c-container breakpoint="lg" class="h-auto px-4">

@@ -3,9 +3,9 @@
 }
 
 .hero-section {
-  background: radial-gradient(circle at center, rgba(25, 135, 84, 0.05) 0%, transparent 60%);
+  background: radial-gradient(circle at center, rgba(var(--cui-primary-rgb), 0.05) 0%, transparent 60%);
   border-radius: 0 0 50px 50px;
-  background-color: #f7faf8;
+  background-color: var(--cui-light);
 }
 
 .hero-shape {
@@ -18,7 +18,7 @@
 .shape-1 {
   width: 300px;
   height: 300px;
-  background: rgba(25, 135, 84, 0.1);
+  background: rgba(var(--cui-primary-rgb), 0.1);
   top: -100px;
   left: -100px;
 }
@@ -26,7 +26,7 @@
 .shape-2 {
   width: 400px;
   height: 400px;
-  background: rgba(25, 135, 84, 0.08);
+  background: rgba(var(--cui-primary-rgb), 0.08);
   bottom: -150px;
   right: -100px;
 }
@@ -35,7 +35,7 @@
   transition: box-shadow 0.3s ease;
 
   &:focus-within {
-    box-shadow: 0 10px 25px rgba(25, 135, 84, 0.15) !important;
+    box-shadow: 0 10px 25px rgba(var(--cui-primary-rgb), 0.15) !important;
   }
 
   input::placeholder {
@@ -78,20 +78,20 @@
 }
 
 .hover-shadow:hover {
-  background-color: #f8f9fa !important;
+  background-color: var(--cui-light) !important;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 .plant-card {
   border-radius: 20px;
-  background: #ffffff;
+  background: var(--cui-body-bg);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   overflow: hidden;
 
   &:hover {
     transform: translateY(-8px);
-    box-shadow: 0 15px 35px rgba(25, 135, 84, 0.1);
+    box-shadow: 0 15px 35px rgba(var(--cui-primary-rgb), 0.1);
 
     .card-img-wrapper img {
       transform: scale(1.05);
@@ -100,7 +100,7 @@
 
   .card-img-wrapper {
     height: 180px;
-    background-color: #f8f9fa;
+    background-color: var(--cui-light);
 
     img {
       width: 100%;
@@ -112,7 +112,7 @@
 }
 
 .price-tag {
-  color: #198754;
+  color: var(--cui-primary);
 }
 
 .category-badge {

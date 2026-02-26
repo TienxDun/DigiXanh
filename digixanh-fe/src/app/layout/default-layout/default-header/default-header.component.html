@@ -18,22 +18,55 @@
 
     <c-header-nav class="mx-3">
       <ng-container *ngIf="authService.isAuthenticated$ | async; else loginLinks">
-        <c-nav-item class="d-flex align-items-center me-3">
-          <span class="fw-semibold">{{ currentUser?.fullName || currentUser?.email || 'Account' }}</span>
-        </c-nav-item>
-        <c-nav-item class="d-flex align-items-center">
-          <button class="btn btn-outline-danger btn-sm" (click)="logout()">
-            <svg cIcon name="cilAccountLogout" class="me-1"></svg>
-            Đăng xuất
-          </button>
-        </c-nav-item>
+        <c-dropdown variant="nav-item" alignment="end">
+          <a cDropdownToggle class="nav-link py-0 d-flex align-items-center" style="cursor: pointer;" [caret]="false">
+            <div
+              class="avatar bg-success text-white me-2 d-flex align-items-center justify-content-center fw-bold shadow-sm"
+              style="width: 36px; height: 36px; border-radius: 50%;">
+              {{ ((currentUser?.fullName || currentUser?.email || 'A') + '') | slice:0:1 | uppercase }}
+            </div>
+            <div class="d-none d-md-flex flex-column align-items-start">
+              <span class="fw-semibold text-dark" style="line-height: 1.2;">{{ currentUser?.fullName ||
+                currentUser?.email || 'Admin' }}</span>
+              <small class="text-muted" style="font-size: 0.75rem;"><svg cIcon name="cilShieldAlt" size="sm"
+                  class="me-1"></svg>Quản trị viên</small>
+            </div>
+          </a>
+          <ul cDropdownMenu class="pt-0 pb-0 mt-3 shadow border-0 rounded-3">
+            <li>
+              <h6 cDropdownHeader class="bg-body-secondary fw-semibold py-2 rounded-top-3 border-bottom">Tài khoản của
+                tôi</h6>
+            </li>
+            <li>
+              <button cDropdownItem class="py-2">
+                <svg cIcon name="cilUser" class="me-2 text-primary"></svg>
+                Hồ sơ cá nhân
+              </button>
+            </li>
+            <li>
+              <button cDropdownItem class="py-2">
+                <svg cIcon name="cilSettings" class="me-2 text-secondary"></svg>
+                Cài đặt
+              </button>
+            </li>
+            <li>
+              <hr cDropdownDivider class="my-0" />
+            </li>
+            <li>
+              <button cDropdownItem class="bg-danger-subtle text-danger fw-semibold py-2 rounded-bottom-3"
+                (click)="logout()">
+                <svg cIcon name="cilAccountLogout" class="me-2"></svg>
+                Đăng xuất
+              </button>
+            </li>
+          </ul>
+        </c-dropdown>
       </ng-container>
       <ng-template #loginLinks>
         <c-nav-item>
-          <a cNavLink routerLink="/auth/login">Đăng nhập</a>
-        </c-nav-item>
-        <c-nav-item>
-          <a cNavLink routerLink="/auth/register">Đăng ký</a>
+          <a cNavLink routerLink="/auth/login" class="fw-semibold text-success">
+            <svg cIcon name="cilLockLocked" class="me-1"></svg>Đăng nhập
+          </a>
         </c-nav-item>
       </ng-template>
     </c-header-nav>

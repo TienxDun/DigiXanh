@@ -15,3 +15,12 @@
 .select-week .calendar-row.current {
   cursor: pointer;
 }
+
+// ensure CTA contrast consistency on brand buttons
+.btn-primary,
+.btn-success {
+  --cui-btn-color: var(--cui-white);
+  --cui-btn-hover-color: var(--cui-white);
+  --cui-btn-active-color: var(--cui-white);
+  --cui-btn-disabled-color: var(--cui-white);
+}
