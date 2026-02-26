@@ -60,7 +60,7 @@
     <div class="col-6 col-lg-3">
       <article class="plant-card card h-100 border-0">
         <div class="card-img-wrapper position-relative overflow-hidden">
-          <img [src]="plant.imageUrl" [alt]="plant.name" class="card-img-top" loading="lazy" />
+          <img [src]="resolveImageUrl(plant.imageUrl)" [alt]="plant.name" class="card-img-top" loading="lazy" (error)="onImageError($event)" />
         </div>
         <div class="card-body mt-2 d-flex flex-column">
           <span

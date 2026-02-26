@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './core/guards/admin.guard';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -12,6 +13,16 @@ export const routes: Routes = [
       {
         path: '',
         loadChildren: () => import('./views/public/public.module').then((m) => m.PublicModule)
+      },
+      {
+        path: 'cart',
+        canActivate: [authGuard],
+        loadComponent: () => import('./views/cart/cart.component').then((m) => m.CartComponent)
+      },
+      {
+        path: 'checkout',
+        canActivate: [authGuard],
+        loadComponent: () => import('./views/cart/checkout-confirmation.component').then((m) => m.CheckoutConfirmationComponent)
       }
     ]
   },

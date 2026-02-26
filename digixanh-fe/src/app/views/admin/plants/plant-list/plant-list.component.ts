@@ -5,6 +5,7 @@ import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { catchError, finalize, switchMap, tap } from 'rxjs/operators';
 import { AdminPlantService } from '../../../../core/services/admin-plant.service';
 import { PlantDto } from '../../../../core/models/plant.model';
+import { resolvePlantImageUrl } from '../../../../core/utils/image-url.util';
 
 @Component({
   selector: 'app-admin-plant-list',
@@ -14,6 +15,7 @@ import { PlantDto } from '../../../../core/models/plant.model';
   styleUrls: ['./plant-list.component.scss']
 })
 export class PlantListComponent implements OnInit {
+  readonly fallbackImageUrl = 'assets/images/plant-placeholder.svg';
   plants$ = new BehaviorSubject<PlantDto[]>([]);
   loading$ = new BehaviorSubject<boolean>(false);
 
@@ -189,5 +191,18 @@ export class PlantListComponent implements OnInit {
   getPageArray(): number[] {
     const totalPages = this.totalPages$.getValue();
     return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  onImageError(event: Event): void {
+    const target = event.target as HTMLImageElement | null;
+    if (!target || target.src.endsWith(this.fallbackImageUrl)) {
+      return;
+    }
+
+    target.src = this.fallbackImageUrl;
+  }
+
+  resolveImageUrl(imageUrl?: string | null): string {
+    return resolvePlantImageUrl(imageUrl);
   }
 }

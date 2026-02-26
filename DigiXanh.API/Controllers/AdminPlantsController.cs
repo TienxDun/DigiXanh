@@ -2,6 +2,7 @@ using DigiXanh.API.Constants;
 using DigiXanh.API.Data;
 using DigiXanh.API.DTOs.Common;
 using DigiXanh.API.DTOs.Plants;
+using DigiXanh.API.Helpers;
 using DigiXanh.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -58,7 +59,7 @@ public class AdminPlantsController : ControllerBase
                 plant.ScientificName,
                 plant.Price,
                 plant.Category != null ? plant.Category.Name : string.Empty,
-                plant.ImageUrl,
+                ImageUrlSanitizer.NormalizeOrEmpty(plant.ImageUrl),
                 plant.CreatedAt))
             .ToListAsync();
 
@@ -90,7 +91,7 @@ public class AdminPlantsController : ControllerBase
             Description  = dto.Description?.Trim(),
             Price        = dto.Price,
             CategoryId   = dto.CategoryId,
-            ImageUrl     = dto.ImageUrl?.Trim() ?? string.Empty,
+            ImageUrl     = ImageUrlSanitizer.NormalizeOrEmpty(dto.ImageUrl),
             TrefleId     = dto.TrefleId,
             IsDeleted    = false,
             CreatedAt    = DateTime.UtcNow
@@ -108,7 +109,7 @@ public class AdminPlantsController : ControllerBase
             plant.ScientificName,
             plant.Price,
             plant.Category?.Name ?? string.Empty,
-            plant.ImageUrl,
+            ImageUrlSanitizer.NormalizeOrEmpty(plant.ImageUrl),
             plant.CreatedAt
         );
 
@@ -132,7 +133,7 @@ public class AdminPlantsController : ControllerBase
                 item.Price,
                 item.CategoryId ?? 0,
                 item.Category != null ? item.Category.Name : string.Empty,
-                item.ImageUrl,
+                ImageUrlSanitizer.NormalizeOrEmpty(item.ImageUrl),
                 item.TrefleId
             ))
             .FirstOrDefaultAsync();
@@ -178,7 +179,7 @@ public class AdminPlantsController : ControllerBase
         plant.Description = dto.Description?.Trim();
         plant.Price = dto.Price;
         plant.CategoryId = dto.CategoryId;
-        plant.ImageUrl = dto.ImageUrl?.Trim() ?? string.Empty;
+        plant.ImageUrl = ImageUrlSanitizer.NormalizeOrEmpty(dto.ImageUrl);
         plant.TrefleId = dto.TrefleId;
 
         await _dbContext.SaveChangesAsync();
@@ -191,7 +192,7 @@ public class AdminPlantsController : ControllerBase
             plant.ScientificName,
             plant.Price,
             plant.Category?.Name ?? string.Empty,
-            plant.ImageUrl,
+            ImageUrlSanitizer.NormalizeOrEmpty(plant.ImageUrl),
             plant.CreatedAt
         );
 

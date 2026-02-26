@@ -15,7 +15,7 @@
   <div class="row g-4 align-items-start">
     <div class="col-12 col-lg-6">
       <div class="border rounded-4 overflow-hidden bg-white shadow-sm">
-        <img [src]="plant.imageUrl" [alt]="plant.name" [title]="plant.name" class="w-100 detail-image" />
+        <img [src]="resolveImageUrl(plant.imageUrl)" [alt]="plant.name" [title]="plant.name" class="w-100 detail-image" (error)="onImageError($event)" />
       </div>
     </div>
 

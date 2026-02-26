@@ -7,6 +7,7 @@ import { PlantDetailDto } from '../../../core/models/plant.model';
 import { PublicPlantService } from '../../../core/services/public-plant.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CartService } from '../../../core/services/cart.service';
+import { resolvePlantImageUrl } from '../../../core/utils/image-url.util';
 
 @Component({
   selector: 'app-public-plant-detail',
@@ -16,6 +17,8 @@ import { CartService } from '../../../core/services/cart.service';
   styleUrl: './public-plant-detail.component.scss'
 })
 export class PublicPlantDetailComponent {
+  readonly fallbackImageUrl = 'assets/images/plant-placeholder.svg';
+
   quantity = 1;
   isAdding = false;
   errorMessage = '';
@@ -110,5 +113,18 @@ export class PublicPlantDetailComponent {
         this.errorMessage = error?.error?.message ?? 'Không thể thêm vào giỏ hàng. Vui lòng thử lại.';
       }
     });
+  }
+
+  onImageError(event: Event): void {
+    const target = event.target as HTMLImageElement | null;
+    if (!target || target.src.endsWith(this.fallbackImageUrl)) {
+      return;
+    }
+
+    target.src = this.fallbackImageUrl;
+  }
+
+  resolveImageUrl(imageUrl?: string | null): string {
+    return resolvePlantImageUrl(imageUrl);
   }
 }

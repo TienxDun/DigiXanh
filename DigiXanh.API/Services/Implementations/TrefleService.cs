@@ -2,6 +2,7 @@ using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using DigiXanh.API.DTOs.Trefle;
+using DigiXanh.API.Helpers;
 using DigiXanh.API.Services.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -57,7 +58,7 @@ public class TrefleService : ITrefleService
                     item.Id,
                     item.CommonName,
                     item.ScientificName ?? string.Empty,
-                    item.ImageUrl))
+                    ImageUrlSanitizer.NormalizeOrNull(item.ImageUrl)))
                 .Where(item => item.Id > 0 && !string.IsNullOrWhiteSpace(item.ScientificName))
                 .ToList() ?? new List<TreflePlantSearchItemDto>();
 
@@ -111,7 +112,7 @@ public class TrefleService : ITrefleService
                 item.CommonName,
                 item.ScientificName ?? string.Empty,
                 item.Observations,
-                item.ImageUrl,
+                ImageUrlSanitizer.NormalizeOrNull(item.ImageUrl),
                 GetStringOrName(item.Family),
                 GetStringOrName(item.Genus),
                 item.Bibliography,

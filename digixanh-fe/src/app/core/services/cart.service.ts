@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AddCartItemRequest, CartSummaryDto } from '../models/cart.model';
+import { AddCartItemRequest, CartSummaryDto, UpdateCartItemQuantityRequest } from '../models/cart.model';
 
 @Injectable({
   providedIn: 'root'
@@ -23,6 +23,18 @@ export class CartService {
 
   addToCart(request: AddCartItemRequest): Observable<CartSummaryDto> {
     return this.http.post<CartSummaryDto>(`${this.apiUrl}/items`, request).pipe(
+      tap((summary) => this.cartCountSubject.next(summary.totalQuantity ?? 0))
+    );
+  }
+
+  updateCartItemQuantity(cartItemId: number, request: UpdateCartItemQuantityRequest): Observable<CartSummaryDto> {
+    return this.http.put<CartSummaryDto>(`${this.apiUrl}/items/${cartItemId}`, request).pipe(
+      tap((summary) => this.cartCountSubject.next(summary.totalQuantity ?? 0))
+    );
+  }
+
+  removeCartItem(cartItemId: number): Observable<CartSummaryDto> {
+    return this.http.delete<CartSummaryDto>(`${this.apiUrl}/items/${cartItemId}`).pipe(
       tap((summary) => this.cartCountSubject.next(summary.totalQuantity ?? 0))
     );
   }

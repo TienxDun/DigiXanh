@@ -3,6 +3,10 @@ export interface AddCartItemRequest {
   quantity: number;
 }
 
+export interface UpdateCartItemQuantityRequest {
+  quantity: number;
+}
+
 export interface CartItemDto {
   id: number;
   plantId: number;

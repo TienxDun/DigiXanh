@@ -2,6 +2,7 @@ using DigiXanh.API.Constants;
 using DigiXanh.API.Data;
 using DigiXanh.API.DTOs.Common;
 using DigiXanh.API.DTOs.Plants;
+using DigiXanh.API.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -71,7 +72,7 @@ public class PlantsController : ControllerBase
                 plant.ScientificName,
                 plant.Price,
                 plant.Category != null ? plant.Category.Name : string.Empty,
-                plant.ImageUrl,
+                ImageUrlSanitizer.NormalizeOrEmpty(plant.ImageUrl),
                 plant.CreatedAt))
             .ToListAsync();
 
@@ -97,7 +98,7 @@ public class PlantsController : ControllerBase
                 item.Price,
                 item.CategoryId ?? 0,
                 item.Category != null ? item.Category.Name : string.Empty,
-                item.ImageUrl,
+                ImageUrlSanitizer.NormalizeOrEmpty(item.ImageUrl),
                 item.TrefleId))
             .FirstOrDefaultAsync();
 

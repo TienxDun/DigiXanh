@@ -6,6 +6,7 @@ import { BehaviorSubject, catchError, combineLatest, map, Observable, of, switch
 import { CategoryDto, PlantDto } from '../../../core/models/plant.model';
 import { PagedResult } from '../../../core/models/pagination.model';
 import { PublicPlantService } from '../../../core/services/public-plant.service';
+import { resolvePlantImageUrl } from '../../../core/utils/image-url.util';
 
 interface PublicPlantListVm {
   items: PlantDto[];
@@ -23,6 +24,8 @@ interface PublicPlantListVm {
   styleUrl: './public-plant-list.component.scss'
 })
 export class PublicPlantListComponent {
+  readonly fallbackImageUrl = 'assets/images/plant-placeholder.svg';
+
   private readonly pageSize = 12;
 
   private readonly currentPage$ = new BehaviorSubject<number>(1);
@@ -107,5 +110,18 @@ export class PublicPlantListComponent {
 
   getPageRange(totalPages: number): number[] {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  onImageError(event: Event): void {
+    const target = event.target as HTMLImageElement | null;
+    if (!target || target.src.endsWith(this.fallbackImageUrl)) {
+      return;
+    }
+
+    target.src = this.fallbackImageUrl;
+  }
+
+  resolveImageUrl(imageUrl?: string | null): string {
+    return resolvePlantImageUrl(imageUrl);
   }
 }

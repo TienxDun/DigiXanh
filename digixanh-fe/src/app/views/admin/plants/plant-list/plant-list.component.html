@@ -107,8 +107,8 @@
                                 <td class="ps-2 py-3 border-0">
                                     <div class="d-flex align-items-center">
                                         <div class="image-wrapper me-3 position-relative">
-                                            <img [src]="plant.imageUrl" [alt]="plant.name"
-                                                class="plant-img object-fit-cover shadow-sm" />
+                                            <img [src]="resolveImageUrl(plant.imageUrl)" [alt]="plant.name"
+                                                class="plant-img object-fit-cover shadow-sm" (error)="onImageError($event)" />
                                             <div class="img-overlay rounded"></div>
                                         </div>
                                         <div>
