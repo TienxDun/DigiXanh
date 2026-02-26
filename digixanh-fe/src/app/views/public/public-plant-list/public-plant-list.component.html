@@ -14,8 +14,8 @@
           <i class="fa-solid fa-search"></i>
         </span>
         <input type="text" class="form-control border-0 shadow-none bg-transparent ps-2 py-2 fs-5"
-          placeholder="Bạn đang tìm cây gì hôm nay?" />
-        <button class="btn btn-success rounded-pill px-4 fs-6 fw-medium me-1">Tìm kiếm</button>
+          placeholder="Bạn đang tìm cây gì hôm nay?" [(ngModel)]="searchInput" (keyup.enter)="onSearch()" />
+        <button class="btn btn-success rounded-pill px-4 fs-6 fw-medium me-1" (click)="onSearch()">Tìm kiếm</button>
       </div>
     </div>
   </div>
@@ -25,44 +25,52 @@
 </section>
 
 <section class="container pb-5">
-  <div class="d-flex flex-wrap justify-content-between align-items-center mb-5 gap-3 animation-fade-up delay-3">
-    <h3 class="fw-bold mb-0">Cây Nổi Bật</h3>
-    <div class="d-flex gap-2 flex-wrap">
-      <span
-        class="badge bg-success text-white px-3 py-2 rounded-pill fw-medium cursor-pointer shadow-sm border border-success">Tất
-        cả</span>
-      <span class="badge bg-white text-dark px-3 py-2 rounded-pill border fw-medium cursor-pointer hover-shadow">Trang
-        trí</span>
-      <span class="badge bg-white text-dark px-3 py-2 rounded-pill border fw-medium cursor-pointer hover-shadow">Phong
-        thủy</span>
+  @if (vm$ | async; as vm) {
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3 animation-fade-up delay-3">
+    <h3 class="fw-bold mb-0">Danh sách cây</h3>
+    <p class="text-muted mb-0">{{ vm.totalCount }} sản phẩm</p>
+  </div>
+
+  <div class="row g-3 mb-4 animation-fade-up delay-3">
+    <div class="col-12 col-md-6">
+      <label class="form-label fw-semibold mb-1" for="categoryFilter">Danh mục</label>
+      <select id="categoryFilter" class="form-select" [(ngModel)]="selectedCategory"
+        (ngModelChange)="onCategoryChange($event)">
+        <option value="">Tất cả danh mục</option>
+        @if (categories$ | async; as categories) {
+        @for (category of categories; track category.id) {
+        <option [value]="category.id">{{ category.name }}</option>
+        }
+        }
+      </select>
+    </div>
+
+    <div class="col-12 col-md-6">
+      <label class="form-label fw-semibold mb-1" for="sortBy">Sắp xếp</label>
+      <select id="sortBy" class="form-select" [(ngModel)]="selectedSort" (ngModelChange)="onSortChange($event)">
+        @for (option of sortOptions; track option.value) {
+        <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
     </div>
   </div>
 
   <div class="row g-4 animation-fade-up delay-4">
-    @if (plants$ | async; as plants) {
-    @for (plant of plants; track plant.id) {
-    <div class="col-sm-6 col-md-4 col-lg-3">
+    @for (plant of vm.items; track plant.id) {
+    <div class="col-6 col-lg-3">
       <article class="plant-card card h-100 border-0">
         <div class="card-img-wrapper position-relative overflow-hidden">
           <img [src]="plant.imageUrl" [alt]="plant.name" class="card-img-top" loading="lazy" />
-          <div class="overlay d-flex align-items-center justify-content-center gap-3">
-            <button class="btn btn-light rounded-circle shadow p-3 mx-1 btn-action" title="Xem chi tiết">
-              <i class="fa-solid fa-eye text-success"></i>
-            </button>
-            <button class="btn btn-success rounded-circle shadow p-3 mx-1 btn-action" title="Thêm vào giỏ">
-              <i class="fa-solid fa-cart-plus"></i>
-            </button>
-          </div>
         </div>
         <div class="card-body mt-2 d-flex flex-column">
           <span
-            class="badge bg-success-subtle text-success border border-success border-opacity-25 w-auto align-self-start rounded-pill mb-2 px-2 py-1"
-            style="font-size: 0.75rem;">Cây cảnh</span>
+            class="badge bg-success-subtle text-success border border-success border-opacity-25 w-auto align-self-start rounded-pill mb-2 px-2 py-1 category-badge">{{
+            plant.categoryName }}</span>
           <h5 class="card-title fw-bold text-dark mb-1 text-truncate" [title]="plant.name">{{ plant.name }}</h5>
           <p class="card-text text-muted small fst-italic mb-3 text-truncate" [title]="plant.scientificName">{{
             plant.scientificName }}</p>
           <div class="mt-auto d-flex justify-content-between align-items-center">
-            <p class="price-tag fw-bold mb-0 fs-5">{{ plant.price | currency:'VND':'symbol' }}</p>
+            <p class="price-tag fw-bold mb-0 fs-6">{{ plant.price | currency:'VND':'symbol' }}</p>
             <button class="btn btn-sm btn-outline-success rounded-pill px-3 fw-medium">Mua</button>
           </div>
         </div>
@@ -70,7 +78,7 @@
     </div>
     }
 
-    @if (plants.length === 0) {
+    @if (vm.items.length === 0) {
     <div class="col-12 text-center py-5 animation-fade-up">
       <div
         class="empty-state-icon mx-auto bg-light rounded-circle d-flex align-items-center justify-content-center mb-4 text-success"
@@ -78,9 +86,29 @@
         <i class="fa-solid fa-seedling fs-1"></i>
       </div>
       <h4 class="text-secondary fw-semibold">Không tìm thấy cây nào</h4>
-      <p class="text-muted fs-6">Vui lòng quay lại sau khi chúng tôi cập nhật thêm danh mục.</p>
+      <p class="text-muted fs-6">Vui lòng thử lại từ khóa khác hoặc đổi bộ lọc.</p>
     </div>
     }
-    }
   </div>
+
+  @if (vm.totalPages > 1) {
+  <nav aria-label="Plant pagination" class="mt-5 d-flex justify-content-center">
+    <ul class="pagination mb-0 flex-wrap gap-2">
+      <li class="page-item" [class.disabled]="vm.page === 1">
+        <button class="page-link rounded-pill" (click)="goToPage(vm.page - 1, vm.totalPages)">Trước</button>
+      </li>
+
+      @for (page of getPageRange(vm.totalPages); track page) {
+      <li class="page-item" [class.active]="page === vm.page">
+        <button class="page-link rounded-pill" (click)="goToPage(page, vm.totalPages)">{{ page }}</button>
+      </li>
+      }
+
+      <li class="page-item" [class.disabled]="vm.page === vm.totalPages">
+        <button class="page-link rounded-pill" (click)="goToPage(vm.page + 1, vm.totalPages)">Sau</button>
+      </li>
+    </ul>
+  </nav>
+  }
+  }
 </section>

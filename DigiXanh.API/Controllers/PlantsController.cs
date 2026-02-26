@@ -1,5 +1,6 @@
 using DigiXanh.API.Constants;
 using DigiXanh.API.Data;
+using DigiXanh.API.DTOs.Common;
 using DigiXanh.API.DTOs.Plants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,14 +22,49 @@ public class PlantsController : ControllerBase
     [HttpGet]
     [AllowAnonymous]
     [Produces("application/json")]
-    [ProducesResponseType(typeof(IReadOnlyCollection<PlantDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
+    [ProducesResponseType(typeof(PagedResult<PlantDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 12,
+        [FromQuery] string? search = null,
+        [FromQuery] int? categoryId = null,
+        [FromQuery] string? sortBy = null)
     {
-        var plants = await _dbContext.Plants
+        page = page < 1 ? 1 : page;
+        pageSize = pageSize < 1 ? 12 : pageSize;
+
+        var query = _dbContext.Plants
             .AsNoTracking()
             .Include(plant => plant.Category)
-            .Where(plant => !plant.IsDeleted)
-            .OrderByDescending(plant => plant.CreatedAt)
+            .Where(plant => !plant.IsDeleted);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var keyword = search.Trim().ToLower();
+            query = query.Where(plant =>
+                plant.Name.ToLower().Contains(keyword) ||
+                plant.ScientificName.ToLower().Contains(keyword));
+        }
+
+        if (categoryId is > 0)
+        {
+            query = query.Where(plant => plant.CategoryId == categoryId);
+        }
+
+        query = (sortBy ?? string.Empty).Trim().ToLower() switch
+        {
+            "priceasc" => query.OrderBy(plant => plant.Price).ThenBy(plant => plant.Name),
+            "pricedesc" => query.OrderByDescending(plant => plant.Price).ThenBy(plant => plant.Name),
+            "nameasc" => query.OrderBy(plant => plant.Name),
+            _ => query.OrderByDescending(plant => plant.CreatedAt)
+        };
+
+        var totalCount = await query.CountAsync();
+        var totalPages = totalCount == 0 ? 0 : (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        var plants = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(plant => new PlantDto(
                 plant.Id,
                 plant.Name,
@@ -39,7 +75,7 @@ public class PlantsController : ControllerBase
                 plant.CreatedAt))
             .ToListAsync();
 
-        return Ok(plants);
+        return Ok(new PagedResult<PlantDto>(plants, totalCount, page, pageSize, totalPages));
     }
 
     [HttpPost]
