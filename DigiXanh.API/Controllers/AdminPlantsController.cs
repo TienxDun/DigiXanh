@@ -131,6 +131,7 @@ public class AdminPlantsController : ControllerBase
                 item.Description,
                 item.Price,
                 item.CategoryId ?? 0,
+                item.Category != null ? item.Category.Name : string.Empty,
                 item.ImageUrl,
                 item.TrefleId
             ))

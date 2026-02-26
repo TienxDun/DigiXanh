@@ -14,6 +14,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Plant> Plants => Set<Plant>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Order> Orders => Set<Order>();
+    public DbSet<CartItem> CartItems => Set<CartItem>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -48,5 +49,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<Order>()
             .Property(order => order.TotalAmount)
             .HasPrecision(18, 2);
+
+        builder.Entity<CartItem>()
+            .HasOne(item => item.User)
+            .WithMany()
+            .HasForeignKey(item => item.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<CartItem>()
+            .HasOne(item => item.Plant)
+            .WithMany()
+            .HasForeignKey(item => item.PlantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<CartItem>()
+            .HasIndex(item => new { item.UserId, item.PlantId })
+            .IsUnique();
     }
 }

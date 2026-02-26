@@ -73,6 +73,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+await EnsureDatabaseReadyAsync(app.Services);
 await SeedIdentityDataAsync(app.Services);
 await SeedCategoriesAsync(app.Services);
 if (app.Environment.IsDevelopment())
@@ -100,6 +101,20 @@ app.MapGet("/api/health", () => "OK")
     .WithOpenApi();
 
 app.Run();
+
+static async Task EnsureDatabaseReadyAsync(IServiceProvider serviceProvider)
+{
+    using var scope = serviceProvider.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    if (dbContext.Database.IsRelational())
+    {
+        await dbContext.Database.MigrateAsync();
+        return;
+    }
+
+    await dbContext.Database.EnsureCreatedAsync();
+}
 
 static async Task SeedIdentityDataAsync(IServiceProvider serviceProvider)
 {

@@ -78,6 +78,37 @@ public class PlantsController : ControllerBase
         return Ok(new PagedResult<PlantDto>(plants, totalCount, page, pageSize, totalPages));
     }
 
+    [HttpGet("{id:int}")]
+    [AllowAnonymous]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(PlantDetailDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var plant = await _dbContext.Plants
+            .AsNoTracking()
+            .Include(item => item.Category)
+            .Where(item => !item.IsDeleted && item.Id == id)
+            .Select(item => new PlantDetailDto(
+                item.Id,
+                item.Name,
+                item.ScientificName,
+                item.Description,
+                item.Price,
+                item.CategoryId ?? 0,
+                item.Category != null ? item.Category.Name : string.Empty,
+                item.ImageUrl,
+                item.TrefleId))
+            .FirstOrDefaultAsync();
+
+        if (plant is null)
+        {
+            return NotFound(new { message = "Không tìm thấy cây." });
+        }
+
+        return Ok(plant);
+    }
+
     [HttpPost]
     [Authorize(Roles = DefaultRoles.Admin)]
     public IActionResult CreatePlant([FromBody] object payload)

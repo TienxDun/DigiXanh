@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { BehaviorSubject, catchError, combineLatest, map, Observable, of, switchMap } from 'rxjs';
 import { CategoryDto, PlantDto } from '../../../core/models/plant.model';
 import { PagedResult } from '../../../core/models/pagination.model';
@@ -17,7 +18,7 @@ interface PublicPlantListVm {
 @Component({
   selector: 'app-public-plant-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './public-plant-list.component.html',
   styleUrl: './public-plant-list.component.scss'
 })

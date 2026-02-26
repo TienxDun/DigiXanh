@@ -16,6 +16,7 @@ export interface PlantDetailDto {
     description?: string | null;
     price: number;
     categoryId: number;
+    categoryName: string;
     imageUrl: string;
     trefleId?: number | null;
 }

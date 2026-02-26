@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormlyModule, FormlyFieldConfig } from '@ngx-formly/core';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { CardModule, FormModule, ButtonModule, SpinnerModule, ToastModule, ToasterComponent, ToastBodyComponent } from '@coreui/angular';
 
@@ -30,6 +30,7 @@ import { CardModule, FormModule, ButtonModule, SpinnerModule, ToastModule, Toast
 export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   form = new FormGroup({});
   model: any = {};
@@ -73,8 +74,11 @@ export class LoginComponent {
           this.toastMessage = 'Đăng nhập thành công!';
           this.toastColor = 'success';
           this.showToast = true;
+
+          const rawReturnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/';
+          const returnUrl = rawReturnUrl.startsWith('/') ? rawReturnUrl : '/';
           setTimeout(() => {
-            this.router.navigate(['']);
+            this.router.navigateByUrl(returnUrl);
           }, 1000);
         },
         error: (err) => {

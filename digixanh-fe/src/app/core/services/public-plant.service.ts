@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CategoryDto, PlantDto } from '../models/plant.model';
+import { CategoryDto, PlantDetailDto, PlantDto } from '../models/plant.model';
 import { PagedResult } from '../models/pagination.model';
 
 export interface PublicPlantQuery {
@@ -44,5 +44,9 @@ export class PublicPlantService {
 
   getCategories(): Observable<CategoryDto[]> {
     return this.http.get<CategoryDto[]>(this.categoriesUrl);
+  }
+
+  getPlantDetail(id: number): Observable<PlantDetailDto> {
+    return this.http.get<PlantDetailDto>(`${this.apiUrl}/${id}`);
   }
 }

@@ -7,6 +7,7 @@ public record PlantDetailDto(
     string? Description,
     decimal Price,
     int CategoryId,
+    string CategoryName,
     string ImageUrl,
     int? TrefleId
 );
