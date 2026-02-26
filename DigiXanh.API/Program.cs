@@ -15,11 +15,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// HttpClient cho Trefle proxy
-builder.Services.AddHttpClient("Trefle", client =>
-{
-    client.Timeout = TimeSpan.FromSeconds(10);
-});
 builder.Services.AddMemoryCache();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

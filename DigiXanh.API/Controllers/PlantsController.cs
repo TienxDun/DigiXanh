@@ -1,4 +1,3 @@
-using DigiXanh.API.Constants;
 using DigiXanh.API.Data;
 using DigiXanh.API.DTOs.Common;
 using DigiXanh.API.DTOs.Plants;
@@ -110,14 +109,4 @@ public class PlantsController : ControllerBase
         return Ok(plant);
     }
 
-    [HttpPost]
-    [Authorize(Roles = DefaultRoles.Admin)]
-    public IActionResult CreatePlant([FromBody] object payload)
-    {
-        return Ok(new
-        {
-            message = "Plant created by admin",
-            payload
-        });
-    }
 }
