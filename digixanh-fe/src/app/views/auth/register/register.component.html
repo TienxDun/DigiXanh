@@ -1,38 +1,68 @@
-<div class="bg-light min-vh-100 d-flex flex-row align-items-center">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-9 col-lg-7 col-xl-6">
-                <c-card class="mx-4">
-                    <c-card-body class="p-4">
-                        <form [formGroup]="form" (ngSubmit)="register()">
-                            <h1>Đăng ký</h1>
-                            <p class="text-medium-emphasis">Tạo tài khoản của bạn</p>
+<div class="auth-wrapper min-vh-100 d-flex flex-row align-items-center justify-content-center">
+    <!-- Animated background elements -->
+    <div class="bg-shape shape-1"></div>
+    <div class="bg-shape shape-2"></div>
+    <div class="bg-shape shape-3"></div>
 
+    <div class="container position-relative z-1">
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-10 col-md-9 col-lg-7 col-xl-6">
+                <div class="auth-card shadow-lg border-0 overflow-hidden">
+                    <div class="auth-card-body p-5">
+                        <div class="text-center mb-4">
+                            <a routerLink="/"
+                                class="text-decoration-none logo-wrapper d-inline-flex align-items-center gap-2 mb-2">
+                                <i class="fa-solid fa-leaf text-success fs-3"></i>
+                                <span class="fw-bold fs-3 text-dark">DigiXanh</span>
+                            </a>
+                            <p class="text-muted mt-2 fs-6">Đăng ký tham gia hệ sinh thái DigiXanh</p>
+                        </div>
+
+                        <form [formGroup]="form" (ngSubmit)="register()" class="auth-form">
                             <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
 
-                            <div class="d-grid mt-4">
-                                <button cButton color="success" type="submit" [disabled]="form.invalid || isLoading">
+                            <div class="form-check custom-checkbox mt-3 mb-4">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label text-muted small" for="terms">
+                                    Tôi đồng ý với các <a href="#"
+                                        class="text-success text-decoration-none hover-underline"
+                                        (click)="$event.preventDefault()">Điều khoản dịch vụ</a> và <a href="#"
+                                        class="text-success text-decoration-none hover-underline"
+                                        (click)="$event.preventDefault()">Chính sách bảo mật</a>.
+                                </label>
+                            </div>
+
+                            <div class="d-grid mt-2">
+                                <button
+                                    class="btn btn-success btn-auth py-2 fs-6 fw-bold rounded-pill text-white shadow-sm"
+                                    type="submit" [disabled]="form.invalid || isLoading">
                                     <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"
                                         aria-hidden="true"></span>
+                                    <i *ngIf="!isLoading" class="fa-solid fa-user-plus me-2"></i>
                                     Tạo tài khoản
                                 </button>
                             </div>
 
-                            <div class="mt-3 text-center">
-                                <span class="text-muted">Đã có tài khoản? </span>
-                                <a routerLink="/auth/login" class="text-decoration-none">Đăng nhập</a>
+                            <div class="mt-4 text-center">
+                                <span class="text-muted small">Đã có tài khoản? </span>
+                                <a routerLink="/auth/login"
+                                    class="text-success fw-bold text-decoration-none hover-underline small">Đăng
+                                    nhập</a>
                             </div>
                         </form>
-                    </c-card-body>
-                </c-card>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <c-toaster class="p-3" position="fixed" placement="top-end">
-    <c-toast [visible]="showToast" [color]="toastColor" (visibleChange)="showToast = $event">
-        <c-toast-body>
+    <c-toast [visible]="showToast" [color]="toastColor" (visibleChange)="showToast = $event"
+        class="custom-toast shadow-lg border-0 rounded-3">
+        <c-toast-body class="d-flex align-items-center gap-2 px-3 py-2 fw-medium">
+            <i class="fa-solid"
+                [ngClass]="toastColor === 'success' ? 'fa-check-circle text-success' : 'fa-xmark-circle text-danger'"></i>
             {{ toastMessage }}
         </c-toast-body>
     </c-toast>

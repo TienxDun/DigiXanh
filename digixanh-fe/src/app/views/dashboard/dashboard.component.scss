@@ -1,36 +1,133 @@
 :host {
-  .dashboard-actions {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
+  display: block;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.dashboard-wrapper {
+  background-color: transparent;
+}
+
+.welcome-banner {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+  border: 1px solid rgba(25, 135, 84, 0.1);
+}
+
+.btn-custom-shadow {
+  box-shadow: 0 4px 10px rgba(25, 135, 84, 0.2) !important;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(25, 135, 84, 0.3) !important;
+  }
+}
+
+.stat-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05) !important;
   }
 
-  .dashboard-loading {
-    display: inline-flex;
-    align-items: center;
+  .icon-shape {
+    width: 48px;
+    height: 48px;
   }
 
-  .dashboard-label {
-    color: var(--cui-secondary-color);
-    margin-bottom: 0.375rem;
-    font-size: 0.875rem;
+  .stat-decorator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    opacity: 0.05;
+    transform: translate(30%, -30%);
+    transition: transform 0.4s ease;
+  }
+
+  &:hover .stat-decorator {
+    transform: translate(20%, -20%) scale(1.2);
   }
 
   .dashboard-value {
-    font-size: 1.5rem;
-    font-weight: 600;
-    line-height: 1.2;
     word-break: break-word;
+    letter-spacing: -0.5px;
+  }
+}
+
+/* Animations */
+.fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
 
-  .chart-wrap {
-    position: relative;
-    height: 320px;
+  to {
+    opacity: 1;
   }
+}
 
-  @media (max-width: 575.98px) {
-    .dashboard-value {
-      font-size: 1.25rem;
+.animation-fade-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.delay-1 {
+  animation-delay: 0.1s;
+}
+
+.delay-2 {
+  animation-delay: 0.2s;
+}
+
+.delay-3 {
+  animation-delay: 0.3s;
+}
+
+.delay-4 {
+  animation-delay: 0.4s;
+}
+
+.delay-5 {
+  animation-delay: 0.5s;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.chart-wrap {
+  position: relative;
+  min-height: 350px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+  .welcome-banner {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 1rem;
+
+    .dashboard-actions {
+      width: 100%;
+
+      .btn {
+        flex: 1;
+        justify-content: center;
+      }
     }
+  }
+
+  .stat-card h2 {
+    font-size: 1.5rem;
   }
 }

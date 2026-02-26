@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AsyncPipe, DatePipe, DecimalPipe, NgClass, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, DatePipe, DecimalPipe, NgFor, NgIf } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { catchError, finalize, switchMap, tap } from 'rxjs/operators';
@@ -9,7 +9,7 @@ import { PlantDto } from '../../../../core/models/plant.model';
 @Component({
   selector: 'app-admin-plant-list',
   standalone: true,
-  imports: [NgIf, NgFor, NgClass, AsyncPipe, DecimalPipe, DatePipe, RouterLink],
+  imports: [NgIf, NgFor, AsyncPipe, DecimalPipe, DatePipe, RouterLink],
   templateUrl: './plant-list.component.html',
   styleUrls: ['./plant-list.component.scss']
 })

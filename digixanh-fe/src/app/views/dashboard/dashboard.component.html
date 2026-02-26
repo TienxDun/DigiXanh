@@ -1,79 +1,96 @@
-<c-row>
-  <c-col xs="12">
-    <c-card class="mb-4">
-      <c-card-header>Dashboard quản trị</c-card-header>
-      <c-card-body>
-        <div class="dashboard-actions mb-3">
-          <a cButton color="secondary" routerLink="/admin/plants">Đi đến quản lý cây</a>
-          <button cButton color="primary" type="button" (click)="loadDashboard()" [disabled]="loading">
-            Refresh dữ liệu
-          </button>
+<div class="dashboard-wrapper fade-in pb-4">
+  <!-- Welcome Header Section -->
+  <div class="welcome-banner text-dark p-4 rounded-4 mb-4 d-flex justify-content-between align-items-center shadow-sm">
+    <div>
+      <h3 class="fw-bold mb-1">
+        <i class="fa-solid fa-seedling text-success me-2"></i> Dashboard Quản Trị
+      </h3>
+      <p class="text-muted mb-0">Quản lý tổng quan tình hình kinh doanh của DigiXanh.</p>
+    </div>
+    <div class="dashboard-actions d-flex gap-2">
+      <a class="btn btn-outline-success rounded-pill fw-medium px-4 shadow-sm" routerLink="/admin/plants">
+        <i class="fa-solid fa-list me-2"></i> Quản lý cây
+      </a>
+      <button class="btn btn-success rounded-pill fw-medium px-4 shadow-sm btn-custom-shadow" type="button"
+        (click)="loadDashboard()" [disabled]="loading">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!loading" class="fa-solid fa-rotate-right me-2"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger shadow-sm rounded-3 d-flex align-items-center gap-2 mb-4">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  @if (dashboard) {
+  <!-- Stats Cards Row -->
+  <div class="row g-4 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3 animation-fade-up delay-1">
+      <div class="stat-card card border-0 shadow-sm h-100 p-4 position-relative overflow-hidden bg-white rounded-4">
+        <div
+          class="icon-shape bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mb-3">
+          <i class="fa-solid fa-boxes-stacked fs-4"></i>
         </div>
+        <h6 class="text-muted fw-semibold mb-1">Tổng đơn hàng</h6>
+        <h2 class="fw-bold mb-0 text-dark">{{ dashboard.totalOrders }}</h2>
+        <div class="stat-decorator bg-primary"></div>
+      </div>
+    </div>
 
-        @if (loading) {
-          <div class="dashboard-loading">
-            <c-spinner size="sm" class="me-2" />
-            <span>Đang tải dữ liệu...</span>
-          </div>
-        }
+    <div class="col-12 col-sm-6 col-xl-3 animation-fade-up delay-2">
+      <div class="stat-card card border-0 shadow-sm h-100 p-4 position-relative overflow-hidden bg-white rounded-4">
+        <div
+          class="icon-shape bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center mb-3">
+          <i class="fa-solid fa-sack-dollar fs-4"></i>
+        </div>
+        <h6 class="text-muted fw-semibold mb-1">Tổng doanh thu</h6>
+        <h2 class="fw-bold mb-0 text-dark">{{ formatCurrency(dashboard.totalRevenue) }}</h2>
+        <div class="stat-decorator bg-success"></div>
+      </div>
+    </div>
 
-        @if (errorMessage) {
-          <c-alert color="danger" [dismissible]="false" class="mb-0">{{ errorMessage }}</c-alert>
-        }
-      </c-card-body>
-    </c-card>
-  </c-col>
-</c-row>
+    <div class="col-12 col-sm-6 col-xl-3 animation-fade-up delay-3">
+      <div class="stat-card card border-0 shadow-sm h-100 p-4 position-relative overflow-hidden bg-white rounded-4">
+        <div
+          class="icon-shape bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center mb-3">
+          <i class="fa-solid fa-calendar-day fs-4"></i>
+        </div>
+        <h6 class="text-muted fw-semibold mb-1">Đơn hàng hôm nay</h6>
+        <h2 class="fw-bold mb-0 text-dark">{{ dashboard.todayOrders }}</h2>
+        <div class="stat-decorator bg-warning"></div>
+      </div>
+    </div>
 
-@if (dashboard) {
-  <c-row class="mb-4">
-    <c-col xs="12" sm="6" xl="3" class="mb-3 mb-xl-0">
-      <c-card>
-        <c-card-body>
-          <div class="dashboard-label">Tổng số đơn hàng</div>
-          <div class="dashboard-value">{{ dashboard.totalOrders }}</div>
-        </c-card-body>
-      </c-card>
-    </c-col>
+    <div class="col-12 col-sm-6 col-xl-3 animation-fade-up delay-4">
+      <div class="stat-card card border-0 shadow-sm h-100 p-4 position-relative overflow-hidden bg-white rounded-4">
+        <div
+          class="icon-shape bg-info bg-opacity-10 text-info rounded-circle d-flex align-items-center justify-content-center mb-3">
+          <i class="fa-solid fa-chart-line fs-4"></i>
+        </div>
+        <h6 class="text-muted fw-semibold mb-1">Doanh thu hôm nay</h6>
+        <h2 class="fw-bold mb-0 text-dark">{{ formatCurrency(dashboard.todayRevenue) }}</h2>
+        <div class="stat-decorator bg-info"></div>
+      </div>
+    </div>
+  </div>
 
-    <c-col xs="12" sm="6" xl="3" class="mb-3 mb-xl-0">
-      <c-card>
-        <c-card-body>
-          <div class="dashboard-label">Tổng doanh thu</div>
-          <div class="dashboard-value">{{ formatCurrency(dashboard.totalRevenue) }}</div>
-        </c-card-body>
-      </c-card>
-    </c-col>
-
-    <c-col xs="12" sm="6" xl="3" class="mb-3 mb-sm-0">
-      <c-card>
-        <c-card-body>
-          <div class="dashboard-label">Đơn hàng hôm nay</div>
-          <div class="dashboard-value">{{ dashboard.todayOrders }}</div>
-        </c-card-body>
-      </c-card>
-    </c-col>
-
-    <c-col xs="12" sm="6" xl="3">
-      <c-card>
-        <c-card-body>
-          <div class="dashboard-label">Doanh thu hôm nay</div>
-          <div class="dashboard-value">{{ formatCurrency(dashboard.todayRevenue) }}</div>
-        </c-card-body>
-      </c-card>
-    </c-col>
-  </c-row>
-
-  <c-row>
-    <c-col xs="12">
-      <c-card>
-        <c-card-header>Số lượng đơn hàng trong 7 ngày gần nhất</c-card-header>
-        <c-card-body>
-          <div class="chart-wrap">
+  <!-- Chart Section -->
+  <div class="row animation-fade-up delay-5">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+        <div class="card-header bg-transparent py-4 border-bottom-0">
+          <h5 class="fw-bold text-dark mb-0">Biểu đồ Đơn hàng trong 7 ngày</h5>
+          <p class="text-muted small mb-0">Thống kê số lượng đơn hàng theo ngày gần nhất</p>
+        </div>
+        <div class="card-body p-4 pt-0">
+          <div class="chart-wrap w-100" style="height: 350px;">
             <c-chart type="bar" [data]="chartData" [options]="chartOptions" />
           </div>
-        </c-card-body>
-      </c-card>
-    </c-col>
-  </c-row>
-}
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+</div>

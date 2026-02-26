@@ -1,74 +1,149 @@
-// ─── Animations ───────────────────────────────────────────────────────────────
-
-.fade-in {
-    animation: fadeInUp 0.4s ease both;
+:host {
+    display: block;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(16px);
-    }
+// ─── Animations ───────────────────────────────────────────────────────────────
 
+.animation-fade-up {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeUp {
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-// ─── Card ─────────────────────────────────────────────────────────────────────
-
-.add-plant-card {
-    border-radius: 1rem !important;
-    overflow: visible;
-}
-
-// ─── Back button ──────────────────────────────────────────────────────────────
+// ─── Component Basics ─────────────────────────────────────────────────────────
 
 .back-btn {
-    width: 2rem;
-    height: 2rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s, transform 0.2s;
+    width: 40px;
+    height: 40px;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
 
     &:hover {
-        background: #198754 !important;
-        border-color: #198754 !important;
-        color: #fff !important;
-        transform: translateX(-2px);
+        background: #e9ecef !important;
+        transform: translateX(-4px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
+    }
+}
+
+.icon-square {
+    transition: transform 0.3s ease;
+}
+
+h4:hover .icon-square {
+    transform: scale(1.1) rotate(5deg);
+}
+
+// ─── Divider ──────────────────────────────────────────────────────────────────
+
+.divider-with-text {
+    position: relative;
+    text-align: center;
+    z-index: 1;
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #e9ecef;
+        z-index: -1;
     }
 }
 
 // ─── Trefle Search ─────────────────────────────────────────────────────────────
 
-.trefle-search-section {
+.search-container {
     .form-control {
-        background: #f8f9fa;
-        border-color: #e9ecef;
-        transition: border-color 0.2s, box-shadow 0.2s;
+        background-color: #ffffff;
+        transition: all 0.3s ease;
 
         &:focus {
-            border-color: #198754;
-            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15);
-            background: #fff;
+            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.15) !important;
         }
     }
 }
 
 .trefle-dropdown {
     position: absolute;
-    top: calc(100% + 6px);
+    top: calc(100% + 10px);
     left: 0;
     right: 0;
     background: #fff;
-    border: 1px solid #e9ecef;
-    border-radius: 0.75rem;
-    z-index: 1000;
+    z-index: 1050;
+    max-height: 350px;
+
+    .dropdown-list {
+        max-height: 350px;
+        overflow-y: auto;
+
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #dee2e6;
+            border-radius: 4px;
+        }
+    }
+}
+
+.trefle-result-item {
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: #f8f9fa;
+
+        .add-btn {
+            background-color: #198754 !important;
+            color: white !important;
+            transform: scale(1.1);
+        }
+    }
+}
+
+.trefle-thumb-wrapper,
+.bulk-thumb-wrapper {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.trefle-thumb,
+.bulk-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.trefle-thumb-placeholder,
+.bulk-thumb-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+// ─── Bulk List ────────────────────────────────────────────────────────────────
+
+.bulk-list {
     max-height: 320px;
     overflow-y: auto;
-    padding: 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.05);
 
     &::-webkit-scrollbar {
         width: 6px;
@@ -80,203 +155,109 @@
 
     &::-webkit-scrollbar-thumb {
         background: #dee2e6;
-        border-radius: 3px;
-    }
-}
-
-.trefle-result-item {
-    padding: 0.6rem 0.75rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: background 0.15s;
-
-    &:hover {
-        background: #f0faf4;
-    }
-}
-
-.dropdown-empty {
-    padding: 1rem;
-    text-align: center;
-    color: #6c757d;
-    font-size: 0.875rem;
-}
-
-.trefle-thumb-wrapper {
-    flex-shrink: 0;
-    width: 40px;
-    height: 40px;
-    border-radius: 0.375rem;
-    overflow: hidden;
-}
-
-.trefle-thumb {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.trefle-thumb-placeholder {
-    width: 100%;
-    height: 100%;
-    background: #e9ecef;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-// ─── Divider ──────────────────────────────────────────────────────────────────
-
-.divider-with-text {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    color: #6c757d;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 600;
-
-    &::before,
-    &::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: #e9ecef;
-    }
-}
-
-// ─── Submit Button ────────────────────────────────────────────────────────────
-
-.btn-submit {
-    transition: transform 0.15s, box-shadow 0.15s;
-
-    &:hover:not(:disabled) {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(25, 135, 84, 0.35) !important;
-    }
-
-    &:disabled {
-        opacity: 0.75;
-        cursor: not-allowed;
-    }
-}
-
-// ─── Image Preview Panel ──────────────────────────────────────────────────────
-
-.image-preview-panel {
-    position: sticky;
-    top: 1.5rem;
-}
-
-.preview-label {
-    font-size: 0.9rem;
-}
-
-.preview-box {
-    border: 2px dashed #dee2e6;
-    border-radius: 0.75rem;
-    min-height: 220px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    background: #f8f9fa;
-    transition: border-color 0.3s;
-
-    &.has-image {
-        border-style: solid;
-        border-color: #198754;
-        background: #fff;
-    }
-}
-
-.preview-img {
-    width: 100%;
-    height: 100%;
-    max-height: 280px;
-    object-fit: cover;
-    border-radius: 0.625rem;
-}
-
-.no-preview-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem;
-    text-align: center;
-}
-
-.trefle-badge {
-    font-size: 0.8rem;
-    color: #198754;
-    background: #f0faf4;
-    border: 1px solid #d1f2e2;
-    border-radius: 0.5rem;
-    padding: 0.4rem 0.75rem;
-}
-
-// ─── Tips Box ─────────────────────────────────────────────────────────────────
-
-.tips-box {
-    background: #fffde7;
-    border: 1px solid #fff9c4;
-    border-radius: 0.75rem;
-    padding: 1rem 1.1rem;
-}
-
-.tips-title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #795548;
-}
-
-.tips-list {
-    padding-left: 1.2rem;
-    margin-bottom: 0;
-    font-size: 0.8125rem;
-    color: #6d4c41;
-
-    li+li {
-        margin-top: 0.35rem;
-    }
-}
-
-.bulk-section {
-    .bulk-list {
-        border: 1px solid #e9ecef;
-        border-radius: 0.75rem;
-        background: #fff;
-        max-height: 280px;
-        overflow-y: auto;
-        padding: 0.5rem;
+        border-radius: 4px;
     }
 
     .bulk-item {
-        padding: 0.5rem;
-        border-radius: 0.5rem;
+        transition: background-color 0.2s;
+
+        &:last-child {
+            border-bottom: none !important;
+        }
 
         &:hover {
-            background: #f8f9fa;
+            background-color: #fcfcfc;
+        }
+    }
+}
+
+// ─── Actions & Form ──────────────────────────────────────────────────────────
+
+.btn-action.primary-action {
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+
+    &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(25, 135, 84, 0.3) !important;
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(0);
+    }
+}
+
+::ng-deep .premium-form {
+    .form-control {
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-color: #e2e8f0;
+        background-color: #f8fafc;
+        transition: all 0.2s;
+
+        &:focus {
+            background-color: white;
+            border-color: #198754;
+            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.1);
         }
     }
 
-    .bulk-thumb,
-    .bulk-thumb-placeholder {
-        width: 34px;
-        height: 34px;
-        border-radius: 0.375rem;
-        flex-shrink: 0;
+    .form-label {
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Custom Checkbox */
+.custom-checkbox .form-check-input {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    border-color: #cbd5e1;
+    transition: all 0.2s;
+
+    &:checked {
+        background-color: #198754;
+        border-color: #198754;
     }
 
-    .bulk-thumb {
-        object-fit: cover;
+    &:focus {
+        box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.2);
+    }
+}
+
+// ─── Image Preview ────────────────────────────────────────────────────────────
+
+.preview-box {
+    min-height: 260px;
+    border: 2px dashed #cbd5e1;
+    transition: all 0.3s ease;
+
+    &.has-image {
+        border-style: solid;
+        border-color: transparent;
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
     }
 
-    .bulk-thumb-placeholder {
-        background: #e9ecef;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+    .backdrop-blur {
+        backdrop-filter: blur(4px);
+    }
+}
+
+.trefle-badge {
+    background-color: #f0fdf4;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+        background-color: #dc3545 !important;
+        color: white !important;
     }
 }

@@ -2,16 +2,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component } from '@angular/
 import { ChartData, ChartOptions } from 'chart.js';
 import { ChartjsComponent } from '@coreui/angular-chartjs';
 import { RouterLink } from '@angular/router';
-import {
-  AlertComponent,
-  CardBodyComponent,
-  CardComponent,
-  CardHeaderComponent,
-  ColComponent,
-  RowComponent,
-  ButtonDirective,
-  SpinnerComponent
-} from '@coreui/angular';
+import { NgIf } from '@angular/common';
 import { finalize } from 'rxjs/operators';
 import { AdminDashboardDto } from '../../core/models/dashboard.model';
 import { AdminDashboardService } from '../../core/services/admin-dashboard.service';
@@ -21,16 +12,9 @@ import { AdminDashboardService } from '../../core/services/admin-dashboard.servi
   styleUrls: ['dashboard.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CardComponent,
-    CardHeaderComponent,
-    CardBodyComponent,
-    RowComponent,
-    ColComponent,
-    ButtonDirective,
     RouterLink,
     ChartjsComponent,
-    SpinnerComponent,
-    AlertComponent
+    NgIf
   ]
 })
 export class DashboardComponent {

@@ -1,187 +1,215 @@
-<div class="row fade-in">
-    <div class="col-12">
-        <div class="card premium-card mb-4 border-0 shadow-sm">
-            <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-4">
-                <h4 class="mb-0 fw-bold text-dark">
-                    <i class="fa-solid fa-leaf text-success me-2"></i> Quản lý Cây xanh
+<div class="animation-fade-up pb-4">
+    <!-- Header Card -->
+    <div class="card premium-card border-0 mb-4 overflow-hidden">
+        <div
+            class="card-body p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 bg-white">
+            <div>
+                <h4 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
+                    <div class="icon-square bg-success bg-opacity-10 text-success rounded-3 d-flex align-items-center justify-content-center"
+                        style="width: 40px; height: 40px;">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    Quản lý Cây xanh
                 </h4>
-                <button class="btn btn-success btn-custom-shadow rounded-pill px-4 fw-semibold text-white"
+                <p class="text-muted mb-0 ms-1 ps-5">Cập nhật, thêm mới và quản lý danh mục hiển thị</p>
+            </div>
+            <div class="d-flex flex-column flex-sm-row gap-2">
+                <button
+                    class="btn btn-danger btn-custom-action rounded-pill px-4 fw-medium text-white shadow-sm d-flex align-items-center gap-2"
+                    *ngIf="(selectedIds$ | async)?.size as selectedCount" [disabled]="selectedCount === 0"
+                    (click)="bulkDeleteSelected()">
+                    <i class="fa-solid fa-trash-can"></i>
+                    Xoá đã chọn ({{ selectedCount }})
+                </button>
+                <button
+                    class="btn btn-success btn-custom-action rounded-pill px-4 fw-semibold text-white shadow-sm d-flex align-items-center gap-2"
                     routerLink="/admin/plants/create">
-                    <i class="fa-solid fa-plus me-1"></i> Thêm cây mới
+                    <i class="fa-solid fa-plus"></i> Thêm cây mới
                 </button>
             </div>
-            <div class="card-body bg-light rounded-bottom px-4 pb-4">
+        </div>
+    </div>
 
-                <div class="alert alert-success d-flex align-items-center gap-2" *ngIf="actionMessage$ | async as msg">
-                    <i class="fa-solid fa-circle-check"></i>
-                    <span>{{ msg }}</span>
+    <!-- Alert Message -->
+    <div class="alert alert-success d-flex align-items-center gap-2 shadow-sm rounded-3 mb-4 border-0"
+        *ngIf="actionMessage$ | async as msg">
+        <div class="bg-white rounded-circle d-flex align-items-center justify-content-center text-success"
+            style="width: 24px; height: 24px;">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <span class="fw-medium">{{ msg }}</span>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="card premium-card border-0 shadow-sm bg-transparent">
+        <div class="card-header bg-transparent border-0 px-0 pb-3 pt-0">
+            <!-- Search bar -->
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-3 mb-md-0 d-flex align-items-center">
+                    <h5 class="fw-bold mb-0 text-dark ps-2">Danh sách Sản phẩm</h5>
+                    <span class="badge bg-light text-muted border ms-3 rounded-pill fw-medium px-3"
+                        *ngIf="(totalCount$ | async) as total">
+                        {{ total }} mục
+                    </span>
                 </div>
-
-                <div class="d-flex justify-content-end mb-3" *ngIf="(selectedIds$ | async)?.size as selectedCount">
-                    <button
-                        type="button"
-                        class="btn btn-outline-danger rounded-pill px-4"
-                        [disabled]="selectedCount === 0"
-                        (click)="bulkDeleteSelected()">
-                        <i class="fa-solid fa-trash-can me-1"></i>
-                        Xoá đã chọn ({{ selectedCount }})
-                    </button>
-                </div>
-
-                <!-- Search bar -->
-                <div class="row mb-4 align-items-center">
-                    <div class="col-md-6 col-lg-8"></div>
-                    <div class="col-md-6 col-lg-4">
-                        <div class="search-box position-relative">
-                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                            <input type="text" class="form-control rounded-pill pe-5 ps-5 shadow-sm border-0"
-                                placeholder="Tìm kiếm tên cây..." #searchInput
-                                (keyup.enter)="onSearch(searchInput.value)">
-                            <button
-                                class="btn position-absolute top-0 end-0 rounded-pill h-100 px-3 search-btn text-success"
-                                type="button" (click)="onSearch(searchInput.value)" title="Tìm kiếm cây" aria-label="Tìm kiếm cây">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                            </button>
-                        </div>
+                <div class="col-md-6">
+                    <div class="search-box position-relative max-w-400 ms-md-auto">
+                        <i class="fa-solid fa-magnifying-glass search-icon text-muted"></i>
+                        <input type="text" class="form-control rounded-pill pe-5 shadow-sm border-0"
+                            placeholder="Tìm kiếm sản phẩm..." #searchInput (keyup.enter)="onSearch(searchInput.value)">
+                        <button
+                            class="btn position-absolute top-0 end-0 rounded-pill h-100 px-3 search-btn text-success"
+                            type="button" (click)="onSearch(searchInput.value)" title="Tìm kiếm">
+                            Tìm
+                        </button>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="text-center py-5" *ngIf="loading$ | async">
-                    <div class="spinner-grow text-success me-2" role="status"></div>
-                    <div class="spinner-grow text-success me-2 spinner-delay-1" role="status"></div>
-                    <div class="spinner-grow text-success spinner-delay-2" role="status"></div>
-                </div>
+        <div class="card-body bg-transparent px-0 py-0">
+            <!-- Loading State -->
+            <div class="text-center py-5 bg-white rounded-4 shadow-sm" *ngIf="loading$ | async">
+                <div class="spinner-grow text-success me-2 spinner-sm" role="status"></div>
+                <div class="spinner-grow text-success me-2 spinner-sm spinner-delay-1" role="status"></div>
+                <div class="spinner-grow text-success spinner-sm spinner-delay-2" role="status"></div>
+                <p class="text-muted mt-3 fw-medium">Đang tải dữ liệu...</p>
+            </div>
 
-                <!-- Table represented as cards -->
-                <div class="table-responsive" *ngIf="!(loading$ | async)">
-                    <table class="table premium-table align-middle">
-                        <thead>
-                            <tr class="text-muted text-uppercase text-xs fw-bolder">
-                                <th class="ps-3" style="width: 44px;">
-                                    <input
-                                        type="checkbox"
-                                        class="form-check-input"
+            <!-- Table Container -->
+            <div class="table-responsive px-2" *ngIf="!(loading$ | async)">
+                <table class="table premium-table align-middle">
+                    <thead>
+                        <tr class="text-muted text-uppercase text-xs fw-bold">
+                            <th class="ps-4" style="width: 50px;">
+                                <div class="form-check custom-checkbox m-0">
+                                    <input type="checkbox" class="form-check-input"
                                         [checked]="isAllSelectedCurrentPage()"
-                                        title="Chọn tất cả"
-                                        aria-label="Chọn tất cả"
                                         (change)="toggleSelectAllCurrentPage($any($event.target).checked)" />
-                                </th>
-                                <th class="ps-4">Sản phẩm</th>
-                                <th>Danh mục</th>
-                                <th>Giá (VNĐ)</th>
-                                <th>Ngày tạo</th>
-                                <th class="text-center pe-4">Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <ng-container *ngIf="(plants$ | async) as plants">
-                                <tr *ngFor="let plant of plants" class="table-row-card shadow-sm bg-white rounded-3">
-                                    <td class="ps-3 py-3 border-0">
-                                        <input
-                                            type="checkbox"
-                                            class="form-check-input"
-                                            [checked]="isSelected(plant.id)"
-                                            title="Chọn cây"
-                                            aria-label="Chọn cây"
+                                </div>
+                            </th>
+                            <th class="ps-2" style="min-width: 250px;">Sản phẩm</th>
+                            <th>Danh mục</th>
+                            <th>Giá (VNĐ)</th>
+                            <th>Ngày cập nhật</th>
+                            <th class="text-center pe-4" style="width: 120px;">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngIf="(plants$ | async) as plants">
+                            <tr *ngFor="let plant of plants" class="table-row-card bg-white shadow-sm mb-3">
+                                <td class="ps-4 py-3 border-0 rounded-start-4">
+                                    <div class="form-check custom-checkbox m-0">
+                                        <input type="checkbox" class="form-check-input" [checked]="isSelected(plant.id)"
                                             (change)="toggleSelection(plant.id, $any($event.target).checked)" />
-                                    </td>
-                                    <td class="ps-4 py-3 border-0 rounded-start-3">
-                                        <div class="d-flex align-items-center">
-                                            <div class="image-wrapper me-3">
-                                                <img [src]="plant.imageUrl" [alt]="plant.name" title="Ảnh cây"
-                                                    class="plant-img shadow-sm object-fit-cover" />
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0 fw-bold text-dark">{{ plant.name }}</h6>
-                                                <div class="text-muted small fst-italic">{{ plant.scientificName }}
-                                                </div>
-                                            </div>
+                                    </div>
+                                </td>
+                                <td class="ps-2 py-3 border-0">
+                                    <div class="d-flex align-items-center">
+                                        <div class="image-wrapper me-3 position-relative">
+                                            <img [src]="plant.imageUrl" [alt]="plant.name"
+                                                class="plant-img object-fit-cover shadow-sm" />
+                                            <div class="img-overlay rounded"></div>
                                         </div>
-                                    </td>
-                                    <td class="border-0">
-                                        <span
-                                            class="badge bg-light text-success px-3 py-2 rounded-pill fw-semibold border border-success border-opacity-25">
-                                            {{ plant.categoryName }}
-                                        </span>
-                                    </td>
-                                    <td class="border-0 fw-bold text-dark">
-                                        {{ plant.price | number:'1.0-2' }} VNĐ
-                                    </td>
-                                    <td class="border-0 text-muted small">
-                                        <i class="fa-regular fa-calendar me-1"></i> {{ plant.createdAt |
-                                        date:'dd/MM/yyyy' }}
-                                    </td>
-                                    <td class="text-center pe-4 border-0 rounded-end-3">
-                                        <div class="action-buttons d-inline-flex gap-2">
-                                            <button
-                                                class="btn btn-icon btn-light-warning text-warning rounded-circle shadow-sm"
-                                                title="Chỉnh sửa" aria-label="Chỉnh sửa" [routerLink]="['/admin/plants/edit', plant.id]">
-                                                <i class="fa-solid fa-pen"></i>
-                                            </button>
-                                            <button
-                                                class="btn btn-icon btn-light-danger text-danger rounded-circle shadow-sm"
-                                                title="Xoá" aria-label="Xoá" (click)="deletePlant(plant.id)">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
+                                        <div>
+                                            <h6 class="mb-1 fw-bold text-dark text-truncate" style="max-width: 200px;"
+                                                [title]="plant.name">{{ plant.name }}</h6>
+                                            <div class="text-muted small fst-italic text-truncate"
+                                                style="max-width: 200px;">{{ plant.scientificName }}</div>
                                         </div>
-                                    </td>
-                                </tr>
-                                <tr *ngIf="plants.length === 0">
-                                    <td colspan="6" class="text-center py-5 border-0 bg-white rounded-3 shadow-sm">
-                                        <div class="empty-state text-muted d-flex flex-column align-items-center">
-                                            <i class="fa-solid fa-leaf fa-3x mb-3 text-light"></i>
-                                            <h5 class="fw-bold">Không tìm thấy cây nào</h5>
-                                            <p>Vui lòng thử từ khóa khác hoặc thêm cây mới.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </ng-container>
-                        </tbody>
-                    </table>
-                </div>
+                                    </div>
+                                </td>
+                                <td class="border-0">
+                                    <span
+                                        class="badge category-badge border border-success border-opacity-25 text-success bg-success bg-opacity-10 fw-medium px-3 py-2 rounded-pill">
+                                        {{ plant.categoryName }}
+                                    </span>
+                                </td>
+                                <td class="border-0">
+                                    <div class="fw-bold text-dark fs-6">{{ plant.price | number:'1.0-2' }}</div>
+                                    <div class="text-muted small">VNĐ</div>
+                                </td>
+                                <td class="border-0 text-muted small fw-medium">
+                                    <div class="d-flex align-items-center gap-1">
+                                        <i class="fa-regular fa-calendar text-secondary"></i>
+                                        {{ plant.createdAt | date:'dd/MM/yyyy' }}
+                                    </div>
+                                </td>
+                                <td class="text-center pe-4 border-0 rounded-end-4">
+                                    <div class="action-buttons d-flex justify-content-center gap-2">
+                                        <button
+                                            class="btn btn-icon btn-action btn-edit text-primary bg-primary bg-opacity-10 rounded-circle"
+                                            title="Chỉnh sửa" [routerLink]="['/admin/plants/edit', plant.id]">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button
+                                            class="btn btn-icon btn-action btn-delete text-danger bg-danger bg-opacity-10 rounded-circle"
+                                            title="Xoá" (click)="deletePlant(plant.id)">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
 
-                <!-- Pagination -->
-                <div class="d-flex justify-content-between align-items-center mt-4 px-2"
-                    *ngIf="!(loading$ | async) && (totalCount$ | async) as total">
-                    <div class="text-muted small fw-medium">
-                        Hiển thị <strong>{{ (plants$ | async)?.length }}</strong> trong tổng số <strong>{{ total
-                            }}</strong> cây.
-                    </div>
-                    <nav aria-label="Page navigation" *ngIf="(totalPages$ | async) as totalPages; else emptyNav">
-                        <ng-container *ngIf="currentPage$ | async as currentPage">
-                            <ul class="pagination pagination-sm mb-0 gap-1" *ngIf="totalPages > 1">
-                                <li class="page-item" [class.disabled]="currentPage === 1">
-                                    <button
-                                        class="page-link rounded-circle border-0 text-dark shadow-sm h-100 d-flex align-items-center justify-content-center"
-                                        title="Trang trước" aria-label="Trang trước"
-                                        (click)="onPageChange(currentPage - 1)">
-                                        <i class="fa-solid fa-chevron-left fa-xs"></i>
-                                    </button>
-                                </li>
-                                <li class="page-item" *ngFor="let p of getPageArray()"
-                                    [class.active]="currentPage === p">
-                                    <button
-                                        class="page-link rounded-circle border-0 shadow-sm fw-bold h-100 d-flex align-items-center justify-content-center"
-                                        [ngClass]="currentPage === p ? 'bg-success text-white' : 'text-dark'"
-                                        [attr.title]="'Trang ' + p" [attr.aria-label]="'Trang ' + p"
-                                        (click)="onPageChange(p)">
-                                        {{ p }}
-                                    </button>
-                                </li>
-                                <li class="page-item" [class.disabled]="currentPage === totalPages">
-                                    <button
-                                        class="page-link rounded-circle border-0 text-dark shadow-sm h-100 d-flex align-items-center justify-content-center"
-                                        title="Trang sau" aria-label="Trang sau"
-                                        (click)="onPageChange(currentPage + 1)">
-                                        <i class="fa-solid fa-chevron-right fa-xs"></i>
-                                    </button>
-                                </li>
-                            </ul>
+                            <!-- Empty State -->
+                            <tr *ngIf="plants.length === 0">
+                                <td colspan="6" class="text-center py-5 border-0 bg-white rounded-4 shadow-sm">
+                                    <div class="empty-state text-muted d-flex flex-column align-items-center py-4">
+                                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3 text-success"
+                                            style="width: 80px; height: 80px;">
+                                            <i class="fa-solid fa-seedling fs-1"></i>
+                                        </div>
+                                        <h5 class="fw-bold text-dark mb-2">Chưa có cây xanh nào</h5>
+                                        <p class="mb-4">Danh sách hiện đang trống. Hãy thêm sản phẩm đầu tiên của bạn.
+                                        </p>
+                                        <button class="btn btn-success rounded-pill px-4 shadow-sm"
+                                            routerLink="/admin/plants/create">
+                                            <i class="fa-solid fa-plus me-2"></i> Thêm cây mới
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
                         </ng-container>
-                    </nav>
-                    <ng-template #emptyNav></ng-template>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Container -->
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-3 px-3 bg-white rounded-4 shadow-sm py-3"
+                *ngIf="!(loading$ | async) && (totalCount$ | async) as total">
+                <div class="text-muted small fw-medium">
+                    Đang hiển thị <span class="fw-bold text-dark">{{ (plants$ | async)?.length }}</span> trên <span
+                        class="fw-bold text-dark">{{ total }}</span> kết quả
                 </div>
 
+                <nav aria-label="Page navigation" *ngIf="(totalPages$ | async) as totalPages; else emptyNav">
+                    <ng-container *ngIf="currentPage$ | async as currentPage">
+                        <ul class="pagination pagination-sm custom-pagination mb-0 gap-2" *ngIf="totalPages > 1">
+                            <li class="page-item" [class.disabled]="currentPage === 1">
+                                <button
+                                    class="page-link shadow-sm border-0 d-flex align-items-center justify-content-center"
+                                    (click)="onPageChange(currentPage - 1)">
+                                    <i class="fa-solid fa-chevron-left fa-xs"></i>
+                                </button>
+                            </li>
+                            <li class="page-item" *ngFor="let p of getPageArray()" [class.active]="currentPage === p">
+                                <button
+                                    class="page-link shadow-sm border-0 fw-bold d-flex align-items-center justify-content-center"
+                                    (click)="onPageChange(p)">
+                                    {{ p }}
+                                </button>
+                            </li>
+                            <li class="page-item" [class.disabled]="currentPage === totalPages">
+                                <button
+                                    class="page-link shadow-sm border-0 d-flex align-items-center justify-content-center"
+                                    (click)="onPageChange(currentPage + 1)">
+                                    <i class="fa-solid fa-chevron-right fa-xs"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </ng-container>
+                </nav>
+                <ng-template #emptyNav></ng-template>
             </div>
         </div>
     </div>
