@@ -7,10 +7,10 @@ Dưới đây là file **context.md** hoàn chỉnh, tích hợp tất cả các
 ## 1. Tổng quan dự án
 **DigiXanh** là website thương mại điện tử bán cây xanh, được xây dựng với mục đích học hỏi công nghệ và quy trình Scrum.
 
-- **Product Owner (PO):** Bạn (người dùng) – chịu trách nhiệm định hướng, ưu tiên backlog, review kết quả.
+- **Product Owner (PO):** Bạn (ngườI dùng) – chịu trách nhiệm định hướng, ưu tiên backlog, review kết quả.
 - **Development Team:** Hai AI agents – một phụ trách **Frontend (Angular)**, một phụ trách **Backend (ASP.NET Core)**.
 - **Phương pháp:** Scrum (Sprints 1–2 tuần).
-- **Mục tiêu cuối cùng:** Hoàn thành phiên bản MVP với các chức năng CRUD của admin, flow mua hàng của khách, áp dụng 3 mẫu thiết kế (Adapter, Decorator, Facade) và triển khai miễn phí.
+- **Mục tiêu cuốI cùng:** Hoàn thành phiên bản MVP với các chức năng CRUD của admin, flow mua hàng của khách, áp dụng 3 mẫu thiết kế (Adapter, Decorator, Facade) và triển khai miễn phí.
 
 ## 2. Công nghệ sử dụng
 
@@ -88,53 +88,173 @@ src/app/
 
 *Lưu ý:* Các story có thể được chia nhỏ thêm trong quá trình Sprint Planning.
 
-## 5. Database Schema (MVP)
+## 5. Database Schema (Optimized)
+
+> **Cập nhật:** 2026-02-27 - Đã tối ưu với Indexes, Check Constraints và Audit Fields
 
 ### Tables
 
-**Users** (kế thừa IdentityUser)
-- Bổ sung: FullName, Address, PhoneNumber (nếu cần)
+#### **AspNetUsers** (kế thừa IdentityUser)
+| Column | Type | Constraints |
+|--------|------|-------------|
+| Id | nvarchar(450) | PK |
+| FullName | nvarchar(200) | NOT NULL |
+| Email | nvarchar(256) | Unique |
+| UserName | nvarchar(256) | Unique |
+| Address | nvarchar(500) | Nullable |
+| PhoneNumber | nvarchar(max) | Nullable |
+| CreatedAt | datetime2 | DEFAULT GETUTCDATE() |
+| LastLoginAt | datetime2 | Nullable |
 
-**Categories**
-- Id (int, PK)
-- Name (nvarchar(100))
+**Indexes:**
+- `IX_AspNetUsers_CreatedAt` - Tối ưu query theo thờI gian tạo user
 
-**Plants**
-- Id (int, PK)
-- Name (nvarchar(200))
-- ScientificName (nvarchar(200))
-- Description (nvarchar(max))
-- Price (decimal(18,2))
-- CategoryId (int, FK → Categories.Id)
-- ImageUrl (nvarchar(500))
-- IsDeleted (bit) – soft delete
-- CreatedAt (datetime)
-- UpdatedAt (datetime)
+---
 
-**Orders**
-- Id (int, PK)
-- UserId (string, FK → Users.Id)
-- OrderDate (datetime)
-- TotalAmount (decimal(18,2))
-- Status (int) – enum: Pending, Paid, Shipped, Delivered, Cancelled
-- ShippingAddress (nvarchar(500))
-- Phone (nvarchar(20))
-- PaymentMethod (int) – enum: Cash, VNPay
-- TransactionId (nvarchar(100)) – dùng cho VNPay
+#### **Categories**
+| Column | Type | Constraints |
+|--------|------|-------------|
+| Id | int | PK, IDENTITY |
+| Name | nvarchar(100) | NOT NULL |
+| ParentCategoryId | int | FK → Categories.Id, Nullable (Self-referencing) |
+| DisplayOrder | int | DEFAULT 0 |
+| IsActive | bit | DEFAULT 1 |
+| CreatedAt | datetime2 | DEFAULT GETUTCDATE() |
+| UpdatedAt | datetime2 | Nullable |
 
-**OrderItems**
-- Id (int, PK)
-- OrderId (int, FK → Orders.Id)
-- PlantId (int, FK → Plants.Id)
-- Quantity (int)
-- UnitPrice (decimal(18,2)) – giá tại thời điểm mua
+**Indexes:**
+- `IX_Categories_IsActive_DisplayOrder` - Query danh mục active theo thứ tự
+- `IX_Categories_ParentCategoryId` - Query danh mục con
 
-**Carts** (có thể lưu trong DB hoặc session, nhưng nên dùng DB để đồng bộ)
-- Id (int, PK)
-- UserId (string, FK → Users.Id)
-- PlantId (int, FK → Plants.Id)
-- Quantity (int)
-- CreatedAt (datetime)
+---
+
+#### **Plants**
+| Column | Type | Constraints |
+|--------|------|-------------|
+| Id | int | PK, IDENTITY |
+| Name | nvarchar(200) | NOT NULL |
+| ScientificName | nvarchar(200) | NOT NULL |
+| Description | nvarchar(max) | Nullable |
+| Price | decimal(18,2) | CHECK >= 0 |
+| CategoryId | int | FK → Categories.Id, Nullable, ON DELETE SET NULL |
+| ImageUrl | nvarchar(500) | NOT NULL |
+| TrefleId | int | Nullable |
+| StockQuantity | int | Nullable, CHECK >= 0 |
+| IsDeleted | bit | DEFAULT 0 (Soft Delete) |
+| IsActive | bit | DEFAULT 1 |
+| CreatedAt | datetime2 | DEFAULT GETUTCDATE() |
+| UpdatedAt | datetime2 | Nullable |
+| UpdatedBy | nvarchar(450) | Nullable |
+
+**Indexes:**
+- `IX_Plants_Filter_Sort` - (IsDeleted, IsActive, CreatedAt) - Query chính
+- `IX_Plants_Name` - Tìm kiếm theo tên
+- `IX_Plants_ScientificName` - Tìm kiếm theo tên khoa học
+- `IX_Plants_TrefleId` - Filtered index WHERE TrefleId IS NOT NULL
+
+**Check Constraints:**
+- `CK_Plants_Price`: `[Price] >= 0`
+- `CK_Plants_StockQuantity`: `[StockQuantity] IS NULL OR [StockQuantity] >= 0`
+
+---
+
+#### **CartItems**
+| Column | Type | Constraints |
+|--------|------|-------------|
+| Id | int | PK, IDENTITY |
+| UserId | nvarchar(450) | FK → AspNetUsers.Id, ON DELETE CASCADE |
+| PlantId | int | FK → Plants.Id, ON DELETE CASCADE |
+| Quantity | int | CHECK > 0 |
+| CreatedAt | datetime2 | DEFAULT GETUTCDATE() |
+| UpdatedAt | datetime2 | DEFAULT GETUTCDATE() |
+| ExpiresAt | datetime2 | Nullable |
+
+**Indexes:**
+- `IX_CartItems_UserId_PlantId` - UNIQUE - Tránh duplicate item trong giỏ
+- `IX_CartItems_ExpiresAt` - Filtered index WHERE ExpiresAt IS NOT NULL (cleanup job)
+
+**Check Constraints:**
+- `CK_CartItems_Quantity`: `[Quantity] > 0`
+
+---
+
+#### **Orders**
+| Column | Type | Constraints |
+|--------|------|-------------|
+| Id | int | PK, IDENTITY |
+| UserId | nvarchar(450) | FK → AspNetUsers.Id, ON DELETE RESTRICT |
+| OrderDate | datetime2 | DEFAULT GETUTCDATE() |
+| TotalAmount | decimal(18,2) | CHECK >= 0 |
+| DiscountAmount | decimal(18,2) | CHECK >= 0 |
+| FinalAmount | decimal(18,2) | CHECK >= 0 |
+| Status | int | NOT NULL (enum: Pending, Paid, Shipped, Delivered, Cancelled) |
+| RecipientName | nvarchar(200) | NOT NULL |
+| Phone | nvarchar(20) | NOT NULL |
+| ShippingAddress | nvarchar(500) | NOT NULL |
+| PaymentMethod | int | NOT NULL (enum: Cash, VNPay) |
+| TransactionId | nvarchar(100) | Nullable |
+| PaymentUrl | nvarchar(2000) | Nullable |
+| UpdatedAt | datetime2 | Nullable |
+| UpdatedBy | nvarchar(450) | Nullable |
+
+**Indexes:**
+- `IX_Orders_UserId_OrderDate` - Query đơn hàng theo user
+- `IX_Orders_Status` - Query theo trạng thái
+- `IX_Orders_Status_OrderDate` - Query dashboard/admin
+- `IX_Orders_TransactionId` - Filtered index WHERE TransactionId IS NOT NULL
+
+**Check Constraints:**
+- `CK_Orders_TotalAmount`: `[TotalAmount] >= 0`
+- `CK_Orders_DiscountAmount`: `[DiscountAmount] >= 0`
+- `CK_Orders_FinalAmount`: `[FinalAmount] >= 0`
+
+---
+
+#### **OrderItems**
+| Column | Type | Constraints |
+|--------|------|-------------|
+| Id | int | PK, IDENTITY |
+| OrderId | int | FK → Orders.Id, ON DELETE CASCADE |
+| PlantId | int | FK → Plants.Id, ON DELETE RESTRICT |
+| Quantity | int | CHECK > 0 |
+| UnitPrice | decimal(18,2) | CHECK >= 0 |
+| CreatedAt | datetime2 | DEFAULT GETUTCDATE() |
+
+**Indexes:**
+- `IX_OrderItems_OrderId` - Query items theo đơn hàng
+- `IX_OrderItems_PlantId` - Query thống kê sản phẩm
+
+**Check Constraints:**
+- `CK_OrderItems_Quantity`: `[Quantity] > 0`
+- `CK_OrderItems_UnitPrice`: `[UnitPrice] >= 0`
+
+---
+
+#### **OrderStatusHistories** (Audit trail cho đơn hàng)
+| Column | Type | Constraints |
+|--------|------|-------------|
+| Id | int | PK, IDENTITY |
+| OrderId | int | FK → Orders.Id, ON DELETE CASCADE |
+| OldStatus | int | NOT NULL |
+| NewStatus | int | NOT NULL |
+| ChangedBy | nvarchar(450) | Nullable |
+| Reason | nvarchar(500) | Nullable |
+| ChangedAt | datetime2 | DEFAULT GETUTCDATE() |
+
+**Indexes:**
+- `IX_OrderStatusHistories_OrderId_ChangedAt` - Query lịch sử theo đơn hàng
+
+---
+
+### Migrations hiện có
+1. `20260225114315_InitialIdentity` - Identity tables
+2. `20260225160855_AddPlantAndCategory` - Plants và Categories
+3. `20260225162034_SeedPlantsData` - Seed dữ liệu mẫu
+4. `20260225165902_AddPlantDescriptionAndTrefleId` - Thêm mô tả và TrefleId
+5. `20260225175932_AddOrdersForDashboard` - Thêm Orders và seed data
+6. `20260226131828_AddCartItems` - Thêm CartItems
+7. `20260226172016_US11_UpdateOrderSchema` - Cập nhật Order schema (US11)
+8. `20260227162707_OptimizeDatabaseSchema` - **Tối ưu indexes, constraints, audit fields**
 
 ## 6. Chi tiết Design Patterns
 
@@ -200,7 +320,7 @@ public class OrderProcessingFacade
             // 5. Lưu order
             await _orderRepo.AddAsync(order);
             // 6. Gửi email xác nhận (bỏ qua nếu chưa có email service)
-            // 7. Xoá giỏ hàng
+            // 7. Xóa giỏ hàng
             await _cartService.ClearCartAsync(cart.UserId);
             // 8. Commit transaction
             await transaction.CommitAsync();

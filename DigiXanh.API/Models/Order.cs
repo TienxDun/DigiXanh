@@ -16,6 +16,9 @@ public class Order
     public PaymentMethod PaymentMethod { get; set; }
     public string? TransactionId { get; set; }
     public string? PaymentUrl { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public string? UpdatedBy { get; set; }
+    public ICollection<OrderStatusHistory> StatusHistories { get; set; } = new List<OrderStatusHistory>();
     public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 }
 
@@ -26,6 +29,18 @@ public enum OrderStatus
     Shipped = 2,
     Delivered = 3,
     Cancelled = 4
+}
+
+public class OrderStatusHistory
+{
+    public int Id { get; set; }
+    public int OrderId { get; set; }
+    public Order? Order { get; set; }
+    public OrderStatus OldStatus { get; set; }
+    public OrderStatus NewStatus { get; set; }
+    public string? ChangedBy { get; set; }
+    public string? Reason { get; set; }
+    public DateTime ChangedAt { get; set; } = DateTime.UtcNow;
 }
 
 public enum PaymentMethod

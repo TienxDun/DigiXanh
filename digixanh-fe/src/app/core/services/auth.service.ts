@@ -12,6 +12,17 @@ export interface LoginResponse {
   role: string;
 }
 
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  fullName: string;
+}
+
+export interface RegisterResponse {
+  message: string;
+  userId?: string;
+}
+
 interface StoredUser {
   id: string;
   email: string;
@@ -37,8 +48,8 @@ export class AuthService {
     return !!localStorage.getItem('token');
   }
 
-  register(data: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, data);
+  register(data: RegisterRequest): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, data);
   }
 
   isAuthenticated(): boolean {
