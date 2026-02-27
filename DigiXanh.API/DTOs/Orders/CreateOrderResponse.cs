@@ -18,3 +18,9 @@ public class VNPayReturnResponse
     public string? TransactionId { get; set; }
     public OrderDetailDto? Order { get; set; }
 }
+
+public class VNPayIpnResponse
+{
+    public string RspCode { get; set; } = string.Empty;
+    public string Message { get; set; } = string.Empty;
+}

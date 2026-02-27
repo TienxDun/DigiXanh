@@ -91,14 +91,21 @@
           <span class="fw-bold text-dark fs-6">{{ summary.totalQuantity }} sản phẩm</span>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-dashed small">
+        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-dashed small">
           <span class="text-muted">Tạm tính</span>
           <span class="fw-bold text-dark fs-6">{{ summary.totalAmount | currency:'VND':'symbol' }}</span>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-4 flex-nowrap">
+        @if (hasDiscount) {
+        <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-dashed small">
+          <span class="text-success">{{ discountLabel }}</span>
+          <span class="fw-bold text-success fs-6">-{{ summary.discountAmount | currency:'VND':'symbol' }}</span>
+        </div>
+        }
+
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-nowrap pt-1">
           <span class="fw-bold fs-6 text-dark text-nowrap me-2">Tổng cộng</span>
-          <span class="fw-bolder fs-3 text-success text-end text-nowrap">{{ summary.totalAmount |
+          <span class="fw-bolder fs-3 text-success text-end text-nowrap">{{ summary.finalAmount |
             currency:'VND':'symbol' }}</span>
         </div>
 

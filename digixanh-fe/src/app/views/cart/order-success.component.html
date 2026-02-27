@@ -1,6 +1,7 @@
 <section class="container py-4 py-lg-5">
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
+      
       <!-- TC08: Thanh toán VNPay thành công || Đặt hàng tiền mặt thành công -->
       <div *ngIf="isPaymentSuccess || isCashPayment" class="card border-0 shadow-lg">
         <div class="card-body text-center p-5">
@@ -77,6 +78,24 @@
             </div>
           </div>
 
+          <!-- Basic Info when order object is not available but we have orderId -->
+          <div *ngIf="!order && orderId" class="text-start bg-light rounded-3 p-4 mb-4">
+            <h6 class="fw-bold mb-3 border-bottom pb-2">
+              <i class="fas fa-receipt text-success me-2"></i>
+              Thông tin đơn hàng
+            </h6>
+            <div class="row g-2 small">
+              <div class="col-6 text-muted">Mã đơn hàng:</div>
+              <div class="col-6 text-end fw-semibold">#{{ orderId }}</div>
+              <div class="col-6 text-muted">Trạng thái:</div>
+              <div class="col-6 text-end fw-semibold text-success">Đã thanh toán</div>
+            </div>
+            <div *ngIf="transactionId" class="row g-2 small mt-2">
+              <div class="col-6 text-muted">Mã giao dịch:</div>
+              <div class="col-6 text-end font-monospace">{{ transactionId }}</div>
+            </div>
+          </div>
+
           <!-- Action Buttons -->
           <div class="d-grid gap-2">
             <a routerLink="/" class="btn btn-success btn-lg">
@@ -105,7 +124,16 @@
           
           <p class="text-muted mb-4">{{ pageDescription }}</p>
 
-          <!-- TC09: Thông tin đơn hàng (nếu có) -->
+          <!-- TC09: Thông báo giỏ hàng đã được khôi phục -->
+          <div class="alert alert-info d-flex align-items-start text-start mb-4">
+            <i class="fas fa-info-circle mt-1 me-2"></i>
+            <div>
+              <strong>Giỏ hàng của bạn đã được khôi phục.</strong><br>
+              <span class="small">Bạn có thể thử thanh toán lại hoặc chọn phương thức thanh toán khác.</span>
+            </div>
+          </div>
+
+          <!-- TC09: Thông tin đơn hàng (nếu có và chưa bị xóa) -->
           <div *ngIf="order" class="text-start bg-light rounded-3 p-4 mb-4">
             <h6 class="fw-bold mb-3 border-bottom pb-2">
               <i class="fas fa-receipt text-danger me-2"></i>
@@ -144,6 +172,7 @@
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </section>

@@ -3,6 +3,7 @@ using DigiXanh.API.Data;
 using DigiXanh.API.DTOs.Cart;
 using DigiXanh.API.Helpers;
 using DigiXanh.API.Models;
+using DigiXanh.API.Patterns.Decorator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -16,10 +17,12 @@ public class CartController : ControllerBase
 {
     private const int MaxQuantityPerItem = 99;
     private readonly ApplicationDbContext _dbContext;
+    private readonly IPriceCalculator _priceCalculator;
 
     public CartController(ApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
+        _priceCalculator = PriceCalculatorFactory.CreateCalculatorWithDiscounts();
     }
 
     [HttpGet]
@@ -59,9 +62,25 @@ public class CartController : ControllerBase
             .ToListAsync();
 
         var totalQuantity = items.Sum(item => item.Quantity);
-        var totalAmount = items.Sum(item => item.LineTotal);
+        var cartItems = items.Select(dto => new CartItem
+        {
+            Id = dto.Id,
+            PlantId = dto.PlantId,
+            Quantity = dto.Quantity,
+            Plant = new Plant
+            {
+                Id = dto.PlantId,
+                Name = dto.PlantName,
+                ScientificName = dto.ScientificName,
+                Price = dto.Price,
+                ImageUrl = dto.ImageUrl
+            }
+        }).ToList();
 
-        return Ok(new CartSummaryDto(items, totalQuantity, totalAmount));
+        var (baseAmount, discountAmount, finalAmount) = _priceCalculator.CalculatePriceWithDetails(cartItems);
+        var discountPercent = totalQuantity >= 3 ? 7 : totalQuantity >= 2 ? 5 : 0;
+
+        return Ok(new CartSummaryDto(items, totalQuantity, baseAmount, discountAmount, discountPercent, finalAmount));
     }
 
     [HttpPost("items")]

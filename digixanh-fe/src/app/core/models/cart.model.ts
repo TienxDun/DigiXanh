@@ -22,4 +22,7 @@ export interface CartSummaryDto {
   items: CartItemDto[];
   totalQuantity: number;
   totalAmount: number;
+  discountAmount: number;
+  discountPercent: number;
+  finalAmount: number;
 }

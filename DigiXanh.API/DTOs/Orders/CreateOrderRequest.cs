@@ -20,7 +20,7 @@ public class CreateOrderRequest
 
     [Required(ErrorMessage = "Vui lòng chọn phương thức thanh toán")]
     [Range(0, 1, ErrorMessage = "Phương thức thanh toán không hợp lệ")]
-    public PaymentMethodDto PaymentMethod { get; set; }
+    public int PaymentMethod { get; set; }
 
     public string? ReturnUrl { get; set; }
 }

@@ -14,5 +14,8 @@ public record CartItemDto(
 public record CartSummaryDto(
     IReadOnlyList<CartItemDto> Items,
     int TotalQuantity,
-    decimal TotalAmount
+    decimal TotalAmount,
+    decimal DiscountAmount,
+    decimal DiscountPercent,
+    decimal FinalAmount
 );

@@ -13,24 +13,21 @@ import {
 })
 export class OrderService {
   private readonly apiUrl = `${environment.apiUrl}/orders`;
+  private readonly paymentApiUrl = `${environment.apiUrl}/payment`;
 
   constructor(private readonly http: HttpClient) {}
 
   createOrder(request: CreateOrderRequest): Observable<CreateOrderResponse> {
-    // Set return URL cho VNPay
-    const returnUrl = `${window.location.origin}/payment-return`;
-    request.returnUrl = returnUrl;
-    
     return this.http.post<CreateOrderResponse>(this.apiUrl, request);
   }
 
   processVNPayReturn(vnpayData: { [key: string]: string }): Observable<VNPayReturnResponse> {
     // Chuyển query params thành HTTP params
-    let params = new HttpParams();
+    let params = new HttpParams().set('format', 'json');
     Object.keys(vnpayData).forEach(key => {
       params = params.set(key, vnpayData[key]);
     });
     
-    return this.http.get<VNPayReturnResponse>(`${this.apiUrl}/payment-return`, { params });
+    return this.http.get<VNPayReturnResponse>(`${this.paymentApiUrl}/vnpay-return`, { params });
   }
 }

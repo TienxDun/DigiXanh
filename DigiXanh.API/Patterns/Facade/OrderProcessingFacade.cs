@@ -3,71 +3,79 @@ using DigiXanh.API.DTOs.Orders;
 using DigiXanh.API.Models;
 using DigiXanh.API.Patterns.Adapter;
 using DigiXanh.API.Patterns.Decorator;
+using DigiXanh.API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace DigiXanh.API.Patterns.Facade;
 
+/// <summary>
+/// Facade Pattern - Đóng gói toàn bộ quy trình xử lý đơn hàng
+/// Bao gồm: Validate → Tính giá → Tạo Order → Thanh toán → Email → Xóa giỏ hàng
+/// </summary>
 public class OrderProcessingFacade
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly IPaymentAdapterFactory _paymentFactory;
+    private readonly IOrderEmailService _emailService;
     private readonly ILogger<OrderProcessingFacade> _logger;
     private readonly IConfiguration _config;
 
     public OrderProcessingFacade(
         ApplicationDbContext dbContext,
         IPaymentAdapterFactory paymentFactory,
+        IOrderEmailService emailService,
         ILogger<OrderProcessingFacade> logger,
         IConfiguration config)
     {
         _dbContext = dbContext;
         _paymentFactory = paymentFactory;
+        _emailService = emailService;
         _logger = logger;
         _config = config;
     }
 
+    /// <summary>
+    /// Quy trình đặt hàng hoàn chỉnh:
+    /// 1. Validate dữ liệu đầu vào
+    /// 2. Tính tổng tiền với decorator giảm giá
+    /// 3. Tạo Order và OrderItem
+    /// 4. Xử lý thanh toán qua Adapter
+    /// 5. Gửi email xác nhận
+    /// 6. Xóa giỏ hàng
+    /// 7. Commit transaction
+    /// </summary>
     public async Task<CreateOrderResponse> PlaceOrderAsync(
         string userId, 
         CreateOrderRequest request, 
         string ipAddress)
     {
-        // 1. Validate - Kiểm tra giỏ hàng
-        var cartItems = await _dbContext.CartItems
-            .Include(ci => ci.Plant)
-            .Where(ci => ci.UserId == userId && ci.Plant != null && !ci.Plant.IsDeleted)
-            .ToListAsync();
-
-        if (!cartItems.Any())
+        // ==================== STEP 1: Validate dữ liệu ====================
+        var validationResult = await ValidateOrderDataAsync(userId, request);
+        if (!validationResult.IsValid)
         {
             return new CreateOrderResponse
             {
                 Success = false,
-                Message = "Giỏ hàng trống. Vui lòng thêm sản phẩm trước khi đặt hàng."
+                Message = validationResult.ErrorMessage!
             };
         }
 
-        // 2. Validate thông tin giao hàng
-        if (string.IsNullOrWhiteSpace(request.RecipientName))
-        {
-            return new CreateOrderResponse { Success = false, Message = "Vui lòng nhập tên ngườI nhận." };
-        }
-        if (string.IsNullOrWhiteSpace(request.Phone))
-        {
-            return new CreateOrderResponse { Success = false, Message = "Vui lòng nhập số điện thoại." };
-        }
-        if (string.IsNullOrWhiteSpace(request.ShippingAddress))
-        {
-            return new CreateOrderResponse { Success = false, Message = "Vui lòng nhập địa chỉ giao hàng." };
-        }
+        var cartItems = validationResult.CartItems!;
+        var user = validationResult.User!;
 
-        // 3. Tính tổng tiền với Decorator pattern
+        // ==================== STEP 2: Tính tổng tiền với Decorator Pattern ====================
         var priceCalculator = PriceCalculatorFactory.CreateCalculatorWithDiscounts();
         var (baseAmount, discountAmount, finalAmount) = priceCalculator.CalculatePriceWithDetails(cartItems);
 
+        _logger.LogInformation(
+            "[Order] Price calculation - UserId: {UserId}, Base: {Base:C}, Discount: {Discount:C}, Final: {Final:C}",
+            userId, baseAmount, discountAmount, finalAmount);
+
+        // ==================== STEP 3-7: Transaction ====================
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
         try
         {
-            // 4. Tạo Order entity
+            // 3. Tạo Order entity
             var order = new Order
             {
                 UserId = userId,
@@ -88,11 +96,13 @@ public class OrderProcessingFacade
                 }).ToList()
             };
 
-            // 5. Lưu order để có Id cho thanh toán
+            // Lưu order để có Id cho thanh toán
             _dbContext.Orders.Add(order);
             await _dbContext.SaveChangesAsync();
 
-            // 6. Xử lý thanh toán qua Adapter pattern
+            _logger.LogInformation("[Order] Created OrderId: {OrderId} for UserId: {UserId}", order.Id, userId);
+
+            // 4. Xử lý thanh toán qua Adapter Pattern
             var paymentAdapter = _paymentFactory.GetAdapter(order.PaymentMethod);
             var paymentInfo = new PaymentInfo
             {
@@ -104,6 +114,8 @@ public class OrderProcessingFacade
             if (!paymentResult.Success)
             {
                 await transaction.RollbackAsync();
+                _logger.LogWarning("[Order] Payment failed for OrderId: {OrderId}, Reason: {Reason}", 
+                    order.Id, paymentResult.Message);
                 return new CreateOrderResponse
                 {
                     Success = false,
@@ -111,23 +123,44 @@ public class OrderProcessingFacade
                 };
             }
 
-            // 7. Cập nhật transactionId nếu có
+            // Cập nhật transactionId nếu có
             if (!string.IsNullOrEmpty(paymentResult.TransactionId))
             {
                 order.TransactionId = paymentResult.TransactionId;
             }
 
-            // 8. Lưu lại order sau khi xử lý thanh toán
+            // Lưu lại order sau khi xử lý thanh toán
             await _dbContext.SaveChangesAsync();
 
-            // 9. Xóa giỏ hàng
+            // 5. Gửi email xác nhận (placeholder - không ảnh hưởng transaction)
+            try
+            {
+                await _emailService.SendOrderConfirmationEmailAsync(
+                    user.Email ?? string.Empty, 
+                    order, 
+                    user.FullName ?? user.UserName ?? "Khách hàng");
+            }
+            catch (Exception ex)
+            {
+                // Email lỗi không rollback transaction
+                _logger.LogWarning(ex, "[Order] Failed to send confirmation email for OrderId: {OrderId}", order.Id);
+            }
+
+            // 6. Xóa giỏ hàng
             _dbContext.CartItems.RemoveRange(cartItems);
             await _dbContext.SaveChangesAsync();
 
-            // 10. Commit transaction
+            _logger.LogInformation("[Order] Cleared cart for UserId: {UserId}, {ItemCount} items removed", 
+                userId, cartItems.Count);
+
+            // 7. Commit transaction
             await transaction.CommitAsync();
 
-            // 11. Trả về response
+            _logger.LogInformation(
+                "[Order] Successfully completed OrderId: {OrderId}, PaymentMethod: {PaymentMethod}",
+                order.Id, order.PaymentMethod);
+
+            // Trả về response
             return new CreateOrderResponse
             {
                 Success = true,
@@ -140,7 +173,7 @@ public class OrderProcessingFacade
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            _logger.LogError(ex, "Error processing order for user {UserId}", userId);
+            _logger.LogError(ex, "[Order] Error processing order for user {UserId}", userId);
             return new CreateOrderResponse
             {
                 Success = false,
@@ -149,30 +182,122 @@ public class OrderProcessingFacade
         }
     }
 
+    /// <summary>
+    /// Validate toàn bộ dữ liệu đặt hàng
+    /// </summary>
+    private async Task<ValidationResult> ValidateOrderDataAsync(string userId, CreateOrderRequest request)
+    {
+        // Validate user tồn tại
+        var user = await _dbContext.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return ValidationResult.Failure("Không tìm thấy thông tin ngườI dùng.");
+        }
+
+        // Validate giỏ hàng không trống
+        var cartItems = await _dbContext.CartItems
+            .Include(ci => ci.Plant)
+            .Where(ci => ci.UserId == userId && ci.Plant != null && !ci.Plant.IsDeleted)
+            .ToListAsync();
+
+        if (!cartItems.Any())
+        {
+            return ValidationResult.Failure("Giỏ hàng trống. Vui lòng thêm sản phẩm trước khi đặt hàng.");
+        }
+
+        // Validate số lượng sản phẩm trong kho
+        foreach (var item in cartItems)
+        {
+            // Nếu có trường StockQuantity, kiểm tra ở đây
+            // Hiện tại giả định luôn có hàng
+            if (item.Quantity <= 0)
+            {
+                return ValidationResult.Failure($"Số lượng sản phẩm '{item.Plant?.Name}' không hợp lệ.");
+            }
+        }
+
+        // Validate thông tin giao hàng
+        if (string.IsNullOrWhiteSpace(request.RecipientName))
+        {
+            return ValidationResult.Failure("Vui lòng nhập tên ngườI nhận.");
+        }
+
+        if (request.RecipientName.Length < 2 || request.RecipientName.Length > 200)
+        {
+            return ValidationResult.Failure("Tên ngườI nhận phải từ 2 đến 200 ký tự.");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Phone))
+        {
+            return ValidationResult.Failure("Vui lòng nhập số điện thoại.");
+        }
+
+        // Validate số điện thoại VN
+        var phoneRegex = new System.Text.RegularExpressions.Regex(@"^(0[0-9]{9,10})$|^\+84[0-9]{9,10}$");
+        if (!phoneRegex.IsMatch(request.Phone.Trim()))
+        {
+            return ValidationResult.Failure("Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại Việt Nam (10-11 số).");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.ShippingAddress))
+        {
+            return ValidationResult.Failure("Vui lòng nhập địa chỉ giao hàng.");
+        }
+
+        if (request.ShippingAddress.Length < 10 || request.ShippingAddress.Length > 500)
+        {
+            return ValidationResult.Failure("Địa chỉ giao hàng phải từ 10 đến 500 ký tự.");
+        }
+
+        // Validate phương thức thanh toán
+        if (!Enum.IsDefined(typeof(PaymentMethod), (int)request.PaymentMethod))
+        {
+            return ValidationResult.Failure("Phương thức thanh toán không hợp lệ.");
+        }
+
+        // Với VNPay, cần có ReturnUrl
+        if (request.PaymentMethod == (int)PaymentMethod.VNPay && string.IsNullOrWhiteSpace(request.ReturnUrl))
+        {
+            _logger.LogWarning("[Order] VNPay payment requested without ReturnUrl for UserId: {UserId}", userId);
+        }
+
+        return ValidationResult.Success(cartItems, user);
+    }
+
+    /// <summary>
+    /// Xử lý VNPay Return URL - cập nhật trạng thái đơn hàng sau thanh toán
+    /// </summary>
     public async Task<VNPayReturnResponse> ProcessVNPayReturnAsync(Dictionary<string, string> vnpayData)
     {
         var vnp_HashSecret = _config["VNPay:HashSecret"] ?? "";
         var vnp_SecureHash = vnpayData.GetValueOrDefault("vnp_SecureHash");
         
-        _logger.LogInformation("Processing VNPay return with data: {Data}", 
-            string.Join(", ", vnpayData.Select(x => $"{x.Key}={x.Value}")));
+        _logger.LogInformation("[VNPay-Return] Processing with data count: {Count}", vnpayData.Count);
+        _logger.LogInformation("[VNPay-Return] SecureHash from VNPay: {SecureHash}", vnp_SecureHash);
+        _logger.LogInformation("[VNPay-Return] HashSecret configured: {HasHashSecret}", !string.IsNullOrEmpty(vnp_HashSecret));
         
         // Validate signature
-        var isValidSignature = VnPayLibrary.ValidateSignature(vnpayData, vnp_SecureHash ?? "", vnp_HashSecret);
+        var isValidSignature = VnPayLibrary.ValidateSignature(
+            new Dictionary<string, string>(vnpayData, StringComparer.OrdinalIgnoreCase), 
+            vnp_SecureHash ?? "", 
+            vnp_HashSecret);
 
         if (!isValidSignature)
         {
-            _logger.LogWarning("Invalid VNPay signature");
+            _logger.LogWarning("[VNPay-Return] Invalid VNPay signature. Check HashSecret configuration.");
             return new VNPayReturnResponse 
             { 
                 Success = false, 
-                Message = "Chữ ký không hợp lệ.",
+                Message = "Chữ ký không hợp lệ. Vui lòng kiểm tra cấu hình HashSecret.",
                 Status = "InvalidSignature"
             };
         }
+        
+        _logger.LogInformation("[VNPay-Return] Signature validated successfully");
 
         if (!int.TryParse(vnpayData.GetValueOrDefault("vnp_TxnRef"), out var orderId) || orderId <= 0)
         {
+            _logger.LogWarning("[VNPay-Return] Invalid order id from callback. TxnRef={TxnRef}", vnpayData.GetValueOrDefault("vnp_TxnRef"));
             return new VNPayReturnResponse
             {
                 Success = false,
@@ -195,30 +320,57 @@ public class OrderProcessingFacade
         var order = await _dbContext.Orders
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Plant)
+            .Include(o => o.User)
             .FirstOrDefaultAsync(o => o.Id == orderId);
             
         if (order == null)
         {
+            _logger.LogWarning("[VNPay-Return] Order not found. OrderId={OrderId}", orderId);
             return new VNPayReturnResponse { Success = false, Message = "Không tìm thấy đơn hàng.", Status = "OrderNotFound" };
         }
 
-        // Theo tài liệu VNPay: giao dịch thành công khi ResponseCode = 00 và TransactionStatus = 00
         var isSuccess = vnp_ResponseCode == "00" && vnp_TransactionStatus == "00";
 
         if (isSuccess)
         {
-            // TC08: Thanh toán thành công
-            order.Status = OrderStatus.Paid;
-            order.TransactionId = vnp_TransactionNo;
-            await _dbContext.SaveChangesAsync();
+            if (order.Status == OrderStatus.Pending)
+            {
+                order.Status = OrderStatus.Paid;
+                if (!string.IsNullOrWhiteSpace(vnp_TransactionNo))
+                {
+                    order.TransactionId = vnp_TransactionNo;
+                }
 
-            _logger.LogInformation("Order {OrderId} paid successfully via VNPay", orderId);
+                await _dbContext.SaveChangesAsync();
+
+                // Gửi email thanh toán thành công
+                try
+                {
+                    if (order.User != null)
+                    {
+                        await _emailService.SendPaymentSuccessEmailAsync(
+                            order.User.Email ?? string.Empty,
+                            order,
+                            vnp_TransactionNo ?? "N/A");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "[VNPay-Return] Failed to send payment success email for OrderId: {OrderId}", order.Id);
+                }
+
+                _logger.LogInformation("[VNPay-Return] Order marked as Paid. OrderId={OrderId}, TransactionNo={TransactionNo}", order.Id, vnp_TransactionNo);
+            }
+            else
+            {
+                _logger.LogInformation("[VNPay-Return] Order already processed. OrderId={OrderId}, CurrentStatus={CurrentStatus}", order.Id, order.Status);
+            }
 
             return new VNPayReturnResponse
             {
                 Success = true,
                 OrderId = order.Id,
-                Status = "Paid",
+                Status = order.Status.ToString(),
                 Message = "Thanh toán thành công.",
                 TransactionId = vnp_TransactionNo,
                 Order = MapToOrderDetailDto(order)
@@ -226,19 +378,40 @@ public class OrderProcessingFacade
         }
         else
         {
-            // TC09: Thanh toán thất bại hoặc bị hủy
-            order.Status = OrderStatus.Cancelled;
-            await _dbContext.SaveChangesAsync();
-
-            _logger.LogInformation(
-                "Order {OrderId} payment failed or cancelled. ResponseCode: {ResponseCode}, TransactionStatus: {TransactionStatus}",
-                orderId,
-                vnp_ResponseCode,
-                vnp_TransactionStatus);
+            if (order.Status == OrderStatus.Pending)
+            {
+                // === XÓA ĐƠN HÀNG và KHÔI PHỤC GIỎ HÀNG khi thanh toán thất bại ===
+                _logger.LogInformation("[VNPay-Return] Payment failed/cancelled. Deleting OrderId={OrderId}, ResponseCode={ResponseCode}", order.Id, vnp_ResponseCode);
+                
+                // 1. Khôi phục giỏ hàng (tạo lại cart items từ order items)
+                foreach (var orderItem in order.OrderItems)
+                {
+                    _dbContext.CartItems.Add(new CartItem
+                    {
+                        UserId = order.UserId,
+                        PlantId = orderItem.PlantId,
+                        Quantity = orderItem.Quantity
+                    });
+                }
+                _logger.LogInformation("[VNPay-Return] Restored {Count} items to cart for UserId={UserId}", order.OrderItems.Count, order.UserId);
+                
+                // 2. Xóa order items
+                _dbContext.OrderItems.RemoveRange(order.OrderItems);
+                
+                // 3. Xóa order
+                _dbContext.Orders.Remove(order);
+                
+                await _dbContext.SaveChangesAsync();
+                _logger.LogInformation("[VNPay-Return] Order deleted successfully. OrderId={OrderId}", order.Id);
+            }
+            else
+            {
+                _logger.LogInformation("[VNPay-Return] Failure callback received but order already processed. OrderId={OrderId}, CurrentStatus={CurrentStatus}", order.Id, order.Status);
+            }
 
             var message = vnp_ResponseCode switch
             {
-                "24" => "Đã hủy thanh toán.",
+                "24" => "Đã hủy thanh toán. Giỏ hàng của bạn đã được khôi phục.",
                 "25" => "Giao dịch không tìm thấy.",
                 "51" => "Tài khoản không đủ số dư.",
                 "65" => "Tài khoản đã vượt quá hạn mức giao dịch.",
@@ -253,11 +426,105 @@ public class OrderProcessingFacade
             return new VNPayReturnResponse
             {
                 Success = false,
-                OrderId = order.Id,
+                OrderId = 0,  // Order đã bị xóa
                 Status = status,
                 Message = message,
-                Order = MapToOrderDetailDto(order)
+                Order = null  // Order không còn tồn tại
             };
+        }
+    }
+
+    /// <summary>
+    /// Xử lý VNPay IPN - Instant Payment Notification
+    /// </summary>
+    public async Task<VNPayIpnResponse> ProcessVNPayIpnAsync(Dictionary<string, string> vnpayData)
+    {
+        try
+        {
+            var vnp_HashSecret = _config["VNPay:HashSecret"] ?? "";
+            var vnp_SecureHash = vnpayData.GetValueOrDefault("vnp_SecureHash");
+
+            var isValidSignature = VnPayLibrary.ValidateSignature(new Dictionary<string, string>(vnpayData), vnp_SecureHash ?? "", vnp_HashSecret);
+            if (!isValidSignature)
+            {
+                return new VNPayIpnResponse { RspCode = "97", Message = "Invalid signature" };
+            }
+
+            if (!int.TryParse(vnpayData.GetValueOrDefault("vnp_TxnRef"), out var orderId) || orderId <= 0)
+            {
+                _logger.LogWarning("[VNPay-IPN] Invalid order id. TxnRef={TxnRef}", vnpayData.GetValueOrDefault("vnp_TxnRef"));
+                return new VNPayIpnResponse { RspCode = "01", Message = "Order not found" };
+            }
+
+            var order = await _dbContext.Orders
+                .Include(o => o.User)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+                
+            if (order == null)
+            {
+                _logger.LogWarning("[VNPay-IPN] Order not found. OrderId={OrderId}", orderId);
+                return new VNPayIpnResponse { RspCode = "01", Message = "Order not found" };
+            }
+
+            var amountRaw = vnpayData.GetValueOrDefault("vnp_Amount");
+            if (!long.TryParse(amountRaw, out var amountInVnPayUnit))
+            {
+                return new VNPayIpnResponse { RspCode = "04", Message = "Invalid amount" };
+            }
+
+            var amount = amountInVnPayUnit / 100m;
+            if (amount != order.FinalAmount)
+            {
+                _logger.LogWarning("[VNPay-IPN] Amount mismatch. OrderId={OrderId}, Expected={Expected}, Received={Received}", order.Id, order.FinalAmount, amount);
+                return new VNPayIpnResponse { RspCode = "04", Message = "Invalid amount" };
+            }
+
+            if (order.Status != OrderStatus.Pending)
+            {
+                _logger.LogInformation("[VNPay-IPN] Order already confirmed. OrderId={OrderId}, CurrentStatus={CurrentStatus}", order.Id, order.Status);
+                return new VNPayIpnResponse { RspCode = "02", Message = "Order already confirmed" };
+            }
+
+            var vnp_ResponseCode = vnpayData.GetValueOrDefault("vnp_ResponseCode");
+            var vnp_TransactionStatus = vnpayData.GetValueOrDefault("vnp_TransactionStatus");
+            var vnp_TransactionNo = vnpayData.GetValueOrDefault("vnp_TransactionNo");
+
+            var isSuccess = vnp_ResponseCode == "00" && vnp_TransactionStatus == "00";
+            if (isSuccess)
+            {
+                order.Status = OrderStatus.Paid;
+                order.TransactionId = vnp_TransactionNo;
+                _logger.LogInformation("[VNPay-IPN] Payment success. OrderId={OrderId}, TransactionNo={TransactionNo}", order.Id, vnp_TransactionNo);
+
+                // Gửi email thanh toán thành công
+                try
+                {
+                    if (order.User != null)
+                    {
+                        await _emailService.SendPaymentSuccessEmailAsync(
+                            order.User.Email ?? string.Empty,
+                            order,
+                            vnp_TransactionNo ?? "N/A");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "[VNPay-IPN] Failed to send payment success email for OrderId: {OrderId}", order.Id);
+                }
+            }
+            else
+            {
+                order.Status = OrderStatus.Cancelled;
+                _logger.LogInformation("[VNPay-IPN] Payment failed/cancelled. OrderId={OrderId}, ResponseCode={ResponseCode}, TransactionStatus={TransactionStatus}", order.Id, vnp_ResponseCode, vnp_TransactionStatus);
+            }
+
+            await _dbContext.SaveChangesAsync();
+            return new VNPayIpnResponse { RspCode = "00", Message = "Confirm Success" };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing VNPay IPN");
+            return new VNPayIpnResponse { RspCode = "99", Message = "Unknown error" };
         }
     }
 
@@ -302,6 +569,36 @@ public class OrderProcessingFacade
                 UnitPrice = oi.UnitPrice,
                 LineTotal = oi.LineTotal
             }).ToList()
+        };
+    }
+}
+
+/// <summary>
+/// Kết quả validation đặt hàng
+/// </summary>
+internal class ValidationResult
+{
+    public bool IsValid { get; private init; }
+    public string? ErrorMessage { get; private init; }
+    public List<CartItem>? CartItems { get; private init; }
+    public ApplicationUser? User { get; private init; }
+
+    public static ValidationResult Success(List<CartItem> cartItems, ApplicationUser user)
+    {
+        return new ValidationResult
+        {
+            IsValid = true,
+            CartItems = cartItems,
+            User = user
+        };
+    }
+
+    public static ValidationResult Failure(string errorMessage)
+    {
+        return new ValidationResult
+        {
+            IsValid = false,
+            ErrorMessage = errorMessage
         };
     }
 }

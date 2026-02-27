@@ -32,7 +32,7 @@ export class CheckoutComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
 
-  // Thông tin giảm giá
+  // Thông tin giảm giá - lấy từ CartSummaryDto
   discountInfo: { baseAmount: number; discountAmount: number; discountPercent: number } | null = null;
 
   // Phương thức thanh toán
@@ -63,7 +63,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   get finalAmount(): number {
-    return this.baseAmount - this.discountAmount;
+    return this.cartSummary?.finalAmount ?? (this.baseAmount - this.discountAmount);
   }
 
   get hasDiscount(): boolean {
@@ -121,17 +121,10 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
-    const totalQuantity = this.cartSummary.items.reduce((sum, item) => sum + item.quantity, 0);
+    // Sử dụng discount info từ CartSummaryDto (đã được tính toán ở backend hoặc cart component)
     const baseAmount = this.cartSummary.totalAmount;
-    let discountPercent = 0;
-
-    if (totalQuantity >= 3) {
-      discountPercent = 7; // Giảm 7% nếu mua >= 3 sản phẩm
-    } else if (totalQuantity >= 2) {
-      discountPercent = 5; // Giảm 5% nếu mua >= 2 sản phẩm
-    }
-
-    const discountAmount = baseAmount * (discountPercent / 100);
+    const discountAmount = this.cartSummary.discountAmount ?? 0;
+    const discountPercent = this.cartSummary.discountPercent ?? 0;
 
     this.discountInfo = {
       baseAmount,
@@ -156,8 +149,7 @@ export class CheckoutComponent implements OnInit {
     this.successMessage = '';
 
     const request: CreateOrderRequest = {
-      ...this.checkoutForm.value,
-      returnUrl: `${window.location.origin}/payment-return`
+      ...this.checkoutForm.value
     };
 
     this.orderService.createOrder(request)

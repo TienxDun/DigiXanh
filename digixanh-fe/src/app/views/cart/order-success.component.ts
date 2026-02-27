@@ -16,25 +16,38 @@ export class OrderSuccessComponent implements OnInit {
   paymentStatus: 'success' | 'failed' | 'cancelled' | null = null;
   message = '';
 
+  orderId: number | null = null;
+  transactionId: string | null = null;
+
   constructor(private readonly router: Router) {
     const navigation = this.router.getCurrentNavigation();
     const state = navigation?.extras?.state as { 
       order?: OrderDetailDto; 
+      orderId?: number;
       fromPaymentReturn?: boolean;
+      fromPaymentReturnComponent?: boolean;
       paymentStatus?: 'success' | 'failed' | 'cancelled';
       message?: string;
+      transactionId?: string;
     };
     
     this.order = state?.order ?? null;
-    this.isFromPaymentReturn = state?.fromPaymentReturn ?? false;
+    this.orderId = state?.orderId ?? null;
+    this.transactionId = state?.transactionId ?? null;
+    this.isFromPaymentReturn = state?.fromPaymentReturn ?? state?.fromPaymentReturnComponent ?? false;
     this.paymentStatus = state?.paymentStatus ?? null;
     this.message = state?.message ?? '';
   }
 
   ngOnInit(): void {
     // Nếu không có thông tin đơn hàng và không phải từ payment return, chuyển về trang chủ
-    if (!this.order && !this.isFromPaymentReturn) {
+    if (!this.order && !this.isFromPaymentReturn && !this.orderId) {
       this.router.navigate(['/']);
+    }
+    
+    // Nếu có orderId nhưng không có order object, hiển thị thông tin cơ bản
+    if (!this.order && this.orderId) {
+      // Có thể gọi API để lấy chi tiết đơn hàng ở đây nếu cần
     }
   }
 

@@ -35,6 +35,20 @@ export class CartComponent {
     return (this.cartSummary?.items.length ?? 0) > 0;
   }
 
+  get hasDiscount(): boolean {
+    return (this.cartSummary?.discountAmount ?? 0) > 0;
+  }
+
+  get discountLabel(): string {
+    const percent = this.cartSummary?.discountPercent ?? 0;
+    if (percent === 7) {
+      return 'Giảm giá (7%):';
+    } else if (percent === 5) {
+      return 'Giảm giá (5%):';
+    }
+    return '';
+  }
+
   isItemProcessing(itemId: number): boolean {
     return this.processingItemIds.has(itemId);
   }
@@ -199,10 +213,24 @@ export class CartComponent {
     const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
     const totalAmount = items.reduce((sum, item) => sum + item.lineTotal, 0);
 
+    // Calculate discount based on quantity
+    let discountPercent = 0;
+    if (totalQuantity >= 3) {
+      discountPercent = 7; // 7% discount for 3+ items
+    } else if (totalQuantity >= 2) {
+      discountPercent = 5; // 5% discount for 2+ items
+    }
+
+    const discountAmount = totalAmount * (discountPercent / 100);
+    const finalAmount = totalAmount - discountAmount;
+
     return {
       items,
       totalQuantity,
-      totalAmount
+      totalAmount,
+      discountAmount,
+      discountPercent,
+      finalAmount
     };
   }
 }

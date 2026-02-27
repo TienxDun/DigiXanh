@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Text;
 using DigiXanh.API.Constants;
 using DigiXanh.API.Data;
@@ -54,7 +55,8 @@ builder.Services
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            RoleClaimType = ClaimTypes.Role
         };
     });
 
@@ -73,10 +75,13 @@ builder.Services.AddScoped<IPaymentAdapterFactory, PaymentAdapterFactory>();
 // Register OrderProcessingFacade (Facade Pattern)
 builder.Services.AddScoped<OrderProcessingFacade>();
 
+// Register OrderEmailService (Placeholder for order confirmation emails)
+builder.Services.AddScoped<IOrderEmailService, OrderEmailService>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
-        policy.WithOrigins("http://localhost:4200")
+        policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials());

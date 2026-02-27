@@ -28,8 +28,8 @@ export const appConfig: ApplicationConfig = {
         anchorScrolling: 'enabled'
       }),
       withEnabledBlockingInitialNavigation(),
-      withViewTransitions(),
-      withHashLocation()
+      withViewTransitions()
+      // Note: withHashLocation() removed - using standard HTML5 history API
     ),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
     importProvidersFrom(

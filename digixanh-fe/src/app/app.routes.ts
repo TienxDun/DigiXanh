@@ -31,7 +31,7 @@ export const routes: Routes = [
       },
       {
         path: 'payment-return',
-        canActivate: [authGuard],
+        // Không cần authGuard vì VNPay redirect không mang theo token
         loadComponent: () => import('./views/cart/payment-return.component').then((m) => m.PaymentReturnComponent)
       }
     ]
