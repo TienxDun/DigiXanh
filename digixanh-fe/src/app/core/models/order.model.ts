@@ -56,3 +56,52 @@ export interface OrderItemDto {
   unitPrice: number;
   lineTotal: number;
 }
+
+// ============== Admin Order Models ==============
+
+export interface AdminOrderDto {
+  id: number;
+  orderDate: Date;
+  customerName: string;
+  customerEmail: string;
+  totalAmount: number;
+  finalAmount: number;
+  status: string;
+  paymentMethod: string;
+  phone: string;
+}
+
+export interface AdminOrderDetailDto extends AdminOrderDto {
+  shippingAddress: string;
+  transactionId?: string;
+  updatedAt?: Date;
+  items: OrderItemDto[];
+  statusHistory: OrderStatusHistoryDto[];
+}
+
+export interface OrderStatusHistoryDto {
+  id: number;
+  oldStatus: string;
+  newStatus: string;
+  changedBy?: string;
+  reason?: string;
+  changedAt: Date;
+}
+
+export interface UpdateOrderStatusRequest {
+  newStatus: number;
+  reason?: string;
+}
+
+export interface OrderStatusOption {
+  value: number;
+  name: string;
+  displayName: string;
+}
+
+export interface AdminOrderQueryParams {
+  page?: number;
+  pageSize?: number;
+  status?: number | null;
+  search?: string;
+}

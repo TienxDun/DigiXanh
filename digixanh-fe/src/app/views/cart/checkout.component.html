@@ -18,7 +18,8 @@
     class="alert alert-danger shadow-sm rounded-4 border-0 d-flex align-items-center mb-3" role="alert">
     <i class="fa-solid fa-circle-exclamation fs-4 me-3"></i>
     <div class="flex-grow-1">{{ errorMessage }}</div>
-    <button type="button" class="btn-close ms-2" (click)="errorMessage = ''"></button>
+    <button type="button" class="btn-close ms-2" aria-label="Đóng thông báo" title="Đóng thông báo"
+      (click)="errorMessage = ''"></button>
   </div>
 
   <!-- Checkout Form -->
@@ -37,9 +38,9 @@
           <div *ngFor="let item of cartSummary?.items"
             class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between py-2 border-bottom border-dashed border-secondary border-opacity-25 last-no-border">
             <div class="d-flex align-items-center gap-3 w-100 mb-2 mb-sm-0">
-              <img [src]="resolveImageUrl(item.imageUrl)" [alt]="item.plantName"
-                class="rounded-3 border border-secondary border-opacity-10 object-fit-cover shadow-sm bg-light"
-                style="width: 56px; height: 56px;" (error)="onImageError($event)">
+              <img [src]="resolveImageUrl(item.imageUrl)" [alt]="item.plantName || 'Hình ảnh sản phẩm'"
+                [title]="item.plantName"
+                class="rounded-3 border border-secondary border-opacity-10 object-fit-cover shadow-sm bg-light checkout-item-img" (error)="onImageError($event)">
               <div class="flex-grow-1">
                 <h6 class="mb-1 fw-bold text-dark fs-6">{{ item.plantName }} <span
                     class="badge bg-light text-dark ms-1 d-inline-block d-sm-none">x{{ item.quantity }}</span></h6>
@@ -153,7 +154,8 @@
                      }" (click)="checkoutForm.get('paymentMethod')?.setValue(method.value)">
 
                   <input class="form-check-input position-absolute opacity-0" type="radio" [value]="method.value"
-                    formControlName="paymentMethod">
+                    formControlName="paymentMethod" [title]="'Chọn thanh toán bằng ' + method.label"
+                    [aria-label]="'Chọn thanh toán bằng ' + method.label" placeholder="Phương thức thanh toán">
 
                   <div class="d-flex flex-column h-100">
                     <div class="d-flex align-items-center justify-content-between mb-2">

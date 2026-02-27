@@ -1,0 +1,174 @@
+/* default-header.component.scss */
+:host {
+    display: block;
+    z-index: 1030;
+    position: sticky;
+    top: 0;
+    width: 100%;
+}
+
+.header-glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    min-height: 64px;
+    box-shadow: 0 4px 24px -8px rgba(0, 0, 0, 0.05);
+}
+
+[data-coreui-theme='dark'] .header-glass {
+    background: rgba(33, 38, 49, 0.85);
+    border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Sidebar Toggle Button */
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: var(--cui-secondary-bg, rgba(0, 0, 0, 0.05));
+        transform: scale(1.05);
+    }
+}
+
+[data-coreui-theme='dark'] .btn-icon:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Breadcrumbs customization */
+:host ::ng-deep .breadcrumb-glass {
+    margin: 0;
+
+    .breadcrumb {
+        margin-bottom: 0;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .breadcrumb-item {
+        &.active {
+            color: var(--cui-text-color) !important;
+            font-weight: 600;
+        }
+
+        a {
+            color: var(--cui-secondary-color);
+            text-decoration: none;
+            transition: color 0.2s ease;
+
+            &:hover {
+                color: var(--cui-primary);
+            }
+        }
+    }
+}
+
+/* Global Search */
+.header-search {
+    .search-box {
+        transition: all 0.3s ease;
+
+        .search-icon {
+            top: 50%;
+            left: 1.25rem;
+            transform: translateY(-50%);
+            color: var(--cui-secondary-color);
+            z-index: 5;
+        }
+
+        input {
+            height: 42px;
+            font-size: 0.875rem;
+            background-color: var(--cui-tertiary-bg);
+            transition: all 0.3s ease;
+
+            &:focus {
+                background-color: var(--cui-body-bg);
+                box-shadow: 0 0 0 0.25rem rgba(var(--cui-primary-rgb), 0.15);
+                border-color: rgba(var(--cui-primary-rgb), 0.3) !important;
+            }
+        }
+
+        .hotkey-badge {
+            top: 50%;
+            right: 0.5rem;
+            transform: translateY(-50%);
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            background-color: var(--cui-body-bg);
+            border: 1px solid var(--cui-border-color);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+    }
+
+    &:focus-within .search-box {
+        transform: scale(1.02);
+    }
+}
+
+/* Profile Pill */
+.profile-pill {
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    background-color: var(--cui-tertiary-bg);
+
+    &:hover {
+        background-color: var(--cui-secondary-bg) !important;
+        border-color: var(--cui-border-color);
+    }
+
+    .profile-name {
+        line-height: 1.2;
+        color: var(--cui-body-color) !important;
+    }
+
+    .profile-role {
+        color: var(--cui-secondary-color) !important;
+    }
+}
+
+/* Dropdown styling */
+.glass-dropdown {
+    min-width: 250px;
+    animation: slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid var(--cui-border-color) !important;
+    background-color: var(--cui-body-bg) !important;
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-coreui-theme='dark'] .glass-dropdown {
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5) !important;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-action {
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+
+    &:hover {
+        background-color: var(--cui-secondary-bg);
+        transform: translateX(4px);
+    }
+
+    &.logout-action:hover {
+        background-color: rgba(var(--cui-danger-rgb), 0.1);
+        color: var(--cui-danger) !important;
+    }
+}

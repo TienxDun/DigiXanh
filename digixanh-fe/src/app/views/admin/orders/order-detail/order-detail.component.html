@@ -1,0 +1,247 @@
+<div class="container-fluid p-3">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <button class="btn btn-sm btn-outline-secondary me-2" (click)="goBack()">
+        <i class="fa fa-arrow-left"></i> Quay lại
+      </button>
+      <span class="h5 mb-0">Chi tiết đơn hàng #{{ orderId }}</span>
+    </div>
+    <div *ngIf="order$ | async as order">
+      <span [class]="getStatusBadgeClass(order.status) + ' fs-6'">
+        {{ getStatusDisplayName(order.status) }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error$ | async as error" class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ error }}
+    <button type="button" class="btn-close" (click)="error$.next(null)"></button>
+  </div>
+
+  <!-- Success Message -->
+  <div *ngIf="successMessage$ | async as message" class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" (click)="successMessage$.next(null)"></button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading$ | async" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Đang tải...</span>
+    </div>
+    <p class="text-muted mt-2">Đang tải thông tin đơn hàng...</p>
+  </div>
+
+  <!-- Order Detail Content -->
+  <div *ngIf="order$ | async as order" class="row">
+    <!-- Left Column: Order Info & Update Status -->
+    <div class="col-lg-4">
+      <!-- Customer Info -->
+      <div class="card mb-3">
+        <div class="card-header bg-light py-2">
+          <h6 class="mb-0"><i class="fa fa-user me-2"></i>Thông tin khách hàng</h6>
+        </div>
+        <div class="card-body">
+          <table class="table table-borderless table-sm mb-0">
+            <tr>
+              <td class="text-muted" style="width: 100px">Họ tên:</td>
+              <td class="fw-medium">{{ order.customerName }}</td>
+            </tr>
+            <tr>
+              <td class="text-muted">Email:</td>
+              <td>{{ order.customerEmail }}</td>
+            </tr>
+            <tr>
+              <td class="text-muted">Số điện thoại:</td>
+              <td>{{ order.phone }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Shipping Info -->
+      <div class="card mb-3">
+        <div class="card-header bg-light py-2">
+          <h6 class="mb-0"><i class="fa fa-truck me-2"></i>Thông tin giao hàng</h6>
+        </div>
+        <div class="card-body">
+          <p class="mb-2">{{ order.shippingAddress }}</p>
+          <hr class="my-2">
+          <table class="table table-borderless table-sm mb-0">
+            <tr>
+              <td class="text-muted" style="width: 120px">Ngày đặt:</td>
+              <td>{{ order.orderDate | date:'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+            <tr *ngIf="order.updatedAt">
+              <td class="text-muted">Cập nhật:</td>
+              <td>{{ order.updatedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Payment Info -->
+      <div class="card mb-3">
+        <div class="card-header bg-light py-2">
+          <h6 class="mb-0"><i class="fa fa-credit-card me-2"></i>Thông tin thanh toán</h6>
+        </div>
+        <div class="card-body">
+          <table class="table table-borderless table-sm mb-0">
+            <tr>
+              <td class="text-muted" style="width: 120px">Phương thức:</td>
+              <td>
+                <span class="badge" [class.bg-success]="order.paymentMethod === 'VNPay'" [class.bg-secondary]="order.paymentMethod === 'Cash'">
+                  {{ order.paymentMethod === 'VNPay' ? 'VNPay' : 'Tiền mặt' }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="order.transactionId">
+              <td class="text-muted">Mã giao dịch:</td>
+              <td class="small font-monospace">{{ order.transactionId }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Update Status (Only show if not final status) -->
+      <div class="card" *ngIf="!isFinalStatus(order.status)">
+        <div class="card-header bg-light py-2">
+          <h6 class="mb-0"><i class="fa fa-edit me-2"></i>Cập nhật trạng thái</h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label small">Trạng thái mới</label>
+            <select class="form-select form-select-sm" [(ngModel)]="selectedStatus">
+              <option *ngFor="let status of getAvailableStatuses(order.status)" [value]="status.value">
+                {{ status.displayName }}
+                <span *ngIf="status.name === order.status">(Hiện tại)</span>
+              </option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Lý do (tùy chọn)</label>
+            <textarea 
+              class="form-control form-control-sm" 
+              rows="2" 
+              [(ngModel)]="statusReason"
+              placeholder="Nhập lý do thay đổi trạng thái..."></textarea>
+          </div>
+          <button 
+            class="btn btn-primary btn-sm w-100" 
+            (click)="updateStatus()"
+            [disabled]="updating$ | async">
+            <span *ngIf="updating$ | async" class="spinner-border spinner-border-sm me-1"></span>
+            <i *ngIf="!(updating$ | async)" class="fa fa-save me-1"></i>
+            Cập nhật
+          </button>
+        </div>
+      </div>
+
+      <!-- Final Status Notice -->
+      <div class="card" *ngIf="isFinalStatus(order.status)">
+        <div class="card-body text-center py-3">
+          <i class="fa fa-check-circle text-success fa-2x mb-2"></i>
+          <p class="mb-0 text-muted small">
+            Đơn hàng đã ở trạng thái <strong>{{ getStatusDisplayName(order.status) }}</strong><br>
+            Không thể thay đổi trạng thái.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Order Items & History -->
+    <div class="col-lg-8">
+      <!-- Order Items -->
+      <div class="card mb-3">
+        <div class="card-header bg-light py-2">
+          <h6 class="mb-0"><i class="fa fa-shopping-cart me-2"></i>Sản phẩm trong đơn hàng</h6>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-sm mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 60px">Ảnh</th>
+                  <th>Sản phẩm</th>
+                  <th class="text-center" style="width: 80px">SL</th>
+                  <th class="text-end" style="width: 120px">Đơn giá</th>
+                  <th class="text-end" style="width: 120px">Thành tiền</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of order.items">
+                  <td>
+                    <img 
+                      [src]="item.imageUrl || 'assets/images/plant-placeholder.svg'" 
+                      alt="{{ item.plantName }}"
+                      class="img-thumbnail"
+                      style="width: 48px; height: 48px; object-fit: cover;">
+                  </td>
+                  <td>
+                    <div class="fw-medium">{{ item.plantName }}</div>
+                    <div class="small text-muted" *ngIf="item.scientificName">{{ item.scientificName }}</div>
+                  </td>
+                  <td class="text-center">{{ item.quantity }}</td>
+                  <td class="text-end">{{ formatCurrency(item.unitPrice) }}</td>
+                  <td class="text-end fw-medium">{{ formatCurrency(item.lineTotal) }}</td>
+                </tr>
+              </tbody>
+              <tfoot class="table-group-divider">
+                <tr>
+                  <td colspan="4" class="text-end">Tổng tiền:</td>
+                  <td class="text-end fw-bold">{{ formatCurrency(order.totalAmount) }}</td>
+                </tr>
+                <tr *ngIf="order.totalAmount !== order.finalAmount">
+                  <td colspan="4" class="text-end text-success">Giảm giá:</td>
+                  <td class="text-end text-success">-{{ formatCurrency(order.totalAmount - order.finalAmount) }}</td>
+                </tr>
+                <tr *ngIf="order.totalAmount !== order.finalAmount" class="table-active">
+                  <td colspan="4" class="text-end fw-bold">Thành tiền:</td>
+                  <td class="text-end fw-bold fs-5 text-primary">{{ formatCurrency(order.finalAmount) }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status History -->
+      <div class="card">
+        <div class="card-header bg-light py-2">
+          <h6 class="mb-0"><i class="fa fa-history me-2"></i>Lịch sử trạng thái</h6>
+        </div>
+        <div class="card-body">
+          <div *ngIf="order.statusHistory.length === 0" class="text-center text-muted py-3">
+            <i class="fa fa-info-circle me-1"></i> Chưa có lịch sử thay đổi trạng thái
+          </div>
+          <ul class="list-group list-group-flush" *ngIf="order.statusHistory.length > 0">
+            <li class="list-group-item px-0 py-2" *ngFor="let history of order.statusHistory">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <span [class]="getStatusBadgeClass(history.oldStatus)">
+                    {{ getStatusDisplayName(history.oldStatus) }}
+                  </span>
+                  <i class="fa fa-arrow-right mx-2 text-muted"></i>
+                  <span [class]="getStatusBadgeClass(history.newStatus)">
+                    {{ getStatusDisplayName(history.newStatus) }}
+                  </span>
+                  <div class="small text-muted mt-1" *ngIf="history.reason">
+                    <i class="fa fa-comment-o me-1"></i>{{ history.reason }}
+                  </div>
+                </div>
+                <div class="text-end small">
+                  <div class="text-muted">{{ history.changedAt | date:'dd/MM/yyyy HH:mm' }}</div>
+                  <div class="text-muted" *ngIf="history.changedBy">
+                    <i class="fa fa-user-circle me-1"></i>{{ history.changedBy }}
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

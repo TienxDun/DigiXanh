@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { PagedResult } from '../models/pagination.model';
 import {
   PlantDto,
   PlantDetailDto,
   CategoryDto,
-  TrefleSearchResult,
-  TreflePlantDetail,
+  PerenualSearchResult,
+  PerenualPlantDetail,
   CreatePlantRequest
 } from '../models/plant.model';
 import { environment } from '../../../environments/environment';
@@ -19,8 +19,7 @@ import { environment } from '../../../environments/environment';
 export class AdminPlantService {
   private readonly adminPlantsUrl = `${environment.apiUrl}/admin/plants`;
   private readonly categoriesUrl = `${environment.apiUrl}/categories`;
-  private readonly adminTrefleUrl = `${environment.apiUrl}/admin/trefle`;
-  private readonly legacyTrefleUrl = `${environment.apiUrl}/trefle`;
+  private readonly adminPerenualUrl = `${environment.apiUrl}/admin/perenual`;
 
   constructor(private http: HttpClient) { }
 
@@ -64,32 +63,26 @@ export class AdminPlantService {
     return this.http.get<CategoryDto[]>(this.categoriesUrl);
   }
 
-  // ─── Trefle Integration ───────────────────────────────────────────────────
+  // ─── Perenual Integration ─────────────────────────────────────────────────
 
-  searchTrefle(query: string): Observable<TrefleSearchResult[]> {
+  searchPerenual(query: string): Observable<PerenualSearchResult[]> {
     const params = new HttpParams().set('q', query);
     return this.http
-      .get<unknown[]>(`${this.adminTrefleUrl}/search`, { params })
+      .get<unknown[]>(`${this.adminPerenualUrl}/search`, { params })
       .pipe(
-        map(items => (items ?? []).map((item: unknown) => this.mapSearchItem(item))),
-        catchError(() => this.http
-          .get<{ data: unknown[] }>(`${this.legacyTrefleUrl}/search`, { params })
-          .pipe(map(res => (res?.data ?? []).map((item: unknown) => this.mapSearchItem(item)))))
+        map(items => (items ?? []).map((item: unknown) => this.mapSearchItem(item)))
       );
   }
 
-  getTrefleDetail(id: number): Observable<TreflePlantDetail> {
+  getPerenualDetail(id: number): Observable<PerenualPlantDetail> {
     return this.http
-      .get<unknown>(`${this.adminTrefleUrl}/${id}`)
-      .pipe(
-        map(item => this.mapDetailItem(item)),
-        catchError(() => this.http
-          .get<{ data: unknown }>(`${this.legacyTrefleUrl}/plants/${id}`)
-          .pipe(map(res => this.mapDetailItem(res?.data))))
-      );
+      .get<unknown>(`${this.adminPerenualUrl}/${id}`)
+      .pipe(map(item => this.mapDetailItem(item)));
   }
 
-  private mapSearchItem(input: unknown): TrefleSearchResult {
+  // ─── Private Mapping Methods ──────────────────────────────────────────────
+
+  private mapSearchItem(input: unknown): PerenualSearchResult {
     const item = (input ?? {}) as Record<string, unknown>;
     const commonName = (item['commonName'] ?? item['common_name'] ?? null) as string | null;
     const scientificName = (item['scientificName'] ?? item['scientific_name'] ?? '') as string;
@@ -106,7 +99,7 @@ export class AdminPlantService {
     };
   }
 
-  private mapDetailItem(input: unknown): TreflePlantDetail {
+  private mapDetailItem(input: unknown): PerenualPlantDetail {
     const item = (input ?? {}) as Record<string, unknown>;
     const commonName = (item['commonName'] ?? item['common_name'] ?? null) as string | null;
     const scientificName = (item['scientificName'] ?? item['scientific_name'] ?? '') as string;

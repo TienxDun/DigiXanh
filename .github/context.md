@@ -86,6 +86,43 @@ src/app/
 | US17  | Triển khai API lên Render                                                    |         |
 | US18  | Triển khai FE lên GitHub Pages                                               |         |
 
+### Phase 2: Pre-deploy (Critical & High Priority)
+
+| ID    | User Story                                                                 | Ghi chú | Ưu tiên |
+|-------|-----------------------------------------------------------------------------|---------|---------|
+| US19  | Xem lịch sử đơn hàng (User)                                                  |         | P0 - Critical |
+| US20  | Xem chi tiết đơn hàng (User)                                                 |         | P0 - Critical |
+| US21  | Quản lý đơn hàng (Admin) - Xem danh sách & cập nhật trạng thái              |         | P0 - Critical |
+| US22  | Tìm kiếm và lọc cây (Public) - Theo tên, danh mục, khoảng giá               |         | P1 - High |
+| US23  | Quản lý danh mục cây (Admin) - CRUD Category                                |         | P1 - High |
+| US24  | Upload ảnh cây trực tiếp (thay vì chỉ URL)                                  |         | P1 - High |
+| US25  | Quản lý tồn kho (Stock) - Cập nhật số lượng, hiển thị "Hết hàng"            |         | P1 - High |
+| US26  | Validate tồn kho khi đặt hàng - Không cho đặt vượt stock                     |         | P1 - High |
+| US27  | Xử lý callback VNPay (IPN) - Cập nhật trạng thái tự động                    |         | P1 - High |
+| US28  | Thông báo lỗi thanh toán - Hiển thị lý do thất bại                          |         | P2 - Medium |
+
+### Phase 3: Hoàn thiện hệ sinh thái (Medium Priority)
+
+| ID    | User Story                                                                 | Ghi chú | Ưu tiên |
+|-------|-----------------------------------------------------------------------------|---------|---------|
+| US29  | Quản lý thông tin cá nhân (Profile) - Cập nhật tên, địa chỉ, SĐT            |         | P2 - Medium |
+| US30  | Đổi mật khẩu                                                                 |         | P2 - Medium |
+| US31  | Quản lý ngườI dùng (Admin) - Xem danh sách, khóa/mở khóa tài khoản          |         | P2 - Medium |
+| US32  | Phân trang và sắp xếp sản phẩm - Theo giá, tên, ngày thêm                   |         | P2 - Medium |
+| US33  | Hiển thị cây liên quan - Cùng danh mục ở trang chi tiết                     |         | P3 - Low |
+| US34  | Audit log cho Admin - Lịch sử thay đổi trạng thái đơn hàng                  |         | P3 - Low |
+| US35  | Trang lỗi 404/403 - Giao diện thân thiện cho lỗi không tìm thấy/không có quyền |     | P3 - Low |
+
+### Phase 4: Nice to Have (Sau MVP)
+
+| ID    | User Story                                                                 | Ghi chú | Ưu tiên |
+|-------|-----------------------------------------------------------------------------|---------|---------|
+| US36  | Đánh giá sản phẩm - User đánh giá sau khi nhận hàng                         |         | P4 - Future |
+| US37  | Wishlist/Favorite - Lưu cây yêu thích                                       |         | P4 - Future |
+| US38  | Thống kê nâng cao (Dashboard) - Biểu đồ doanh thu, top sản phẩm             |         | P4 - Future |
+| US39  | Email thông báo - Xác nhận đặt hàng/thanh toán                              |         | P4 - Future |
+| US40  | Dark Mode toggle - Chuyển đổi light/dark mode                               |         | P4 - Future |
+
 *Lưu ý:* Các story có thể được chia nhỏ thêm trong quá trình Sprint Planning.
 
 ## 5. Database Schema (Optimized)

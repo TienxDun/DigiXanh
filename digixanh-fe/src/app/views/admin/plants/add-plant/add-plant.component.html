@@ -27,7 +27,7 @@
                 <div class="badge-wrapper" *ngIf="!isEditMode">
                     <span
                         class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 fw-semibold shadow-sm d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Tích hợp AI & Trefle
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Tích hợp AI & Perenual
                     </span>
                 </div>
             </div>
@@ -35,19 +35,19 @@
             <div class="card-body px-0 py-0">
                 <div class="row g-4">
 
-                    <!-- LEFT: Trefle Search + Form -->
+                    <!-- LEFT: Perenual Search + Form -->
                     <div class="col-lg-8">
                         <div class="bg-white rounded-4 shadow-sm p-4 h-100">
-                            <!-- Trefle Search Box -->
-                            <div class="trefle-search-section mb-4 p-4 rounded-4 bg-light bg-opacity-50 border border-success border-opacity-10"
+                            <!-- Perenual Search Box -->
+                            <div class="perenual-search-section mb-4 p-4 rounded-4 bg-light bg-opacity-50 border border-success border-opacity-10"
                                 *ngIf="!isEditMode">
                                 <label class="form-label fw-bold text-dark mb-2 d-flex align-items-center gap-2">
                                     <i class="fa-solid fa-magnifying-glass text-success"></i>
-                                    Tìm kiếm nhanh từ Trefle (Import hàng loạt)
+                                    Tìm kiếm nhanh từ Perenual (Import hàng loạt)
                                 </label>
                                 <p class="text-muted small mb-3">
-                                    Gõ tên cây, hệ thống sẽ lấy toàn bộ kết quả, tự động random giá và danh mục, auto
-                                    chọn sẵn để nhập thẳng vào cơ sở dữ liệu.
+                                    Gõ tên cây và nhấn Enter, hệ thống sẽ tự động tìm và hiển thị danh sách ở bên dưới.
+                                    Bạn có thể chọn/bỏ chọn các cây muốn nhập.
                                 </p>
                                 <div class="position-relative search-container">
                                     <i
@@ -56,7 +56,7 @@
                                         class="form-control form-control-lg rounded-pill ps-5 pe-4 shadow-sm border-0"
                                         placeholder="VD: Bamboo, Pine, Oak..." [formControl]="searchControl"
                                         (input)="onSearchInput($event)" (blur)="closeDropdown()"
-                                        id="trefle-search-input" autocomplete="off" />
+                                        id="perenual-search-input" autocomplete="off" />
                                     <!-- Spinner -->
                                     <div class="position-absolute top-50 end-0 translate-middle-y pe-3"
                                         *ngIf="searching$ | async">
@@ -66,7 +66,7 @@
                                     </div>
 
                                     <!-- Dropdown kết quả -->
-                                    <div class="trefle-dropdown shadow-lg rounded-4 overflow-hidden border-0"
+                                    <div class="perenual-dropdown shadow-lg rounded-4 overflow-hidden border-0"
                                         *ngIf="showDropdown && (searchResults$ | async) as results">
                                         <div *ngIf="searchError && !(searching$ | async)"
                                             class="dropdown-empty text-danger p-3 bg-danger bg-opacity-10">
@@ -80,15 +80,15 @@
                                         </div>
                                         <div class="dropdown-list">
                                             <div *ngFor="let result of results"
-                                                class="trefle-result-item d-flex align-items-center gap-3 p-3 border-bottom"
-                                                (mousedown)="onSelectTrefleResult(result)"
+                                                class="perenual-result-item d-flex align-items-center gap-3 p-3 border-bottom"
+                                                (mousedown)="onSelectPerenualResult(result)"
                                                 [attr.title]="result.scientificName">
-                                                <div class="trefle-thumb-wrapper shadow-sm rounded-3">
+                                                <div class="perenual-thumb-wrapper shadow-sm rounded-3">
                                                     <img *ngIf="result.imageUrl; else noThumb" [src]="result.imageUrl"
                                                         [alt]="result.scientificName"
-                                                        title="{{ result.scientificName }}" class="trefle-thumb" />
+                                                        title="{{ result.scientificName }}" class="perenual-thumb" />
                                                     <ng-template #noThumb>
-                                                        <div class="trefle-thumb-placeholder bg-light text-success">
+                                                        <div class="perenual-thumb-placeholder bg-light text-success">
                                                             <i class="fa-solid fa-leaf"></i>
                                                         </div>
                                                     </ng-template>
@@ -261,21 +261,21 @@
                                         </div>
                                         <p class="fw-semibold text-dark mb-1">Chưa có ảnh</p>
                                         <p class="text-muted small mb-0">Nhập URL hình ảnh vào form hoặc chọn cây từ
-                                            danh sách Trefle để tự động tải ảnh</p>
+                                            danh sách Perenual để tự động tải ảnh</p>
                                     </div>
                                 </ng-template>
                             </div>
 
-                            <!-- Trefle badge nếu đã chọn -->
-                            <div class="trefle-badge rounded-3 p-3 mb-4 d-flex align-items-center gap-3 shadow-sm border-0"
-                                *ngIf="selectedTrefleId">
+                            <!-- Perenual badge nếu đã chọn -->
+                            <div class="perenual-badge rounded-3 p-3 mb-4 d-flex align-items-center gap-3 shadow-sm border-0"
+                                *ngIf="selectedPerenualId">
                                 <div class="bg-white rounded-circle d-flex align-items-center justify-content-center text-success"
                                     style="width: 36px; height: 36px;">
                                     <i class="fa-solid fa-link"></i>
                                 </div>
                                 <div>
-                                    <div class="small text-success fw-bold">Đã đồng bộ Trefle</div>
-                                    <div class="text-dark fw-medium small">ID: #{{ selectedTrefleId }}</div>
+                                    <div class="small text-success fw-bold">Đã đồng bộ Perenual</div>
+                                    <div class="text-dark fw-medium small">ID: #{{ selectedPerenualId }}</div>
                                 </div>
                             </div>
 

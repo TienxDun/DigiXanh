@@ -1,6 +1,6 @@
-namespace DigiXanh.API.DTOs.Trefle;
+namespace DigiXanh.API.DTOs.Perenual;
 
-public record TreflePlantDetailDto(
+public record PerenualPlantDetailDto(
     int Id,
     string? Name,
     string ScientificName,

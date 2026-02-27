@@ -29,8 +29,8 @@ import {
 import { AdminPlantService } from '../../../../core/services/admin-plant.service';
 import {
     CategoryDto,
-    TrefleSearchResult,
-    TreflePlantDetail,
+    PerenualSearchResult,
+    PerenualPlantDetail,
     CreatePlantRequest
 } from '../../../../core/models/plant.model';
 
@@ -72,7 +72,7 @@ export class AddPlantComponent implements OnInit, OnDestroy {
     searchControl = new FormControl<string>('');
     searchQuery$ = new Subject<string>();
 
-    searchResults$ = new BehaviorSubject<TrefleSearchResult[]>([]);
+    searchResults$ = new BehaviorSubject<PerenualSearchResult[]>([]);
     searching$ = new BehaviorSubject<boolean>(false);
     showDropdown = false;
     hasSearched = false;
@@ -81,7 +81,7 @@ export class AddPlantComponent implements OnInit, OnDestroy {
 
     // ─── Preview ─────────────────────────────────────────────────────────────
     previewImage: string | null = null;
-    selectedTrefleId: number | null = null;
+    selectedPerenualId: number | null = null;
     isEditMode = false;
     editingPlantId: number | null = null;
 
@@ -114,12 +114,12 @@ export class AddPlantComponent implements OnInit, OnDestroy {
             this.cdr.markForCheck();
         });
 
-        // Trefle debounced search
+        // Perenual debounced search - tăng debounce để tránh rate limit
         this.searchQuery$.pipe(
-            debounceTime(300),
+            debounceTime(1000),
             distinctUntilChanged(),
             switchMap(query => {
-                if (!query || query.trim().length < 2) {
+                if (!query || query.trim().length < 3) {
                     this.searchResults$.next([]);
                     this.showDropdown = false;
                     this.hasSearched = false;
@@ -133,9 +133,15 @@ export class AddPlantComponent implements OnInit, OnDestroy {
                 this.showDropdown = true;
                 this.searchError = null;
 
-                return this.plantService.searchTrefle(query.trim()).pipe(
-                    catchError(() => {
-                        this.searchError = 'Không thể tải dữ liệu từ Trefle. Kiểm tra API backend và thử lại.';
+                return this.plantService.searchPerenual(query.trim()).pipe(
+                    catchError((err) => {
+                        if (err.status === 429) {
+                            this.searchError = 'Đã vượt quá giới hạn request (100/ngày). Vui lòng thử lại sau.';
+                        } else if (err.status === 504) {
+                            this.searchError = 'Perenual API phản hồi chậm. Vui lòng thử lại sau vài giây.';
+                        } else {
+                            this.searchError = 'Không thể tải dữ liệu từ Perenual. Kiểm tra API backend và thử lại.';
+                        }
                         return of([]);
                     }),
                     finalize(() => {
@@ -147,10 +153,12 @@ export class AddPlantComponent implements OnInit, OnDestroy {
             takeUntil(this.destroy$)
         ).subscribe(results => {
             this.searchResults$.next(results);
-            this.showDropdown = this.hasSearched;
+            // Không hiển thị dropdown kết quả, chỉ cập nhật bulk list
+            this.showDropdown = false;
 
             if (results.length > 0) {
-                this.prepareBulkItemsFromSearch(results);
+                // Giới hạn 5 kết quả để tránh rate limit
+                this.prepareBulkItemsFromSearch(results.slice(0, 20));
             } else {
                 this.bulkItems$.next([]);
             }
@@ -169,7 +177,7 @@ export class AddPlantComponent implements OnInit, OnDestroy {
             takeUntil(this.destroy$)
         ).subscribe({
             next: plant => {
-                this.selectedTrefleId = plant.trefleId ?? null;
+                this.selectedPerenualId = plant.trefleId ?? null;
                 this.model = {
                     name: plant.name,
                     scientificName: plant.scientificName,
@@ -273,17 +281,20 @@ export class AddPlantComponent implements OnInit, OnDestroy {
         ];
     }
 
-    // ─── Trefle Handlers ──────────────────────────────────────────────────────
+    // ─── Perenual Handlers ────────────────────────────────────────────────────
     onSearchInput(event: Event): void {
         const value = (event.target as HTMLInputElement).value;
         this.searchQuery$.next(value);
     }
 
-    onSelectTrefleResult(result: TrefleSearchResult): void {
+    onSelectPerenualResult(result: PerenualSearchResult): void {
         const name = result.commonName ?? result.scientificName;
 
+        // Ẩn dropdown và clear input sau khi chọn
         this.showDropdown = false;
-        this.searchControl.setValue(name);
+        this.hasSearched = false;
+        this.searchControl.setValue('');
+        this.searchResults$.next([]);
         this.searching$.next(true);
 
         const existingItem = this.bulkItems$.getValue().find(item => item.id === result.id);
@@ -321,15 +332,27 @@ export class AddPlantComponent implements OnInit, OnDestroy {
 
         this.bulkItems$.next([...this.bulkItems$.getValue(), newItem]);
 
-        this.plantService.getTrefleDetail(result.id).pipe(
+        this.plantService.getPerenualDetail(result.id).pipe(
+            catchError(() => {
+                // Nếu lỗi (429 hoặc khác), dùng thông tin từ search result
+                return of({
+                    id: result.id,
+                    commonName: result.commonName,
+                    scientificName: result.scientificName,
+                    description: null,
+                    imageUrl: result.imageUrl,
+                    family: null,
+                    genus: null
+                } as PerenualPlantDetail);
+            }),
             finalize(() => {
                 this.searching$.next(false);
                 this.cdr.markForCheck();
             }),
             takeUntil(this.destroy$)
         ).subscribe({
-            next: (detail: TreflePlantDetail) => {
-                this.selectedTrefleId = detail.id;
+            next: (detail: PerenualPlantDetail) => {
+                this.selectedPerenualId = detail.id;
                 this.model = {
                     ...this.model,
                     name: detail.commonName ?? detail.scientificName,
@@ -357,25 +380,6 @@ export class AddPlantComponent implements OnInit, OnDestroy {
                 // Trigger formly update
                 this.model = { ...this.model };
                 this.cdr.markForCheck();
-            },
-            error: () => {
-                // Vẫn điền tên từ search result nếu detail thất bại
-                this.model = {
-                    ...this.model,
-                    name: result.commonName ?? result.scientificName,
-                    scientificName: result.scientificName,
-                    imageUrl: result.imageUrl ?? ''
-                };
-
-                this.previewImage = result.imageUrl ?? null;
-                this.bulkItems$.next(this.bulkItems$.getValue().map(item =>
-                    item.id === result.id
-                        ? { ...item, loading: false, error: 'Không tải được chi tiết, dùng dữ liệu search.' }
-                        : item
-                ));
-
-                this.model = { ...this.model };
-                this.cdr.markForCheck();
             }
         });
     }
@@ -397,14 +401,15 @@ export class AddPlantComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
     }
 
-    private prepareBulkItemsFromSearch(results: TrefleSearchResult[]): void {
+    private prepareBulkItemsFromSearch(results: PerenualSearchResult[]): void {
         if (this.categories.length === 0) {
             this.searchError = 'Chưa tải được danh mục. Không thể auto gán dữ liệu import.';
             this.bulkItems$.next([]);
             return;
         }
 
-        const searchVersion = ++this.currentSearchVersion;
+        // Không gọi detail API để tránh rate limit (100 req/ngày)
+        // Chỉ dùng thông tin từ search result
         const seedItems: BulkImportItem[] = results.map(result => {
             const randomCategory = this.pickRandomCategory();
 
@@ -412,60 +417,19 @@ export class AddPlantComponent implements OnInit, OnDestroy {
                 id: result.id,
                 name: result.commonName ?? result.scientificName,
                 scientificName: result.scientificName,
-                description: undefined,
+                description: undefined, // Không có description từ search
                 imageUrl: result.imageUrl ?? undefined,
                 price: this.randomPrice(),
                 categoryId: randomCategory?.id ?? 0,
                 categoryName: randomCategory?.name ?? 'Chưa có danh mục',
                 selected: true,
-                loading: true,
+                loading: false, // Không loading vì không gọi API
                 error: undefined
             };
         });
 
         this.bulkItems$.next(seedItems);
-
-        from(seedItems).pipe(
-            concatMap(item =>
-                this.plantService.getTrefleDetail(item.id).pipe(
-                    map(detail => ({ id: item.id, detail, error: null as string | null })),
-                    catchError(() => of({ id: item.id, detail: null, error: 'Không tải được chi tiết.' }))
-                )
-            ),
-            takeUntil(this.destroy$)
-        ).subscribe(result => {
-            if (searchVersion !== this.currentSearchVersion) {
-                return;
-            }
-
-            this.bulkItems$.next(this.bulkItems$.getValue().map(item => {
-                if (item.id !== result.id) {
-                    return item;
-                }
-
-                if (!result.detail) {
-                    return {
-                        ...item,
-                        loading: false,
-                        error: result.error ?? undefined
-                    };
-                }
-
-                return {
-                    ...item,
-                    name: result.detail.commonName ?? result.detail.scientificName,
-                    scientificName: result.detail.scientificName,
-                    description: result.detail.description ?? undefined,
-                    imageUrl: result.detail.imageUrl ?? undefined,
-                    family: result.detail.family ?? undefined,
-                    genus: result.detail.genus ?? undefined,
-                    loading: false,
-                    error: undefined
-                };
-            }));
-
-            this.cdr.markForCheck();
-        });
+        this.cdr.markForCheck();
     }
 
     private randomPrice(): number {
@@ -521,7 +485,7 @@ export class AddPlantComponent implements OnInit, OnDestroy {
             imageUrl: this.model['imageUrl'] ? String(this.model['imageUrl']) : undefined,
             price: Number(this.model['price'] ?? 0),
             categoryId: this.model['categoryId'] ? Number(this.model['categoryId']) : undefined,
-            trefleId: this.selectedTrefleId ?? undefined
+            trefleId: this.selectedPerenualId ?? undefined
         };
 
         const request$ = this.isEditMode && this.editingPlantId

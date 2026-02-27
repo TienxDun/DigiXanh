@@ -1,92 +1,134 @@
-<!--<c-header class="mb-4 d-print-none" position="sticky">-->
 <ng-container>
-  <c-container [fluid]="true" class="border-bottom px-4">
-    <button [cSidebarToggle]="sidebarId()" cHeaderToggler class="btn" toggle="visible"
-      style="margin-inline-start: -14px;" aria-label="Toggle sidebar navigation">
-      <svg cIcon name="cilMenu" size="lg"></svg>
-    </button>
+  <!-- Full header wrapper with glassmorphism class -->
+  <c-container [fluid]="true" class="px-4 header-glass border-bottom d-flex align-items-center justify-content-between">
 
-    <c-header-nav class="ms-auto ms-md-0">
-      <div class="nav-item py-1">
-        <div class="vr h-100 mx-2 text-body text-opacity-75"></div>
+    <!-- LEFT SIDE: Toggle & Breadcrumbs -->
+    <div class="d-flex align-items-center">
+      <button [cSidebarToggle]="sidebarId()" cHeaderToggler class="btn btn-icon me-3" toggle="visible"
+        aria-label="Toggle sidebar navigation">
+        <svg cIcon name="cilMenu" size="lg"></svg>
+      </button>
+
+      <!-- Breadcrumbs in header -->
+      <c-breadcrumb-router class="d-none d-md-flex breadcrumb-glass m-0"></c-breadcrumb-router>
+    </div>
+
+    <!-- MIDDLE: Search Bar -->
+    <div class="header-search d-none d-lg-flex flex-grow-1 px-4 justify-content-center">
+      <div class="search-box position-relative w-100 d-flex align-items-center" style="max-width: 480px;">
+        <svg cIcon name="cilSearch" class="position-absolute ms-3"
+          style="color: #6b7280; z-index: 5; pointer-events: none;"></svg>
+        <input type="text" class="form-control rounded-pill border-0 shadow-none ps-5 pe-5"
+          placeholder="Tìm kiếm tài nguyên..." style="height: 42px; background-color: var(--cui-tertiary-bg, #f3f4f7);">
+        <span class="position-absolute end-0 me-2 text-muted border"
+          style="font-size: 0.75rem; padding: 2px 6px; border-radius: 6px; background-color: var(--cui-body-bg, #fff); pointer-events: none; z-index: 5;">Ctrl+K</span>
       </div>
+    </div>
+
+    <!-- RIGHT SIDE: Tools & Profile -->
+    <c-header-nav class="d-flex align-items-center gap-2 gap-md-3">
+
+      <!-- Theme Switcher -->
       <ng-container *ngTemplateOutlet="themeDropdown" />
-      <div class="nav-item py-1">
-        <div class="vr h-100 mx-2 text-body text-opacity-75"></div>
-      </div>
-    </c-header-nav>
 
-    <c-header-nav class="mx-3">
+      <!-- Notifications -->
+      <div class="nav-item">
+        <button
+          class="btn btn-icon position-relative d-flex align-items-center justify-content-center border-0 bg-transparent text-secondary">
+          <svg cIcon name="cilBell" size="lg"></svg>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow-sm"
+            style="font-size: 0.65rem; margin-top: 8px; margin-left: -8px;">
+            3
+            <span class="visually-hidden">thông báo chưa đọc</span>
+          </span>
+        </button>
+      </div>
+
+      <div class="vr h-50 mx-1 text-body text-opacity-75 d-none d-md-block"></div>
+
+      <!-- User Profile Dropdown -->
       <ng-container *ngIf="authService.isAuthenticated$ | async; else loginLinks">
         <c-dropdown variant="nav-item" alignment="end">
-          <a cDropdownToggle class="nav-link py-0 d-flex align-items-center" style="cursor: pointer;" [caret]="false">
+          <a cDropdownToggle class="nav-link py-0 d-flex align-items-center p-1 rounded-pill profile-pill"
+            style="cursor: pointer;" [caret]="false">
             <div
               class="avatar bg-success text-white me-2 d-flex align-items-center justify-content-center fw-bold shadow-sm"
               style="width: 36px; height: 36px; border-radius: 50%;">
               {{ ((currentUser?.fullName || currentUser?.email || 'A') + '') | slice:0:1 | uppercase }}
             </div>
-            <div class="d-none d-md-flex flex-column align-items-start">
-              <span class="fw-semibold text-dark" style="line-height: 1.2;">{{ currentUser?.fullName ||
-                currentUser?.email || 'Admin' }}</span>
-              <small class="text-muted" style="font-size: 0.75rem;"><svg cIcon name="cilShieldAlt" size="sm"
-                  class="me-1"></svg>Quản trị viên</small>
+            <div class="d-none d-md-flex flex-column align-items-start pe-2">
+              <span class="fw-semibold text-dark profile-name">{{ currentUser?.fullName || currentUser?.email || 'Admin'
+                }}</span>
+              <small class="text-muted profile-role" style="font-size: 0.7rem;">
+                <svg cIcon name="cilShieldAlt" size="sm" class="me-1"></svg>Quản trị viên
+              </small>
             </div>
           </a>
-          <ul cDropdownMenu class="pt-0 pb-0 mt-3 shadow border-0 rounded-3">
+          <!-- Dropdown menu content -->
+          <ul cDropdownMenu class="pt-0 pb-0 mt-3 shadow-lg border-0 rounded-4 overflow-hidden glass-dropdown">
             <li>
-              <h6 cDropdownHeader class="bg-body-secondary fw-semibold py-2 rounded-top-3 border-bottom">Tài khoản của
-                tôi</h6>
+              <div class="p-3 bg-body-tertiary border-bottom d-flex align-items-center">
+                <div
+                  class="avatar bg-success text-white me-3 d-flex align-items-center justify-content-center fw-bold fs-5 shadow-sm"
+                  style="width: 48px; height: 48px; border-radius: 50%;">
+                  {{ ((currentUser?.fullName || currentUser?.email || 'A') + '') | slice:0:1 | uppercase }}
+                </div>
+                <div>
+                  <h6 class="mb-0 fw-bold">{{ currentUser?.fullName || currentUser?.email || 'Admin' }}</h6>
+                  <small class="text-muted">{{ currentUser?.email || 'admin@digixanh.com' }}</small>
+                </div>
+              </div>
             </li>
-            <li>
-              <button cDropdownItem class="py-2">
+            <li class="p-1 mt-1">
+              <button cDropdownItem class="py-2 px-3 rounded-2 dropdown-action fw-medium">
                 <svg cIcon name="cilUser" class="me-2 text-primary"></svg>
                 Hồ sơ cá nhân
               </button>
             </li>
-            <li>
-              <button cDropdownItem class="py-2">
+            <li class="p-1">
+              <button cDropdownItem class="py-2 px-3 rounded-2 dropdown-action fw-medium">
                 <svg cIcon name="cilSettings" class="me-2 text-secondary"></svg>
-                Cài đặt
+                Cài đặt hệ thống
               </button>
             </li>
             <li>
-              <hr cDropdownDivider class="my-0" />
+              <hr cDropdownDivider class="my-1" />
             </li>
-            <li>
-              <button cDropdownItem class="bg-danger-subtle text-danger fw-semibold py-2 rounded-bottom-3"
+            <li class="p-1 pb-2">
+              <button cDropdownItem
+                class="py-2 px-3 rounded-2 text-danger fw-bold d-flex align-items-center dropdown-action logout-action"
                 (click)="logout()">
-                <svg cIcon name="cilAccountLogout" class="me-2"></svg>
+                <svg cIcon name="cilAccountLogout" class="me-2 text-danger"></svg>
                 Đăng xuất
               </button>
             </li>
           </ul>
         </c-dropdown>
       </ng-container>
+
       <ng-template #loginLinks>
         <c-nav-item>
-          <a cNavLink routerLink="/auth/login" class="fw-semibold text-success">
-            <svg cIcon name="cilLockLocked" class="me-1"></svg>Đăng nhập
+          <a cNavLink routerLink="/auth/login"
+            class="fw-bold text-success btn btn-outline-success btn-sm rounded-pill px-3 shadow-sm">
+            <svg cIcon name="cilLockLocked" class="me-1"></svg> Đăng nhập
           </a>
         </c-nav-item>
       </ng-template>
-    </c-header-nav>
 
-  </c-container>
-  <c-container [fluid]="true" class="px-4">
-    <c-breadcrumb-router />
+    </c-header-nav>
   </c-container>
 </ng-container>
-<!--</c-header>-->
 
 <ng-template #themeDropdown>
   <c-dropdown alignment="end" variant="nav-item">
-    <button [caret]="false" cDropdownToggle aria-label="Open theme picker">
+    <button [caret]="false" cDropdownToggle aria-label="Open theme picker"
+      class="btn btn-icon border-0 bg-transparent text-secondary">
       <svg cIcon [name]="icons()" size="lg"></svg>
     </button>
-    <div cDropdownMenu>
+    <div cDropdownMenu class="shadow-lg border-0 rounded-4 p-2 mt-3 glass-dropdown" style="min-width: 150px;">
       @for (mode of colorModes; track mode.name) {
       <button (click)="colorMode.set(mode.name)" [active]="colorMode()===mode.name" cDropdownItem
-        class="d-flex align-items-center">
+        class="d-flex align-items-center py-2 px-3 rounded-2 mb-1 dropdown-action fw-medium">
         <svg cIcon class="me-2" [name]="mode.icon" size="lg"></svg>
         {{ mode.text }}
       </button>

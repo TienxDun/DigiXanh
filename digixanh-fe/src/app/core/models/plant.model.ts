@@ -18,7 +18,7 @@ export interface PlantDetailDto {
     categoryId: number;
     categoryName: string;
     imageUrl: string;
-    trefleId?: number | null;
+    trefleId?: number | null;  // Giữ tên cũ để tương thích database, đây là external plant ID
 }
 
 // DTO cho danh mục (dropdown)
@@ -27,8 +27,8 @@ export interface CategoryDto {
     name: string;
 }
 
-// Kết quả tìm kiếm từ Trefle proxy
-export interface TrefleSearchResult {
+// Kết quả tìm kiếm từ Perenual API
+export interface PerenualSearchResult {
     id: number;
     commonName: string | null;
     scientificName: string;
@@ -38,8 +38,8 @@ export interface TrefleSearchResult {
     image_url?: string | null;
 }
 
-// Chi tiết cây từ Trefle proxy
-export interface TreflePlantDetail {
+// Chi tiết cây từ Perenual API
+export interface PerenualPlantDetail {
     id: number;
     commonName: string | null;
     scientificName: string;
@@ -52,6 +52,12 @@ export interface TreflePlantDetail {
     image_url?: string | null;
 }
 
+// Alias cho backward compatibility (sẽ bỏ sau khi refactor xong)
+/** @deprecated Use PerenualSearchResult instead */
+export type TrefleSearchResult = PerenualSearchResult;
+/** @deprecated Use PerenualPlantDetail instead */
+export type TreflePlantDetail = PerenualPlantDetail;
+
 // Request tạo cây mới
 export interface CreatePlantRequest {
     name: string;
@@ -60,6 +66,5 @@ export interface CreatePlantRequest {
     imageUrl?: string;
     price: number;
     categoryId?: number;
-    trefleId?: number;
+    trefleId?: number;  // Giữ tên cũ để tương thích database - đây là external plant ID
 }
-

@@ -34,8 +34,8 @@
 
             <div class="d-flex align-items-center gap-3 w-100 mb-2 mb-md-0">
               <div class="position-relative">
-                <img [src]="resolveImageUrl(item.imageUrl)" [alt]="item.plantName"
-                  class="cart-image rounded-3 shadow-sm" (error)="onImageError($event)" />
+                <img [src]="resolveImageUrl(item.imageUrl)" [alt]="item.plantName || 'Hình ảnh sản phẩm'"
+                  [title]="item.plantName" class="cart-image rounded-3 shadow-sm" (error)="onImageError($event)" />
               </div>
               <div class="flex-grow-1">
                 <h6 class="fw-bold text-dark mb-1 fs-6 plant-name">{{ item.plantName }}</h6>
@@ -50,14 +50,17 @@
               <div
                 class="quantity-controller d-flex align-items-center bg-white rounded-pill p-1 shadow-sm border border-secondary border-opacity-10 flex-shrink-0">
                 <button class="btn btn-light rounded-circle btn-icon text-secondary" type="button"
+                  aria-label="Giảm số lượng" title="Giảm số lượng sản phẩm"
                   [disabled]="item.quantity <= 1 || isItemProcessing(item.id)" (click)="decreaseQuantity(item)">
                   <i class="fa-solid fa-minus" style="font-size: 0.7rem;"></i>
                 </button>
                 <input
                   class="form-control border-0 bg-transparent text-center quantity-input fw-bold px-0 shadow-none small"
-                  type="number" min="1" max="99" [value]="item.quantity" [disabled]="isItemProcessing(item.id)"
+                  aria-label="Số lượng" title="Nhập số lượng" placeholder="0" type="number" min="1" max="99"
+                  [value]="item.quantity" [disabled]="isItemProcessing(item.id)"
                   (change)="onQuantityInput(item, $any($event.target).value)" />
                 <button class="btn btn-light rounded-circle btn-icon text-secondary" type="button"
+                  aria-label="Tăng số lượng" title="Tăng số lượng sản phẩm"
                   [disabled]="item.quantity >= 99 || isItemProcessing(item.id)" (click)="increaseQuantity(item)">
                   <i class="fa-solid fa-plus" style="font-size: 0.7rem;"></i>
                 </button>

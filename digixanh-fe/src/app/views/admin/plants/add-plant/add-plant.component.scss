@@ -59,7 +59,7 @@ h4:hover .icon-square {
     }
 }
 
-// ─── Trefle Search ─────────────────────────────────────────────────────────────
+// ─── Perenual Search ────────────────────────────────────────────────────────────
 
 .search-container {
     .form-control {
@@ -72,7 +72,7 @@ h4:hover .icon-square {
     }
 }
 
-.trefle-dropdown {
+.perenual-dropdown {
     position: absolute;
     top: calc(100% + 10px);
     left: 0;
@@ -100,7 +100,7 @@ h4:hover .icon-square {
     }
 }
 
-.trefle-result-item {
+.perenual-result-item {
     cursor: pointer;
     transition: background-color 0.2s;
 
@@ -115,21 +115,21 @@ h4:hover .icon-square {
     }
 }
 
-.trefle-thumb-wrapper,
+.perenual-thumb-wrapper,
 .bulk-thumb-wrapper {
     width: 48px;
     height: 48px;
     flex-shrink: 0;
 }
 
-.trefle-thumb,
+.perenual-thumb,
 .bulk-thumb {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.trefle-thumb-placeholder,
+.perenual-thumb-placeholder,
 .bulk-thumb-placeholder {
     width: 100%;
     height: 100%;
@@ -245,7 +245,7 @@ h4:hover .icon-square {
     }
 }
 
-.trefle-badge {
+.perenual-badge {
     background-color: rgba(var(--cui-primary-rgb), 0.08);
 }
 

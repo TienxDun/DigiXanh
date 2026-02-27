@@ -61,10 +61,10 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
-builder.Services.AddHttpClient<ITrefleService, TrefleService>(client =>
+builder.Services.AddHttpClient<IPerenualService, PerenualService>(client =>
 {
-    client.BaseAddress = new Uri("https://trefle.io/api/v1/");
-    client.Timeout = TimeSpan.FromSeconds(10);
+    client.BaseAddress = new Uri("https://perenual.com/api/v2/");
+    client.Timeout = TimeSpan.FromSeconds(30);
 });
 
 // Register Payment Adapters (Adapter Pattern)

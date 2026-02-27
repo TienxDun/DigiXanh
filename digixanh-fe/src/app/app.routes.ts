@@ -56,6 +56,20 @@ export const routes: Routes = [
         data: {
           title: 'Quản lý cây'
         }
+      },
+      {
+        path: 'orders',
+        loadComponent: () => import('./views/admin/orders/order-list/order-list.component').then(m => m.OrderListComponent),
+        data: {
+          title: 'Quản lý đơn hàng'
+        }
+      },
+      {
+        path: 'orders/:id',
+        loadComponent: () => import('./views/admin/orders/order-detail/order-detail.component').then(m => m.OrderDetailComponent),
+        data: {
+          title: 'Chi tiết Đơn hàng'
+        }
       }
     ]
   },

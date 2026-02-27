@@ -1,0 +1,68 @@
+.badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.35em 0.65em;
+}
+
+.bg-warning {
+  background-color: #ffc107 !important;
+  color: #000;
+}
+
+.bg-info {
+  background-color: #0dcaf0 !important;
+  color: #000;
+}
+
+.bg-primary {
+  background-color: #0d6efd !important;
+}
+
+.bg-success {
+  background-color: #198754 !important;
+}
+
+.bg-danger {
+  background-color: #dc3545 !important;
+}
+
+.bg-secondary {
+  background-color: #6c757d !important;
+}
+
+.table-borderless td {
+  padding: 0.25rem 0;
+}
+
+.img-thumbnail {
+  padding: 0.125rem;
+  border-radius: 0.25rem;
+}
+
+// Status history timeline style
+.list-group-item {
+  border-left: none;
+  border-right: none;
+}
+
+.list-group-item:first-child {
+  border-top: none;
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
+
+// Card compact styling
+.card-header {
+  font-weight: 500;
+}
+
+// Form compact
+.form-label {
+  margin-bottom: 0.25rem;
+}
+
+.form-select-sm, .form-control-sm {
+  min-height: calc(1.5em + 0.5rem + 2px);
+}
