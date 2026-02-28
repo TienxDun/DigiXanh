@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, filter, map, Observable, of, switchMap, tap } from 'rxjs';
 import { FormsModule } from '@angular/forms';
-import { PlantDetailDto } from '../../../core/models/plant.model';
+import { PlantDetailDto, PlantDto } from '../../../core/models/plant.model';
 import { PublicPlantService } from '../../../core/services/public-plant.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CartService } from '../../../core/services/cart.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { resolvePlantImageUrl } from '../../../core/utils/image-url.util';
 
 @Component({
@@ -23,18 +24,22 @@ export class PublicPlantDetailComponent {
   isAdding = false;
   errorMessage = '';
   successMessage = '';
+  isSuccess = false;
+  activeTab: 'description' | 'care' | 'shipping' = 'description';
 
   private currentPlantId: number | null = null;
   currentPlant: PlantDetailDto | null = null;
 
   readonly plant$: Observable<PlantDetailDto | null>;
+  readonly relatedPlants$: Observable<PlantDto[]>;
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly publicPlantService: PublicPlantService,
     private readonly authService: AuthService,
-    private readonly cartService: CartService
+    private readonly cartService: CartService,
+    private readonly toastService: ToastService
   ) {
     this.plant$ = this.route.paramMap.pipe(
       map(params => Number(params.get('id'))),
@@ -51,7 +56,6 @@ export class PublicPlantDetailComponent {
           tap((plant) => {
             this.successMessage = '';
             this.currentPlant = plant;
-            // Reset quantity to 1 when loading new plant
             this.quantity = 1;
           }),
           catchError(() => {
@@ -61,6 +65,21 @@ export class PublicPlantDetailComponent {
         );
       })
     );
+
+    // Sản phẩm liên quan: chạy sau khi plant$ emit để lấy categoryId
+    this.relatedPlants$ = this.plant$.pipe(
+      filter((p): p is PlantDetailDto => p !== null),
+      switchMap(plant =>
+        this.publicPlantService.getRelatedPlants(plant.categoryId, plant.id, 4).pipe(
+          map(result => result.items.filter(p => p.id !== plant.id).slice(0, 4)),
+          catchError(() => of([]))
+        )
+      )
+    );
+  }
+
+  setTab(tab: 'description' | 'care' | 'shipping'): void {
+    this.activeTab = tab;
   }
 
   increaseQuantity(): void {
@@ -72,7 +91,7 @@ export class PublicPlantDetailComponent {
 
   getMaxQuantity(): number {
     if (!this.currentPlant?.stockQuantity) {
-      return 99; // Không giới hạn nếu không có stock
+      return 99;
     }
     return Math.min(99, this.currentPlant.stockQuantity);
   }
@@ -109,9 +128,7 @@ export class PublicPlantDetailComponent {
 
     if (!this.authService.isAuthenticated()) {
       this.router.navigate(['/auth/login'], {
-        queryParams: {
-          returnUrl: this.router.url
-        }
+        queryParams: { returnUrl: this.router.url }
       });
       return;
     }
@@ -128,25 +145,37 @@ export class PublicPlantDetailComponent {
     }).subscribe({
       next: () => {
         this.isAdding = false;
-        this.successMessage = 'Đã thêm cây vào giỏ hàng thành công.';
+        this.isSuccess = true;
+        this.toastService.success('Đã thêm sản phẩm vào giỏ hàng', 'Thành công', 2500);
+        setTimeout(() => { this.isSuccess = false; }, 2000);
       },
       error: (error) => {
         this.isAdding = false;
-        this.errorMessage = error?.error?.message ?? 'Không thể thêm vào giỏ hàng. Vui lòng thử lại.';
+        this.toastService.error(error?.error?.message ?? 'Có lỗi xảy ra', 'Thất bại');
       }
     });
   }
 
   onImageError(event: Event): void {
     const target = event.target as HTMLImageElement | null;
-    if (!target || target.src.endsWith(this.fallbackImageUrl)) {
-      return;
-    }
-
+    if (!target || target.src.endsWith(this.fallbackImageUrl)) return;
     target.src = this.fallbackImageUrl;
   }
 
   resolveImageUrl(imageUrl?: string | null): string {
     return resolvePlantImageUrl(imageUrl);
   }
+
+  hasRealImage(imageUrl?: string | null): boolean {
+    return Boolean(imageUrl && imageUrl.trim().length > 0);
+  }
+
+  /** Kiểm tra số lượng tồn kho để hiển thị badge phù hợp */
+  getStockStatus(qty?: number | null): 'in-stock' | 'low-stock' | 'out-of-stock' {
+    if (qty === null || qty === undefined) return 'in-stock';
+    if (qty === 0) return 'out-of-stock';
+    if (qty <= 10) return 'low-stock';
+    return 'in-stock';
+  }
 }
+

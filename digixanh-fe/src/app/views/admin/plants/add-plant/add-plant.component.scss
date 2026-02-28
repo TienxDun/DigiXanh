@@ -208,7 +208,7 @@ h4:hover .icon-square {
     }
 }
 
-/* Custom Checkbox */
+/* Custom Checkbox — xanh lá nhất quán với app */
 .custom-checkbox .form-check-input {
     width: 1.25rem;
     height: 1.25rem;
@@ -217,12 +217,12 @@ h4:hover .icon-square {
     transition: all 0.2s;
 
     &:checked {
-        background-color: var(--cui-primary);
-        border-color: var(--cui-primary);
+        background-color: #16a34a;
+        border-color: #16a34a;
     }
 
     &:focus {
-        box-shadow: 0 0 0 3px rgba(var(--cui-primary-rgb), 0.2);
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
     }
 }
 
@@ -261,4 +261,100 @@ h4:hover .icon-square {
         background-color: #dc3545 !important;
         color: white !important;
     }
+}
+
+// ─── Wizard Step Indicator ─────────────────────────────────────────────
+
+.wizard-steps {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.25rem 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    gap: 0;
+}
+
+.wizard-step {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 12px;
+    transition: background 0.2s ease;
+
+    &:hover:not(.active) {
+        background: #f8f9fa;
+    }
+
+    &__circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #dee2e6;
+        background: #f8f9fa;
+        color: #9ca3af;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+        transition: all 0.25s ease;
+    }
+
+    &__label {
+        line-height: 1.3;
+    }
+
+    &__title {
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: #6b7280;
+        transition: color 0.2s;
+    }
+
+    &__sub {
+        font-size: 0.72rem;
+        color: #9ca3af;
+    }
+
+    &.active {
+        .wizard-step__circle {
+            background: #16a34a;
+            border-color: #16a34a;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
+        }
+
+        .wizard-step__title {
+            color: #15803d;
+        }
+    }
+
+    &.done {
+        .wizard-step__circle {
+            background: #bbf7d0;
+            border-color: #86efac;
+            color: #15803d;
+        }
+
+        .wizard-step__title {
+            color: #15803d;
+        }
+    }
+}
+
+.wizard-step__connector {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(to right, #86efac, #e9ecef);
+    margin: 0 0.5rem;
+    border-radius: 2px;
+}
+
+// ─── Step panel transition ─────────────────────────────────────────
+.step-panel {
+    animation: fadeUp 0.35s ease both;
 }

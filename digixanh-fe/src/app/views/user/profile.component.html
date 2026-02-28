@@ -1,0 +1,185 @@
+<div class="container py-4 profile-container">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-end mb-4 animation-fade-up">
+    <div>
+      <h3 class="fw-bold mb-1 text-dark">
+        <i class="fa-solid fa-user-circle text-success me-2"></i>Thông tin cá nhân
+      </h3>
+      <p class="text-muted mb-0 mt-1 small">Quản lý thông tin tài khoản của bạn</p>
+    </div>
+    <button class="btn btn-light rounded-pill px-4 fw-medium border-0 shadow-sm" (click)="goToOrders()">
+      <i class="fa-solid fa-list-check text-success me-2"></i>Đơn hàng của tôi
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Đang tải thông tin...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !isLoading"
+    class="alert alert-danger rounded-4 border-0 shadow-sm d-flex align-items-center mb-4">
+    <i class="fa-solid fa-circle-exclamation fs-4 me-3"></i>
+    <div class="flex-grow-1">{{ errorMessage }}</div>
+    <button class="btn btn-sm btn-outline-danger rounded-pill px-3" (click)="loadProfile()">Thử lại</button>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="!isLoading && profile" class="row g-4 animation-fade-up delay-1">
+    <!-- Left Column: Profile Info -->
+    <div class="col-lg-8">
+      <div class="card custom-card border-0 rounded-4">
+        <div class="card-header bg-transparent border-0 pt-4 pb-2 px-4">
+          <h6 class="mb-0 fw-bold fs-5 text-dark">
+            <i class="fa-solid fa-id-card text-success me-2"></i>Thông tin cơ bản
+          </h6>
+        </div>
+        <div class="card-body p-4 pt-3">
+          <!-- Success Message -->
+          <div *ngIf="successMessage"
+            class="alert alert-success rounded-3 border-0 mb-4 shadow-sm bg-success bg-opacity-10 text-success">
+            <i class="fa-solid fa-check-circle me-2"></i>{{ successMessage }}
+          </div>
+
+          <form (ngSubmit)="saveProfile()">
+            <!-- Email (Read-only) -->
+            <div class="mb-3">
+              <label class="form-label fw-medium uppercase-tracking mb-1">Email</label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="fa-solid fa-envelope"></i>
+                </span>
+                <input type="email" class="form-control" [value]="profile.email" readonly>
+              </div>
+              <small class="text-muted mt-1 d-block"><i class="fa-solid fa-lock me-1 ms-1 text-black-50"></i>Email không
+                thể thay đổi</small>
+            </div>
+
+            <!-- FullName -->
+            <div class="mb-3">
+              <label for="fullName" class="form-label fw-medium text-dark mb-1">
+                Họ và tên <span class="text-danger">*</span>
+              </label>
+              <div class="input-group" [class.has-validation]="errors['fullName']">
+                <span class="input-group-text">
+                  <i class="fa-solid fa-user"></i>
+                </span>
+                <input type="text" class="form-control" id="fullName" [(ngModel)]="fullName" name="fullName"
+                  placeholder="Nhập họ và tên" [class.is-invalid]="errors['fullName']">
+              </div>
+              <div class="invalid-feedback d-block" *ngIf="errors['fullName']">
+                <i class="fa-solid fa-circle-exclamation me-1"></i>{{ errors['fullName'] }}
+              </div>
+            </div>
+
+            <!-- PhoneNumber -->
+            <div class="mb-3">
+              <label for="phoneNumber" class="form-label fw-medium text-dark mb-1">Số điện thoại</label>
+              <div class="input-group" [class.has-validation]="errors['phoneNumber']">
+                <span class="input-group-text">
+                  <i class="fa-solid fa-phone"></i>
+                </span>
+                <input type="tel" class="form-control" id="phoneNumber" [(ngModel)]="phoneNumber" name="phoneNumber"
+                  placeholder="VD: 0901234567" [class.is-invalid]="errors['phoneNumber']">
+              </div>
+              <div class="invalid-feedback d-block" *ngIf="errors['phoneNumber']">
+                <i class="fa-solid fa-circle-exclamation me-1"></i>{{ errors['phoneNumber'] }}
+              </div>
+              <small class="text-muted mt-1 d-block"><span class="ms-1">Định dạng: 0901234567 hoặc
+                  +84901234567</span></small>
+            </div>
+
+            <!-- Address -->
+            <div class="mb-4">
+              <label for="address" class="form-label fw-medium text-dark mb-1">Địa chỉ</label>
+              <div class="input-group" [class.has-validation]="errors['address']">
+                <span class="input-group-text align-items-start pt-2">
+                  <i class="fa-solid fa-location-dot"></i>
+                </span>
+                <textarea class="form-control" id="address" [(ngModel)]="address" name="address" rows="2"
+                  placeholder="Nhập địa chỉ giao hàng..." [class.is-invalid]="errors['address']"></textarea>
+              </div>
+              <div class="invalid-feedback d-block" *ngIf="errors['address']">
+                <i class="fa-solid fa-circle-exclamation me-1"></i>{{ errors['address'] }}
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-flex gap-2 pt-2">
+              <button type="submit" class="btn btn-success rounded-pill px-4 py-2" [disabled]="isSaving">
+                <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2"></span>
+                <i class="fa-solid fa-save me-2" *ngIf="!isSaving"></i>
+                {{ isSaving ? 'Đang lưu...' : 'Lưu thay đổi' }}
+              </button>
+              <button type="button" class="btn btn-outline-secondary rounded-pill px-4 py-2" (click)="loadProfile()">
+                <i class="fa-solid fa-rotate-left me-2"></i>Hoàn tác
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Account Info -->
+    <div class="col-lg-4">
+      <div class="card custom-card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+        <!-- Cover Background -->
+        <div class="profile-cover"></div>
+
+        <div class="card-body p-4 pt-0 text-center position-relative">
+          <div class="profile-avatar-wrapper mb-3">
+            <div class="avatar-icon shadow-sm">
+              <i class="fa-solid fa-user"></i>
+            </div>
+          </div>
+          <h6 class="fw-bold fs-5 mb-1 text-dark">{{ profile.fullName }}</h6>
+          <p class="text-muted small mb-3">{{ profile.email }}</p>
+
+          <div class="bg-light rounded-3 p-3 text-start">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="text-muted small"><i class="fa-regular fa-calendar me-2"></i>Ngày tham gia</span>
+              <span class="fw-medium text-dark small">{{ formatDate(profile.createdAt) }}</span>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted small"><i class="fa-solid fa-crown me-2"></i>Loại tài khoản</span>
+              <span class="badge {{ getRoleBadgeClass() }} rounded-pill px-3 py-2">{{ getRoleDisplayName() }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="card custom-card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-transparent border-0 pt-4 pb-2 px-4">
+          <h6 class="mb-0 fw-bold fs-6 text-dark">
+            <i class="fa-solid fa-link text-success me-2"></i>Liên kết nhanh
+          </h6>
+        </div>
+        <div class="card-body p-3 pt-0">
+          <div class="list-group list-group-flush custom-list-group border-0">
+            <button (click)="goToOrders()"
+              class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-0 text-start">
+              <span><i class="fa-solid fa-file-invoice text-success me-3"></i>Đơn hàng của tôi</span>
+              <i class="fa-solid fa-chevron-right text-muted small"></i>
+            </button>
+            <a routerLink="/cart"
+              class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-0 text-decoration-none">
+              <span><i class="fa-solid fa-cart-shopping text-primary me-3"></i>Giỏ hàng</span>
+              <i class="fa-solid fa-chevron-right text-muted small"></i>
+            </a>
+            <a routerLink="/"
+              class="list-group-item list-group-item-action d-flex justify-content-between align-items-center border-0 text-decoration-none">
+              <span><i class="fa-solid fa-store text-warning me-3"></i>Tiếp tục mua sắm</span>
+              <i class="fa-solid fa-chevron-right text-muted small"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

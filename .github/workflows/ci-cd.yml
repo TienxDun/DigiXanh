@@ -1,0 +1,329 @@
+name: DigiXanh CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  NODE_VERSION: '20'
+
+jobs:
+  # =============================================
+  # STAGE 1: Backend Tests
+  # =============================================
+  backend-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      sql-server:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: YourStrong@Passw0rd
+        ports:
+          - 1433:1433
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore Dependencies
+        run: dotnet restore DigiXanh.sln
+
+      - name: Build Backend
+        run: dotnet build DigiXanh.API --no-restore --configuration Release
+
+      - name: Run Unit Tests
+        run: |
+          dotnet test DigiXanh.API.Tests \
+            --no-build \
+            --verbosity normal \
+            --logger trx \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./test-results
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: backend-test-results
+          path: ./test-results
+
+      - name: Code Coverage Report
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./test-results/**/coverage.cobertura.xml
+          flags: backend
+          name: backend-coverage
+
+  # =============================================
+  # STAGE 2: Frontend Tests
+  # =============================================
+  frontend-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: digixanh-fe/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: digixanh-fe
+        run: npm ci
+
+      - name: Run Unit Tests
+        working-directory: digixanh-fe
+        run: npm run test:ci -- --coverage
+
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          directory: digixanh-fe/coverage
+          flags: frontend
+          name: frontend-coverage
+
+  # =============================================
+  # STAGE 3: Integration Tests
+  # =============================================
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Start Backend
+        run: |
+          dotnet run --project DigiXanh.API --configuration Release &
+          sleep 15
+          curl -f http://localhost:5000/api/health || exit 1
+
+      - name: Run API Tests (Postman)
+        uses: postman/newman@latest
+        with:
+          collection: tests/postman/DigiXanh-API-Collection.json
+          environment: tests/postman/DigiXanh-Local.json
+          reporters: cli,junit
+
+  # =============================================
+  # STAGE 4: E2E Tests
+  # =============================================
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Frontend Dependencies
+        working-directory: digixanh-fe
+        run: npm ci
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Install Cypress
+        working-directory: digixanh-fe
+        run: npm install cypress
+
+      - name: Run Cypress Tests
+        working-directory: digixanh-fe
+        run: |
+          npx concurrently -k -s first \
+            "dotnet run --project ../DigiXanh.API" \
+            "wait-on http://localhost:5000/api/health && npm run e2e:ci"
+
+      - name: Upload Cypress Screenshots
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: digixanh-fe/cypress/screenshots
+
+      - name: Upload Cypress Videos
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: cypress-videos
+          path: digixanh-fe/cypress/videos
+
+  # =============================================
+  # STAGE 5: Performance Tests
+  # =============================================
+  performance-tests:
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup k6
+        run: |
+          sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Run Load Test
+        working-directory: digixanh-fe/k6
+        run: |
+          k6 run --out json=load-test-results.json load-test.js || true
+
+      - name: Upload Performance Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: digixanh-fe/k6/*.json
+
+  # =============================================
+  # STAGE 6: Security Scan
+  # =============================================
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: [backend-tests]
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run OWASP Dependency Check (Backend)
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'DigiXanh-API'
+          path: 'DigiXanh.API'
+          format: 'ALL'
+
+      - name: Upload Security Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: reports/
+
+      - name: Run npm audit (Frontend)
+        working-directory: digixanh-fe
+        run: npm audit --audit-level=high || true
+
+  # =============================================
+  # STAGE 7: Build & Deploy to Staging
+  # =============================================
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [e2e-tests, security-scan]
+    environment: staging
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Publish Backend
+        run: |
+          dotnet publish DigiXanh.API \
+            -c Release \
+            -o ./publish/backend \
+            --self-contained false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Build Frontend
+        working-directory: digixanh-fe
+        run: |
+          npm ci
+          npm run build -- --configuration=production
+
+      - name: Deploy to Staging
+        run: |
+          echo "Deploying to staging environment..."
+          # Add your deployment commands here
+
+  # =============================================
+  # STAGE 8: Smoke Tests (Post-Deploy)
+  # =============================================
+  smoke-tests:
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    
+    steps:
+      - name: Health Check
+        run: |
+          curl -f https://staging.digixanh.com/api/health
+          curl -f https://staging.digixanh.com/api/health/db
+
+      - name: Critical Path Smoke Test
+        run: |
+          # Test critical endpoints
+          curl -f https://staging.digixanh.com/api/plants?page=1
+          curl -f https://staging.digixanh.com/api/categories
+
+  # =============================================
+  # STAGE 9: Deploy to Production
+  # =============================================
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [e2e-tests, security-scan, smoke-tests]
+    environment: production
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Publish Backend
+        run: |
+          dotnet publish DigiXanh.API -c Release -o ./publish/backend
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Build Frontend
+        working-directory: digixanh-fe
+        run: |
+          npm ci
+          npm run build -- --configuration=production
+
+      - name: Deploy to Production
+        run: |
+          echo "Deploying to production..."
+          # Add production deployment commands
+
+      - name: Post-Deploy Verification
+        run: |
+          sleep 30
+          curl -f https://digixanh.com/api/health

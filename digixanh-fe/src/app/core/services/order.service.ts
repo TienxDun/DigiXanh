@@ -11,7 +11,10 @@ import {
   AdminOrderDetailDto,
   UpdateOrderStatusRequest,
   OrderStatusOption,
-  AdminOrderQueryParams
+  AdminOrderQueryParams,
+  OrderDto,
+  CustomerOrderDetailDto,
+  UserOrderQueryParams
 } from '../models/order.model';
 
 @Injectable({
@@ -28,6 +31,34 @@ export class OrderService {
   
   createOrder(request: CreateOrderRequest): Observable<CreateOrderResponse> {
     return this.http.post<CreateOrderResponse>(this.apiUrl, request);
+  }
+
+  /**
+   * Lấy danh sách đơn hàng của ngườI dùng hiện tại (US18)
+   */
+  getMyOrders(params: UserOrderQueryParams = {}): Observable<PagedResult<OrderDto>> {
+    let httpParams = new HttpParams()
+      .set('page', (params.page ?? 1).toString())
+      .set('pageSize', (params.pageSize ?? 10).toString());
+
+    return this.http.get<PagedResult<OrderDto>>(this.apiUrl, { params: httpParams });
+  }
+
+  /**
+   * Lấy chi tiết đơn hàng của ngườI dùng hiện tại (US19)
+   */
+  getMyOrderDetail(id: number): Observable<CustomerOrderDetailDto> {
+    return this.http.get<CustomerOrderDetailDto>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Hủy đơn hàng (US20) - Chỉ cho phép hủy đơn ở trạng thái Pending
+   */
+  cancelOrder(id: number, reason?: string): Observable<{ orderId: number; status: string; cancelledAt: Date; reason: string; message: string }> {
+    return this.http.post<{ orderId: number; status: string; cancelledAt: Date; reason: string; message: string }>(
+      `${this.apiUrl}/${id}/cancel`,
+      { reason: reason || 'Khách hàng yêu cầu hủy' }
+    );
   }
 
   processVNPayReturn(vnpayData: { [key: string]: string }): Observable<VNPayReturnResponse> {

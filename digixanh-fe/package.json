@@ -16,7 +16,17 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "prebuild": "ng test --watch=false",
-    "test": "ng test"
+    "test": "ng test",
+    "test:ci": "ng test --watch=false",
+    "test:coverage": "ng test --code-coverage",
+    "e2e": "cypress open",
+    "e2e:ci": "cypress run --browser chrome --headless",
+    "e2e:record": "cypress run --record",
+    "lint": "ng lint",
+    "perf:test": "k6 run k6/load-test.js",
+    "perf:checkout": "k6 run k6/checkout-flow.js",
+    "perf:stress": "k6 run k6/stress-test.js",
+    "test:all": "npm run test:ci && npm run e2e:ci"
   },
   "private": true,
   "dependencies": {

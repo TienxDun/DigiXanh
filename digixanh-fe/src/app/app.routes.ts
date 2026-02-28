@@ -33,6 +33,24 @@ export const routes: Routes = [
         path: 'payment-return',
         // Không cần authGuard vì VNPay redirect không mang theo token
         loadComponent: () => import('./views/cart/payment-return.component').then((m) => m.PaymentReturnComponent)
+      },
+      {
+        path: 'orders',
+        canActivate: [authGuard],
+        loadComponent: () => import('./views/orders/my-orders/my-orders.component').then((m) => m.MyOrdersComponent),
+        data: { title: 'Đơn hàng của tôi' }
+      },
+      {
+        path: 'orders/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./views/orders/order-detail/order-detail.component').then((m) => m.OrderDetailComponent),
+        data: { title: 'Chi tiết đơn hàng' }
+      },
+      {
+        path: 'profile',
+        canActivate: [authGuard],
+        loadComponent: () => import('./views/user/profile.component').then((m) => m.ProfileComponent),
+        data: { title: 'Thông tin cá nhân' }
       }
     ]
   },
@@ -76,6 +94,13 @@ export const routes: Routes = [
         loadComponent: () => import('./views/admin/orders/order-detail/order-detail.component').then(m => m.OrderDetailComponent),
         data: {
           title: 'Chi tiết Đơn hàng'
+        }
+      },
+      {
+        path: 'users',
+        loadComponent: () => import('./views/admin/users/user-list/user-list.component').then(m => m.UserListComponent),
+        data: {
+          title: 'Quản lý NgườI dùng'
         }
       }
     ]

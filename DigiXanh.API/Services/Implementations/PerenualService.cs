@@ -103,7 +103,7 @@ public class PerenualService : IPerenualService
                     item.Id,
                     item.CommonName,
                     GetFirstScientificName(item.ScientificName),
-                    ImageUrlSanitizer.NormalizeOrNull(item.DefaultImage?.MediumUrl)))
+                    SelectBestImageUrl(item.DefaultImage)))
                 .Where(item => item.Id > 0 && !string.IsNullOrWhiteSpace(item.ScientificName))
                 .Take(20) // Giới hạn 20 kết quả
                 .ToList() ?? new List<PerenualPlantSearchItemDto>();
@@ -181,7 +181,7 @@ public class PerenualService : IPerenualService
                 item.CommonName,
                 GetFirstScientificName(item.ScientificName),
                 item.Description,
-                ImageUrlSanitizer.NormalizeOrNull(item.DefaultImage?.MediumUrl),
+                SelectBestImageUrl(item.DefaultImage),
                 item.Family,
                 item.Genus,
                 null,
@@ -292,6 +292,20 @@ public class PerenualService : IPerenualService
             return string.Empty;
         }
         return scientificNames[0];
+    }
+
+    private static string? SelectBestImageUrl(PerenualImageData? imageData)
+    {
+        if (imageData is null)
+        {
+            return null;
+        }
+
+        return ImageUrlSanitizer.NormalizeOrNull(imageData.MediumUrl)
+            ?? ImageUrlSanitizer.NormalizeOrNull(imageData.RegularUrl)
+            ?? ImageUrlSanitizer.NormalizeOrNull(imageData.OriginalUrl)
+            ?? ImageUrlSanitizer.NormalizeOrNull(imageData.SmallUrl)
+            ?? ImageUrlSanitizer.NormalizeOrNull(imageData.Thumbnail);
     }
 
     private sealed record PerenualListResponse<T>(

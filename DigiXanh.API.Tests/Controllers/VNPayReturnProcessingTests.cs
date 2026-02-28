@@ -34,20 +34,24 @@ public class VNPayReturnProcessingTests
     }
 
     [Fact]
-    public async Task ProcessVNPayReturnAsync_UpdatesOrderToCancelled_WhenResponseIsFailure()
+    public async Task ProcessVNPayReturnAsync_DeletesOrderAndRestoresCart_WhenResponseIsFailure()
     {
         await using var dbContext = CreateDbContext();
         var order = await SeedPendingOrderAsync(dbContext);
+        var orderId = order.Id;
         var facade = CreateFacade(dbContext);
 
-        var payload = BuildSignedPayload(order.Id, "24", "02", "TXN-0002");
+        var payload = BuildSignedPayload(orderId, "24", "02", "TXN-0002");
         var result = await facade.ProcessVNPayReturnAsync(payload);
 
-        var updatedOrder = await dbContext.Orders.FirstAsync(o => o.Id == order.Id);
+        // Order should be deleted and cart items restored
+        var deletedOrder = await dbContext.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+        var restoredCartItems = await dbContext.CartItems.Where(c => c.UserId == "test-user-id").ToListAsync();
+        
         Assert.False(result.Success);
         Assert.Equal("Cancelled", result.Status);
-        Assert.Equal(OrderStatus.Cancelled, updatedOrder.Status);
-        Assert.Equal("TXN-0002", updatedOrder.TransactionId);
+        Assert.Null(deletedOrder); // Order should be deleted
+        Assert.NotEmpty(restoredCartItems); // Cart items should be restored
     }
 
     private static ApplicationDbContext CreateDbContext()
@@ -70,6 +74,15 @@ public class VNPayReturnProcessingTests
             FullName = "Test User"
         };
         dbContext.Users.Add(user);
+
+        // Seed plant để tránh lỗi FK
+        var plant = new Plant
+        {
+            Name = "Test Plant",
+            Price = 50000m,
+            StockQuantity = 10
+        };
+        dbContext.Plants.Add(plant);
         await dbContext.SaveChangesAsync();
 
         var order = new Order
@@ -88,6 +101,20 @@ public class VNPayReturnProcessingTests
 
         dbContext.Orders.Add(order);
         await dbContext.SaveChangesAsync();
+
+        // Add order items để test restore cart
+        var orderItem = new OrderItem
+        {
+            OrderId = order.Id,
+            PlantId = plant.Id,
+            Quantity = 2,
+            UnitPrice = 50000m
+        };
+        dbContext.OrderItems.Add(orderItem);
+        await dbContext.SaveChangesAsync();
+
+        // Reload order with items
+        order.OrderItems = new List<OrderItem> { orderItem };
         return order;
     }
 

@@ -1,48 +1,84 @@
 import { INavData } from '@coreui/angular';
 
 export const navItems: INavData[] = [
+  // ═══════════════════════════════════════════════════════════
+  // 📊 TỔNG QUAN
+  // ═══════════════════════════════════════════════════════════
   {
-    name: 'Tổng quan (Dashboard)',
+    name: 'Dashboard',
     url: '/admin/dashboard',
-    iconComponent: { name: 'cil-speedometer' }
+    iconComponent: { name: 'cil-speedometer' },
+    badge: {
+      color: 'info',
+      text: 'LIVE'
+    }
   },
+
+  // ═══════════════════════════════════════════════════════════
+  // 🛒 VẬN HÀNH & BÁN HÀNG
+  // ═══════════════════════════════════════════════════════════
   {
     title: true,
-    name: 'Vận hành & Bán hàng'
+    name: 'Vận hành',
+    class: 'mt-2'
   },
   {
-    name: 'Quản lý Đơn hàng',
+    name: 'Đơn hàng',
     url: '/admin/orders',
-    iconComponent: { name: 'cil-cart' }
+    iconComponent: { name: 'cil-basket' },
+    badge: {
+      color: 'success',
+      text: 'Mới'
+    }
   },
+
+  // ═══════════════════════════════════════════════════════════
+  // 🌿 SẢN PHẨM (Collapsible Group)
+  // ═══════════════════════════════════════════════════════════
+  {
+    name: 'Sản phẩm',
+    url: '/admin/plants',
+    iconComponent: { name: 'cil-spreadsheet' },
+    children: [
+      {
+        name: 'Danh sách Cây cảnh',
+        url: '/admin/plants',
+        iconComponent: { name: 'cil-leaf' }
+      },
+      {
+        name: 'Thêm cây mới',
+        url: '/admin/plants/create',
+        iconComponent: { name: 'cil-plus' }
+      },
+      {
+        name: 'Quản lý Danh mục',
+        url: '/admin/categories',
+        iconComponent: { name: 'cil-tags' }
+      }
+    ]
+  },
+
+  // ═══════════════════════════════════════════════════════════
+  // 👥 KHÁCH HÀNG
+  // ═══════════════════════════════════════════════════════════
   {
     title: true,
-    name: 'Quản lý Sản phẩm'
+    name: 'Khách hàng',
+    class: 'mt-2'
   },
   {
-    name: 'Danh sách Cây cảnh',
-    url: '/admin/plants',
-    iconComponent: { name: 'cil-leaf' }
+    name: 'NgườI dùng',
+    url: '/admin/users',
+    iconComponent: { name: 'cil-people' }
   },
-  {
-    name: 'Quản lý Danh mục',
-    url: '/admin/categories',
-    iconComponent: { name: 'cil-tags' }
-  },
-  {
-    name: 'Thêm cây mới',
-    url: '/admin/plants/create',
-    iconComponent: { name: 'cil-plus' }
-  }
-  // Các menu dưới đây sẽ được thêm khi implement các features tương ứng:
+
+  // ═══════════════════════════════════════════════════════════
+  // ⚙️ HỆ THỐNG (Commented - sẵn sàng mở rộng)
+  // ═══════════════════════════════════════════════════════════
   // {
   //   title: true,
-  //   name: 'Khách hàng & Tương tác'
-  // },
-  // {
-  //   name: 'Quản lý Khách hàng',
-  //   url: '/admin/customers',
-  //   iconComponent: { name: 'cil-user' }
+  //   name: 'Hệ thống',
+  //   class: 'mt-2'
   // },
   // {
   //   name: 'Đánh giá / Phản hồi',
@@ -50,16 +86,12 @@ export const navItems: INavData[] = [
   //   iconComponent: { name: 'cil-star' }
   // },
   // {
-  //   title: true,
-  //   name: 'Hệ thống & Cài đặt'
-  // },
-  // {
   //   name: 'Phân quyền Admin',
   //   url: '/admin/accounts',
   //   iconComponent: { name: 'cil-shield-alt' }
   // },
   // {
-  //   name: 'Cài đặt Cửa hàng',
+  //   name: 'Cài đặt',
   //   url: '/admin/settings',
   //   iconComponent: { name: 'cil-settings' }
   // }

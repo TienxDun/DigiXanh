@@ -86,6 +86,9 @@ export class AddPlantComponent implements OnInit, OnDestroy {
     isEditMode = false;
     editingPlantId: number | null = null;
 
+    // ─── Wizard Step ──────────────────────────────────────────────────────────
+    currentStep: 1 | 2 = 1;
+
     // ─── Submit ────────────────────────────────────────────────────────────────
     submitting$ = new BehaviorSubject<boolean>(false);
     submitError: string | null = null;
@@ -102,6 +105,8 @@ export class AddPlantComponent implements OnInit, OnDestroy {
         if (idParam && !Number.isNaN(Number(idParam))) {
             this.isEditMode = true;
             this.editingPlantId = Number(idParam);
+            // Edit mode: bỏ qua bước 1 (import AI), vào thẳng bước 2
+            this.currentStep = 2;
         }
 
         this.plantService.getCategories().pipe(takeUntil(this.destroy$)).subscribe(cats => {
@@ -499,8 +504,8 @@ export class AddPlantComponent implements OnInit, OnDestroy {
             price: Number(this.model['price'] ?? 0),
             categoryId: this.model['categoryId'] ? Number(this.model['categoryId']) : undefined,
 
-            stockQuantity: this.model['stockQuantity'] !== undefined && this.model['stockQuantity'] !== '' 
-                ? Number(this.model['stockQuantity']) 
+            stockQuantity: this.model['stockQuantity'] !== undefined && this.model['stockQuantity'] !== ''
+                ? Number(this.model['stockQuantity'])
                 : null
         };
 
@@ -570,6 +575,21 @@ export class AddPlantComponent implements OnInit, OnDestroy {
 
             this.router.navigate(['/admin/plants']);
         });
+    }
+
+    // ─── Wizard Helpers ───────────────────────────────────────────────────────
+    goToStep(step: 1 | 2): void {
+        this.currentStep = step;
+        this.cdr.markForCheck();
+    }
+
+    canProceedToStep2(): boolean {
+        // Có thể sang bước 2 bất cứ lúc nào (nhập tay hoặc đã có bulk items)
+        return true;
+    }
+
+    getBulkSelectedCount(): number {
+        return this.bulkItems$.getValue().filter(i => i.selected).length;
     }
 
     resolveImageUrl(imageUrl?: string | null): string {

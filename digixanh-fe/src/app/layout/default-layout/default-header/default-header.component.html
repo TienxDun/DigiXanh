@@ -1,138 +1,126 @@
-<ng-container>
-  <!-- Full header wrapper with glassmorphism class -->
-  <c-container [fluid]="true" class="px-4 header-glass border-bottom d-flex align-items-center justify-content-between">
-
-    <!-- LEFT SIDE: Toggle & Breadcrumbs -->
-    <div class="d-flex align-items-center">
-      <button [cSidebarToggle]="sidebarId()" cHeaderToggler class="btn btn-icon me-3" toggle="visible"
-        aria-label="Toggle sidebar navigation">
+<header class="admin-header">
+  <!-- Top Row -->
+  <div class="header-row">
+    <!-- Left: Toggle + Breadcrumb -->
+    <div class="header-left">
+      <button [cSidebarToggle]="sidebarId()" 
+              cHeaderToggler 
+              class="btn-menu"
+              toggle="visible"
+              aria-label="Toggle sidebar">
         <svg cIcon name="cilMenu" size="lg"></svg>
       </button>
-
-      <!-- Breadcrumbs in header -->
-      <c-breadcrumb-router class="d-none d-md-flex breadcrumb-glass m-0"></c-breadcrumb-router>
+      
+      <c-breadcrumb-router class="breadcrumb-custom"></c-breadcrumb-router>
     </div>
 
-    <!-- MIDDLE: Search Bar -->
-    <div class="header-search d-none d-lg-flex flex-grow-1 px-4 justify-content-center">
-      <div class="search-box position-relative w-100 d-flex align-items-center" style="max-width: 480px;">
-        <svg cIcon name="cilSearch" class="position-absolute ms-3"
-          style="color: #6b7280; z-index: 5; pointer-events: none;"></svg>
-        <input type="text" class="form-control rounded-pill border-0 shadow-none ps-5 pe-5"
-          placeholder="Tìm kiếm tài nguyên..." style="height: 42px; background-color: var(--cui-tertiary-bg, #f3f4f7);">
-        <span class="position-absolute end-0 me-2 text-muted border"
-          style="font-size: 0.75rem; padding: 2px 6px; border-radius: 6px; background-color: var(--cui-body-bg, #fff); pointer-events: none; z-index: 5;">Ctrl+K</span>
-      </div>
-    </div>
-
-    <!-- RIGHT SIDE: Tools & Profile -->
-    <c-header-nav class="d-flex align-items-center gap-2 gap-md-3">
-
-      <!-- Theme Switcher -->
-      <ng-container *ngTemplateOutlet="themeDropdown" />
-
+    <!-- Right: Actions -->
+    <div class="header-right">
       <!-- Notifications -->
-      <div class="nav-item">
-        <button
-          class="btn btn-icon position-relative d-flex align-items-center justify-content-center border-0 bg-transparent text-secondary">
+      <c-dropdown alignment="end" variant="nav-item">
+        <button cDropdownToggle class="btn-action" [caret]="false" aria-label="Notifications">
           <svg cIcon name="cilBell" size="lg"></svg>
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow-sm"
-            style="font-size: 0.65rem; margin-top: 8px; margin-left: -8px;">
-            3
-            <span class="visually-hidden">thông báo chưa đọc</span>
-          </span>
+          <span class="badge-red">3</span>
         </button>
-      </div>
-
-      <div class="vr h-50 mx-1 text-body text-opacity-75 d-none d-md-block"></div>
-
-      <!-- User Profile Dropdown -->
-      <ng-container *ngIf="authService.isAuthenticated$ | async; else loginLinks">
-        <c-dropdown variant="nav-item" alignment="end">
-          <a cDropdownToggle class="nav-link py-0 d-flex align-items-center p-1 rounded-pill profile-pill"
-            style="cursor: pointer;" [caret]="false">
-            <div
-              class="avatar bg-success text-white me-2 d-flex align-items-center justify-content-center fw-bold shadow-sm"
-              style="width: 36px; height: 36px; border-radius: 50%;">
-              {{ ((currentUser?.fullName || currentUser?.email || 'A') + '') | slice:0:1 | uppercase }}
-            </div>
-            <div class="d-none d-md-flex flex-column align-items-start pe-2">
-              <span class="fw-semibold text-dark profile-name">{{ currentUser?.fullName || currentUser?.email || 'Admin'
-                }}</span>
-              <small class="text-muted profile-role" style="font-size: 0.7rem;">
-                <svg cIcon name="cilShieldAlt" size="sm" class="me-1"></svg>Quản trị viên
-              </small>
-            </div>
-          </a>
-          <!-- Dropdown menu content -->
-          <ul cDropdownMenu class="pt-0 pb-0 mt-3 shadow-lg border-0 rounded-4 overflow-hidden glass-dropdown">
-            <li>
-              <div class="p-3 bg-body-tertiary border-bottom d-flex align-items-center">
-                <div
-                  class="avatar bg-success text-white me-3 d-flex align-items-center justify-content-center fw-bold fs-5 shadow-sm"
-                  style="width: 48px; height: 48px; border-radius: 50%;">
-                  {{ ((currentUser?.fullName || currentUser?.email || 'A') + '') | slice:0:1 | uppercase }}
-                </div>
-                <div>
-                  <h6 class="mb-0 fw-bold">{{ currentUser?.fullName || currentUser?.email || 'Admin' }}</h6>
-                  <small class="text-muted">{{ currentUser?.email || 'admin@digixanh.com' }}</small>
-                </div>
+        <ul cDropdownMenu class="dropdown-menu-custom dropdown-lg">
+          <li class="dropdown-header">
+            <span>Thông báo</span>
+            <button class="btn-mark">Đánh dấu đã đọc</button>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a routerLink="/admin/orders" class="dropdown-item notification-item">
+              <div class="noti-icon bg-success">
+                <svg cIcon name="cilCart"></svg>
               </div>
-            </li>
-            <li class="p-1 mt-1">
-              <button cDropdownItem class="py-2 px-3 rounded-2 dropdown-action fw-medium">
-                <svg cIcon name="cilUser" class="me-2 text-primary"></svg>
-                Hồ sơ cá nhân
-              </button>
-            </li>
-            <li class="p-1">
-              <button cDropdownItem class="py-2 px-3 rounded-2 dropdown-action fw-medium">
-                <svg cIcon name="cilSettings" class="me-2 text-secondary"></svg>
-                Cài đặt hệ thống
-              </button>
-            </li>
-            <li>
-              <hr cDropdownDivider class="my-1" />
-            </li>
-            <li class="p-1 pb-2">
-              <button cDropdownItem
-                class="py-2 px-3 rounded-2 text-danger fw-bold d-flex align-items-center dropdown-action logout-action"
-                (click)="logout()">
-                <svg cIcon name="cilAccountLogout" class="me-2 text-danger"></svg>
-                Đăng xuất
-              </button>
-            </li>
-          </ul>
-        </c-dropdown>
-      </ng-container>
+              <div class="noti-content">
+                <strong>Đơn hàng mới #1234</strong>
+                <small>Khách hàng vừa đặt đơn hàng mới</small>
+                <span class="noti-time">2 phút trước</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/admin/plants" class="dropdown-item notification-item">
+              <div class="noti-icon bg-warning">
+                <svg cIcon name="cilWarning"></svg>
+              </div>
+              <div class="noti-content">
+                <strong>Cảnh báo tồn kho</strong>
+                <small>Cây "Trầu Bà" sắp hết hàng</small>
+                <span class="noti-time">15 phút trước</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/admin/users" class="dropdown-item notification-item">
+              <div class="noti-icon bg-info">
+                <svg cIcon name="cilUserPlus"></svg>
+              </div>
+              <div class="noti-content">
+                <strong>NgườI dùng mới</strong>
+                <small>Nguyễn Văn A vừa đăng ký</small>
+                <span class="noti-time">1 giờ trước</span>
+              </div>
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a routerLink="/admin/notifications" class="dropdown-item text-center text-primary">Xem tất cả thông báo</a></li>
+        </ul>
+      </c-dropdown>
 
-      <ng-template #loginLinks>
-        <c-nav-item>
-          <a cNavLink routerLink="/auth/login"
-            class="fw-bold text-success btn btn-outline-success btn-sm rounded-pill px-3 shadow-sm">
-            <svg cIcon name="cilLockLocked" class="me-1"></svg> Đăng nhập
-          </a>
-        </c-nav-item>
-      </ng-template>
-
-    </c-header-nav>
-  </c-container>
-</ng-container>
-
-<ng-template #themeDropdown>
-  <c-dropdown alignment="end" variant="nav-item">
-    <button [caret]="false" cDropdownToggle aria-label="Open theme picker"
-      class="btn btn-icon border-0 bg-transparent text-secondary">
-      <svg cIcon [name]="icons()" size="lg"></svg>
-    </button>
-    <div cDropdownMenu class="shadow-lg border-0 rounded-4 p-2 mt-3 glass-dropdown" style="min-width: 150px;">
-      @for (mode of colorModes; track mode.name) {
-      <button (click)="colorMode.set(mode.name)" [active]="colorMode()===mode.name" cDropdownItem
-        class="d-flex align-items-center py-2 px-3 rounded-2 mb-1 dropdown-action fw-medium">
-        <svg cIcon class="me-2" [name]="mode.icon" size="lg"></svg>
-        {{ mode.text }}
+      <!-- Theme -->
+      <button class="btn-action" (click)="toggleTheme()" [attr.aria-label]="isDark ? 'Light mode' : 'Dark mode'">
+        <svg cIcon [name]="isDark ? 'cilSun' : 'cilMoon'" size="lg"></svg>
       </button>
-      }
+
+      <!-- User -->
+      <c-dropdown alignment="end" variant="nav-item">
+        <button cDropdownToggle class="btn-user" [caret]="false" aria-label="User menu">
+          <div class="user-avatar">
+            {{ ((currentUser?.fullName || currentUser?.email || 'A') + '') | slice:0:1 | uppercase }}
+          </div>
+        </button>
+        <ul cDropdownMenu class="dropdown-menu-custom">
+          <li class="dropdown-header-user">
+            <div class="user-avatar-lg">{{ ((currentUser?.fullName || currentUser?.email || 'A') + '') | slice:0:1 | uppercase }}</div>
+            <div class="user-info">
+              <div class="user-name">{{ currentUser?.fullName || currentUser?.email || 'Admin' }}</div>
+              <div class="user-role">Quản trị viên</div>
+              <div class="user-status">
+                <span class="status-dot"></span>
+                Đang online
+              </div>
+            </div>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <a routerLink="/profile" class="dropdown-item">
+              <svg cIcon name="cilUser" class="item-icon"></svg>
+              <span>Hồ sơ cá nhân</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/settings" class="dropdown-item">
+              <svg cIcon name="cilSettings" class="item-icon"></svg>
+              <span>Cài đặt</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/" target="_blank" class="dropdown-item">
+              <svg cIcon name="cilExternalLink" class="item-icon"></svg>
+              <span>Xem cửa hàng</span>
+            </a>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <button class="dropdown-item logout-item" (click)="logout()">
+              <svg cIcon name="cilAccountLogout" class="item-icon"></svg>
+              <span>Đăng xuất</span>
+            </button>
+          </li>
+        </ul>
+      </c-dropdown>
     </div>
-  </c-dropdown>
-</ng-template>
+  </div>
+</header>

@@ -1,8 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 // Import styles with default layout.
-@use "@coreui/coreui/scss/coreui" as * with (
-  $enable-deprecation-messages: false,
+@use "@coreui/coreui/scss/coreui" as * with ($enable-deprecation-messages: false,
   $primary: #2e7d32,
   $secondary: #81c784,
   $success: #4caf50,
@@ -10,8 +9,7 @@
   $warning: #ff9800,
   $danger: #f44336,
   $light: #f8f9fa,
-  $dark: #343a40
-);
+  $dark: #343a40);
 
 // Import Chart.js custom tooltips styles
 @use "@coreui/chartjs/scss/coreui-chartjs";
@@ -28,7 +26,9 @@
 // If you want to add custom CSS you can put it here.
 @use "custom";
 
+// Public Design Tokens – chuẩn hoá Typography cho giao diện User
+@use "public-tokens";
+
 // Examples
 // We use those styles to show code examples, you should remove them in your application.
 @use "examples";
-

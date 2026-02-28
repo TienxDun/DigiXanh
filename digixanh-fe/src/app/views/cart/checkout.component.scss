@@ -48,6 +48,27 @@
   flex-shrink: 0;
   display: block;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.checkout-product-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  .item-name {
+    transition: color 0.2s ease;
+  }
+
+  &:hover {
+    .item-name {
+      color: #198754 !important; // success color
+    }
+
+    .checkout-item-img {
+      transform: scale(1.05);
+    }
+  }
 }
 
 @media (max-width: 575.98px) {

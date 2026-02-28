@@ -1,0 +1,158 @@
+// User List Component Styles
+
+.admin-page {
+  min-height: calc(100vh - 200px);
+}
+
+.admin-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.admin-header {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+}
+
+.admin-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &--lg {
+    width: 48px;
+    height: 48px;
+
+    i {
+      font-size: 1.25rem;
+    }
+  }
+}
+
+.admin-stat-pill {
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  margin-bottom: 0;
+
+  thead {
+    th {
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  tbody {
+    tr {
+      transition: background-color 0.15s ease;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+      }
+    }
+  }
+}
+
+.user-row {
+  cursor: default;
+}
+
+.user-avatar {
+  font-weight: 600;
+}
+
+// Size utilities
+.u-size-80 {
+  width: 80px;
+  height: 80px;
+}
+
+.u-size-36 {
+  width: 36px;
+  height: 36px;
+}
+
+.u-w-100 {
+  width: 100px;
+}
+
+.u-w-120 {
+  width: 120px;
+}
+
+.u-w-180 {
+  width: 180px;
+}
+
+// Pagination styles
+.pagination {
+  .page-item {
+    .page-link {
+      color: #495057;
+      background-color: #fff;
+
+      &:hover {
+        background-color: #e9ecef;
+        color: #212529;
+      }
+
+      &:focus {
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+    }
+
+    &.active .page-link {
+      background-color: #0d6efd;
+      border-color: #0d6efd;
+      color: #fff;
+    }
+
+    &.disabled .page-link {
+      color: #6c757d;
+      background-color: #fff;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// Badge styles
+.badge {
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+// Alert styles
+.alert {
+  .btn-close {
+    padding: 0.5rem;
+  }
+}
+
+// Button styles
+.btn-outline-danger:hover {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.btn-outline-success:hover {
+  background-color: #198754;
+  color: #fff;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  color: #fff;
+}
+
+.btn-outline-info:hover {
+  background-color: #0dcaf0;
+  color: #fff;
+}

@@ -127,16 +127,34 @@
   &:hover {
     transform: translateY(-6px);
     box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
-    border-color: rgba(var(--cui-success-rgb), 0.2) !important;
+    border-color: rgba(var(--cui-success-rgb), 0.3) !important;
 
     .card-img-wrapper img {
-      transform: scale(1.08);
+      transform: scale(1.1);
     }
 
-    .btn-detail {
+    .card-title {
+      color: var(--cui-success) !important;
+    }
+
+    .btn-detail-action {
       background-color: var(--cui-success);
       color: #fff !important;
+      box-shadow: 0 4px 12px rgba(var(--cui-success-rgb), 0.2);
     }
+  }
+
+  .card-link {
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .card-title {
+    transition: color 0.3s ease;
+  }
+
+  .btn-detail-action {
+    transition: all 0.3s ease;
   }
 
   .card-img-wrapper {
@@ -162,7 +180,7 @@
 }
 
 .category-badge {
-  font-size: 0.75rem;
+  font-size: var(--dg-text-xs);
 }
 
 .pagination .page-link {

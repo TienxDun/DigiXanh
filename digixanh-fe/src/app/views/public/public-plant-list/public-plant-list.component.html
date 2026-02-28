@@ -25,66 +25,84 @@
 </section>
 
 <section class="container pb-4">
-  @if (vm$ | async; as vm) {
-  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2 animation-fade-up delay-3">
-    <h4 class="fw-bold mb-0 fs-5">Danh sách cây</h4>
-    <p class="text-muted mb-0 small">{{ vm.totalCount }} sản phẩm</p>
-  </div>
-
-  <div class="row g-2 mb-3 animation-fade-up delay-3">
-    <div class="col-12 col-md-4">
-      <label class="form-label fw-semibold mb-1 small" for="categoryFilter">Danh mục</label>
-      <select id="categoryFilter" class="form-select form-select-sm" [(ngModel)]="selectedCategory"
-        (ngModelChange)="onCategoryChange($event)">
-        <option value="">Tất cả danh mục</option>
-        @if (categories$ | async; as categories) {
-        @for (category of categories; track category.id) {
-        <option [value]="category.id">{{ category.name }}</option>
-        }
-        }
-      </select>
+  <div
+    class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-3 bg-white p-3 rounded-4 shadow-sm border border-light animation-fade-up delay-3">
+    <!-- Tiêu đề & Tổng số -->
+    <div>
+      <h4 class="fw-bold mb-1 fs-5 text-dark">Danh sách cây</h4>
+      <p class="text-muted mb-0 small d-flex align-items-center gap-1">
+        <i class="fa-solid fa-leaf text-success"></i>
+        <span>{{ vm.totalCount }} sản phẩm</span>
+      </p>
     </div>
 
-    <div class="col-12 col-md-4">
-      <label class="form-label fw-semibold mb-1 small" for="sortBy">Sắp xếp</label>
-      <select id="sortBy" class="form-select form-select-sm" [(ngModel)]="selectedSort"
-        (ngModelChange)="onSortChange($event)">
-        @for (option of sortOptions; track option.value) {
-        <option [value]="option.value">{{ option.label }}</option>
-        }
-      </select>
+    <!-- Bộ lọc & Sắp xếp -->
+    <div class="d-flex flex-column flex-sm-row gap-2 flex-grow-1 flex-md-grow-0">
+      <div class="filter-group flex-grow-1">
+        <label class="form-label fw-medium text-muted mb-1 small" for="categoryFilter">
+          <i class="fa-solid fa-layer-group me-1"></i>Danh mục
+        </label>
+        <select id="categoryFilter"
+          class="form-select form-select-sm border-secondary-subtle rounded-3 shadow-none custom-select"
+          style="min-width: 180px; cursor: pointer" [(ngModel)]="selectedCategory"
+          (ngModelChange)="onCategoryChange($event)">
+          <option value="">🌿 Tất cả danh mục</option>
+          @if (categories$ | async; as categories) {
+          @for (category of categories; track category.id) {
+          <option [value]="category.id">{{ category.name }}</option>
+          }
+          }
+        </select>
+      </div>
+
+      <div class="filter-group flex-grow-1">
+        <label class="form-label fw-medium text-muted mb-1 small" for="sortBy">
+          <i class="fa-solid fa-arrow-down-short-wide me-1"></i>Sắp xếp
+        </label>
+        <select id="sortBy"
+          class="form-select form-select-sm border-secondary-subtle rounded-3 shadow-none custom-select"
+          style="min-width: 180px; cursor: pointer" [(ngModel)]="selectedSort" (ngModelChange)="onSortChange($event)">
+          @for (option of sortOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
     </div>
   </div>
+
 
   <div class="row g-3 animation-fade-up delay-4">
     @for (plant of vm.items; track plant.id) {
     <div class="col-6 col-lg-3">
-      <article class="plant-card card h-100">
-        <div class="card-img-wrapper position-relative rounded-top-4">
-          <img [src]="resolveImageUrl(plant.imageUrl)" [alt]="plant.name" class="card-img-top" loading="lazy"
-            (error)="onImageError($event)" />
-          @if (plant.stockQuantity === 0) {
-          <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50 rounded-top-4">
-            <span class="badge bg-danger px-3 py-2 rounded-pill">Hết hàng</span>
+      <article class="plant-card card h-100 overflow-hidden">
+        <a [routerLink]="['/plants', plant.id]" class="card-link text-decoration-none d-flex flex-column h-100">
+          <div class="card-img-wrapper position-relative">
+            <img [src]="resolveImageUrl(plant.imageUrl)" [alt]="plant.name" class="card-img-top" loading="lazy"
+              (error)="onImageError($event)" />
+            @if (plant.stockQuantity === 0) {
+            <div
+              class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50">
+              <span class="badge bg-danger px-3 py-2 rounded-pill">Hết hàng</span>
+            </div>
+            }
           </div>
-          }
-        </div>
-        <div class="card-body mt-1 d-flex flex-column">
-          <span
-            class="badge bg-success-subtle text-success border border-success border-opacity-25 w-auto align-self-start rounded-pill mb-2 px-2 py-1 category-badge"
-            style="font-size: 0.70rem;">{{
-            plant.categoryName }}</span>
-          <h6 class="card-title fw-bold text-dark mb-1 text-truncate" [title]="plant.name">{{ plant.name }}</h6>
-          <p class="card-text text-muted small fst-italic mb-2 text-truncate" [title]="plant.scientificName"
-            style="font-size: 0.8rem;">{{
-            plant.scientificName }}</p>
-          <div
-            class="mt-auto d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
-            <p class="price-tag fw-bold mb-0 fs-6">{{ plant.price | currency:'VND':'symbol' }}</p>
-            <a class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-medium btn-detail"
-              style="font-size: 0.8rem;" [routerLink]="['/plants', plant.id]">Chi tiết</a>
+          <div class="card-body mt-1 d-flex flex-column flex-grow-1">
+            <span
+              class="badge bg-success-subtle text-success border border-success border-opacity-25 w-auto align-self-start rounded-pill mb-2 px-2 py-1 category-badge"
+              style="font-size: 0.70rem;">{{
+              plant.categoryName }}</span>
+            <h6 class="card-title fw-bold text-dark mb-1 text-truncate" [title]="plant.name">{{ plant.name }}</h6>
+            <p class="card-text text-muted small fst-italic mb-2 text-truncate" [title]="plant.scientificName"
+              style="font-size: 0.8rem;">{{
+              plant.scientificName }}</p>
+            <div
+              class="mt-auto d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
+              <p class="price-tag fw-bold mb-0 fs-6">{{ plant.price | currency:'VND':'symbol' }}</p>
+              <button class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-medium btn-detail-action"
+                style="font-size: 0.8rem;">Chi tiết</button>
+            </div>
           </div>
-        </div>
+        </a>
       </article>
     </div>
     }
@@ -102,25 +120,15 @@
     }
   </div>
 
-  @if (vm.totalPages > 1) {
-  <nav aria-label="Plant pagination" class="mt-4 d-flex justify-content-center">
-    <ul class="pagination pagination-sm mb-0 flex-wrap gap-1">
-      <li class="page-item" [class.disabled]="vm.page === 1">
-        <button class="page-link rounded-pill px-2" (click)="goToPage(vm.page - 1, vm.totalPages)">Trước</button>
-      </li>
-
-      @for (page of getPageRange(vm.totalPages); track page) {
-      <li class="page-item" [class.active]="page === vm.page">
-        <button class="page-link rounded-circle d-flex justify-content-center align-items-center"
-          style="width: 30px; height: 30px;" (click)="goToPage(page, vm.totalPages)">{{ page }}</button>
-      </li>
-      }
-
-      <li class="page-item" [class.disabled]="vm.page === vm.totalPages">
-        <button class="page-link rounded-pill px-2" (click)="goToPage(vm.page + 1, vm.totalPages)">Sau</button>
-      </li>
-    </ul>
-  </nav>
+  @if (isLoadingMore) {
+  <div class="text-center py-3 text-muted small">
+    Đang tải thêm sản phẩm...
+  </div>
   }
+
+  @if (!isInitialLoading && vm.items.length > 0 && vm.page >= vm.totalPages) {
+  <div class="text-center py-3 text-muted small">
+    Bạn đã xem hết sản phẩm.
+  </div>
   }
 </section>

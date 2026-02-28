@@ -37,13 +37,13 @@ export interface OrderDto {
   status: string;
   paymentMethod: string;
   transactionId?: string;
+  items: OrderItemDto[];
 }
 
 export interface OrderDetailDto extends OrderDto {
   recipientName: string;
   phone: string;
   shippingAddress: string;
-  items: OrderItemDto[];
 }
 
 export interface OrderItemDto {
@@ -104,4 +104,18 @@ export interface AdminOrderQueryParams {
   pageSize?: number;
   status?: number | null;
   search?: string;
+}
+
+// ============== Customer Order Models (US18, US19) ==============
+
+export interface CustomerOrderDetailDto extends OrderDto {
+  recipientName: string;
+  phone: string;
+  shippingAddress: string;
+  statusHistory: OrderStatusHistoryDto[];
+}
+
+export interface UserOrderQueryParams {
+  page?: number;
+  pageSize?: number;
 }

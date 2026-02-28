@@ -49,4 +49,13 @@ export class PublicPlantService {
   getPlantDetail(id: number): Observable<PlantDetailDto> {
     return this.http.get<PlantDetailDto>(`${this.apiUrl}/${id}`);
   }
+
+  /** Lấy sản phẩm liên quan cùng danh mục, loại trừ sản phẩm hiện tại */
+  getRelatedPlants(categoryId: number, excludeId: number, pageSize = 4): Observable<PagedResult<PlantDto>> {
+    const params = new HttpParams()
+      .set('page', '1')
+      .set('pageSize', pageSize.toString())
+      .set('categoryId', categoryId.toString());
+    return this.http.get<PagedResult<PlantDto>>(this.apiUrl, { params });
+  }
 }

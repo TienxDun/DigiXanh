@@ -13,9 +13,47 @@
     min-height: 100%;
   }
 
-  //.sidebar-nav {
-  //  scrollbar-color: var(--cui-gray-500, #444) transparent;
-  //}
+  // Sidebar brand handling for narrow mode
+  .sidebar {
+    // Default (expanded) state
+    .sidebar-brand-full {
+      display: flex !important;
+    }
+    
+    .sidebar-brand-narrow {
+      display: none !important;
+    }
+
+    // Narrow/Collapsed state - hide full brand, show icon only
+    &.sidebar-narrow,
+    &.narrow,
+    &[data-narrow="true"] {
+      .sidebar-brand-full {
+        display: none !important;
+      }
+      
+      .sidebar-brand-narrow {
+        display: flex !important;
+      }
+
+      .sidebar-brand {
+        justify-content: center !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+    }
+  }
+
+  // Ensure sidebar brand is properly contained
+  .sidebar-brand {
+    overflow: hidden;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    
+    .brand-text {
+      transition: opacity 0.3s ease;
+    }
+  }
 }
 
 // ng-scrollbar css variables

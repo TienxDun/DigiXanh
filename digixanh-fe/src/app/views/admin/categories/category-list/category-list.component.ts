@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AsyncPipe, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, NgFor, NgIf, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
@@ -9,7 +9,7 @@ import { CategoryDto } from '../../../../core/models/plant.model';
 @Component({
   selector: 'app-category-list',
   standalone: true,
-  imports: [NgIf, NgFor, AsyncPipe, FormsModule],
+  imports: [NgIf, NgFor, AsyncPipe, FormsModule, NgClass],
   templateUrl: './category-list.component.html',
   styleUrls: ['./category-list.component.scss']
 })

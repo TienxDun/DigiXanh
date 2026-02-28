@@ -286,7 +286,7 @@ public class OrderProcessingFacadeTests : IDisposable
             RecipientName = recipientName,
             Phone = phone,
             ShippingAddress = address,
-            PaymentMethod = PaymentMethodDto.Cash
+            PaymentMethod = (int)PaymentMethodDto.Cash
         };
 
         // Act
@@ -454,7 +454,7 @@ public class OrderProcessingFacadeTests : IDisposable
             RecipientName = "Nguyễn Văn A",
             Phone = "0900000000",
             ShippingAddress = "123 Lê Lợi, Q.1, TP.HCM",
-            PaymentMethod = method,
+            PaymentMethod = (int)method,
             ReturnUrl = "https://example.com/payment-return"
         };
     }

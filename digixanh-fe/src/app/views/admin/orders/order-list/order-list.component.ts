@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AsyncPipe, DatePipe, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, combineLatest, of } from 'rxjs';
 import { catchError, finalize, switchMap, tap } from 'rxjs/operators';
@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-admin-order-list',
   standalone: true,
-  imports: [NgIf, NgFor, AsyncPipe, DatePipe, FormsModule],
+  imports: [NgIf, NgFor, NgClass, AsyncPipe, DatePipe, FormsModule],
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.scss']
 })
@@ -126,8 +126,20 @@ export class OrderListComponent implements OnInit {
   }
 
   getStatusBadgeClass(status: string): string {
-    const color = this.statusColors[status] || 'secondary';
-    return `badge bg-${color}`;
+    switch (status) {
+      case 'Pending':
+        return 'badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25';
+      case 'Paid':
+        return 'badge bg-info bg-opacity-10 text-info border border-info border-opacity-25';
+      case 'Shipped':
+        return 'badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25';
+      case 'Delivered':
+        return 'badge bg-success bg-opacity-10 text-success border border-success border-opacity-25';
+      case 'Cancelled':
+        return 'badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25';
+      default:
+        return 'badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25';
+    }
   }
 
   getStatusDisplayName(status: string): string {
@@ -139,6 +151,28 @@ export class OrderListComponent implements OnInit {
       style: 'currency',
       currency: 'VND'
     }).format(amount);
+  }
+
+  getPaymentMethodDisplay(method: string): string {
+    switch ((method || '').toLowerCase()) {
+      case 'cash':
+        return 'Tiền mặt';
+      case 'vnpay':
+        return 'VNPay';
+      default:
+        return method;
+    }
+  }
+
+  getPaymentBadgeClass(method: string): string {
+    switch ((method || '').toLowerCase()) {
+      case 'cash':
+        return 'bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25';
+      case 'vnpay':
+        return 'bg-success bg-opacity-10 text-success border border-success border-opacity-25';
+      default:
+        return 'bg-light text-dark border';
+    }
   }
 
   viewOrderDetail(id: number): void {

@@ -3,12 +3,18 @@ import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
-    path: 'plants/:id',
-    loadComponent: () => import('./public-plant-detail/public-plant-detail.component').then((m) => m.PublicPlantDetailComponent)
+    path: '',
+    loadComponent: () => import('./homepage/homepage.component').then((m) => m.HomepageComponent),
+    title: 'DigiXanh - Mang thiên nhiên về không gian sống'
   },
   {
-    path: '',
-    loadComponent: () => import('./public-plant-list/public-plant-list.component').then((m) => m.PublicPlantListComponent)
+    path: 'plants',
+    loadComponent: () => import('./public-plant-list/public-plant-list.component').then((m) => m.PublicPlantListComponent),
+    title: 'Danh sách cây cảnh - DigiXanh'
+  },
+  {
+    path: 'plants/:id',
+    loadComponent: () => import('./public-plant-detail/public-plant-detail.component').then((m) => m.PublicPlantDetailComponent)
   }
 ];
 

@@ -13,6 +13,26 @@
   }
 }
 
+.product-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  .plant-name {
+    transition: color 0.2s ease;
+  }
+
+  &:hover {
+    .plant-name {
+      color: #198754 !important; // success color for DigiXanh theme
+    }
+
+    .cart-image {
+      transform: scale(1.05);
+    }
+  }
+}
+
 .cart-image {
   width: 56px;
   height: 56px;

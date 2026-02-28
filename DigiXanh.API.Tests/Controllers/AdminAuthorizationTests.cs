@@ -35,21 +35,21 @@ public class AdminAuthorizationTests : IClassFixture<CustomWebApplicationFactory
     }
 
     [Fact]
-    public async Task CreatePlant_ReturnsForbidden_ForUserRoleToken()
+    public async Task GetAdminPlants_ReturnsForbidden_ForUserRoleToken()
     {
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "user-token");
 
-        var response = await _client.PostAsJsonAsync("/api/plants", new { name = "Cay Kim Ngan" });
+        var response = await _client.GetAsync("/api/admin/plants");
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
 
     [Fact]
-    public async Task CreatePlant_ReturnsSuccess_ForAdminRoleToken()
+    public async Task GetAdminPlants_ReturnsSuccess_ForAdminRoleToken()
     {
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "admin-token");
 
-        var response = await _client.PostAsJsonAsync("/api/plants", new { name = "Cay Kim Ngan" });
+        var response = await _client.GetAsync("/api/admin/plants");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }

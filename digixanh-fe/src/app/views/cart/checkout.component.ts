@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CartItemDto, CartSummaryDto } from '../../core/models/cart.model';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
+import { UserService, UserProfile } from '../../core/services/user.service';
 import { CreateOrderRequest, PaymentMethod } from '../../core/models/order.model';
 import { resolvePlantImageUrl } from '../../core/utils/image-url.util';
 
@@ -22,6 +23,7 @@ export class CheckoutComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly cartService = inject(CartService);
   private readonly orderService = inject(OrderService);
+  private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
 
@@ -31,6 +33,7 @@ export class CheckoutComponent implements OnInit {
   isSubmitting = false;
   errorMessage = '';
   successMessage = '';
+  userProfile: UserProfile | null = null;
 
   // Thông tin giảm giá - lấy từ CartSummaryDto
   discountInfo: { baseAmount: number; discountAmount: number; discountPercent: number } | null = null;
@@ -44,6 +47,7 @@ export class CheckoutComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadCart();
+    this.loadUserProfile(); // Tự động điền thông tin từ profile
   }
 
   get hasItems(): boolean {
@@ -124,6 +128,26 @@ export class CheckoutComponent implements OnInit {
           this.errorMessage = error?.error?.message ?? 'Không tải được giỏ hàng. Vui lòng thử lại.';
         }
       });
+  }
+
+  private loadUserProfile(): void {
+    this.userService.getProfile().subscribe({
+      next: (profile) => {
+        this.userProfile = profile;
+        // Tự động điền thông tin từ profile vào form checkout
+        if (this.checkoutForm) {
+          this.checkoutForm.patchValue({
+            recipientName: profile.fullName || '',
+            phone: profile.phoneNumber || '',
+            shippingAddress: profile.address || ''
+          });
+        }
+      },
+      error: (error) => {
+        // Không hiển thị lỗi - ngườI dùng có thể tự nhập
+        console.log('Không thể tải profile:', error);
+      }
+    });
   }
 
   private calculateDiscount(): void {

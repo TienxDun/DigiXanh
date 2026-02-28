@@ -1,22 +1,31 @@
 <div class="admin-page animation-fade-up pb-4">
     <!-- Header Card -->
-    <div class="card admin-card admin-header mb-4 overflow-hidden">
+    <div class="card admin-card admin-header mb-4 shadow-sm border-0 rounded-4 overflow-hidden">
         <div
-            class="card-body p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 bg-white">
-            <div>
-                <h4 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
-                    <div class="icon-square admin-icon admin-icon--lg bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center">
+            class="card-body p-4 p-md-5 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4 position-relative">
+            <!-- Background Decoration -->
+            <div class="position-absolute end-0 top-0 h-100 w-50"
+                style="background: radial-gradient(circle at right, rgba(46, 125, 50, 0.05) 0%, transparent 60%); pointer-events: none;">
+            </div>
+
+            <div class="position-relative z-1">
+                <h3 class="mb-2 fw-bold text-dark d-flex align-items-center gap-3">
+                    <div
+                        class="admin-icon admin-icon--lg bg-success bg-opacity-10 text-success rounded-circle shadow-sm">
                         <i class="fa-solid fa-layer-group"></i>
                     </div>
                     Quản lý Danh mục
-                </h4>
-                <p class="text-muted mb-0 ms-1 ps-5">Cập nhật, thêm mới và quản lý danh mục sản phẩm</p>
+                </h3>
+                <p class="text-muted mb-0 ms-1" style="padding-left: 3.5rem;">Cập nhật, thêm mới và quản lý danh mục sản
+                    phẩm</p>
             </div>
-            <div class="d-flex flex-column flex-sm-row gap-2">
+            <div class="position-relative z-1">
                 <button
-                    class="btn btn-primary btn-custom-action rounded-pill px-4 fw-semibold text-white shadow-sm d-flex align-items-center gap-2"
+                    class="btn btn-success rounded-pill px-4 py-2 fw-medium shadow-sm hover-lift d-flex align-items-center gap-2 transition-all"
                     (click)="openCreateModal()">
-                    <i class="fa-solid fa-plus"></i> Thêm danh mục
+                    <i class="fa-solid fa-plus bg-white text-success rounded-circle d-flex align-items-center justify-content-center"
+                        style="width: 20px; height: 20px; font-size: 0.7rem;"></i>
+                    Thêm danh mục
                 </button>
             </div>
         </div>
@@ -43,33 +52,38 @@
             </div>
 
             <!-- Table Container -->
-            <div class="table-responsive admin-table-wrap" *ngIf="!(loading$ | async)">
-                <table class="table admin-table align-middle">
+            <div class="table-responsive admin-table-wrap px-1" *ngIf="!(loading$ | async)">
+                <table class="table admin-table align-middle w-100">
                     <thead>
-                        <tr class="text-muted text-uppercase text-xs fw-bold">
-                            <th class="ps-4">ID</th>
-                            <th>Tên danh mục</th>
-                            <th class="text-center pe-4 u-w-120">Hành động</th>
+                        <tr class="text-muted text-uppercase fw-bold text-center"
+                            style="font-size: 0.75rem; letter-spacing: 1px;">
+                            <th class="ps-4 text-start" style="width: 15%;">ID</th>
+                            <th class="text-start">Tên danh mục</th>
+                            <th class="text-center pe-4" style="width: 20%;">Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
                         <ng-container *ngIf="(categories$ | async) as categories">
-                            <tr *ngFor="let category of categories" class="table-row-card shadow-sm mb-3">
-                                <td class="ps-4 py-3 border-0 rounded-start-4 fw-medium text-muted">
+                            <tr *ngFor="let category of categories" class="position-relative">
+                                <td class="ps-4 py-3 fw-bold text-muted" style="color: #adb5bd !important;">
                                     #{{ category.id }}
                                 </td>
-                                <td class="py-3 border-0">
-                                    <h6 class="mb-0 fw-bold text-dark">{{ category.name }}</h6>
+                                <td class="py-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center"
+                                            style="width: 40px; height: 40px;">
+                                            <i class="fa-solid fa-folder-open"></i>
+                                        </div>
+                                        <h6 class="mb-0 fw-bold text-dark fs-6">{{ category.name }}</h6>
+                                    </div>
                                 </td>
-                                <td class="text-center pe-4 border-0 rounded-end-4">
-                                    <div class="action-buttons d-flex justify-content-center gap-2">
-                                        <button
-                                            class="btn btn-icon admin-action btn-action btn-edit text-primary bg-primary bg-opacity-10 rounded-circle"
+                                <td class="text-center pe-4">
+                                    <div class="d-flex justify-content-center gap-2 position-relative z-1">
+                                        <button class="btn-action bg-success bg-opacity-10 text-success rounded-circle"
                                             title="Chỉnh sửa" (click)="openEditModal(category)">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
-                                        <button
-                                            class="btn btn-icon admin-action btn-action btn-delete text-danger bg-danger bg-opacity-10 rounded-circle"
+                                        <button class="btn-action bg-danger bg-opacity-10 text-danger rounded-circle"
                                             title="Xoá" (click)="deleteCategory(category.id)">
                                             <i class="fa-solid fa-trash-can"></i>
                                         </button>
@@ -79,16 +93,19 @@
 
                             <!-- Empty State -->
                             <tr *ngIf="categories.length === 0">
-                                <td colspan="3" class="text-center py-5 border-0 bg-white rounded-4 shadow-sm">
+                                <td colspan="3" class="text-center py-5 border-0 bg-white rounded-4 shadow-sm"
+                                    style="box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;">
                                     <div class="empty-state text-muted d-flex flex-column align-items-center py-4">
-                                        <div class="bg-light rounded-circle admin-empty-icon mb-3 text-primary">
-                                            <i class="fa-solid fa-layer-group fs-1"></i>
+                                        <div class="bg-success bg-opacity-10 rounded-circle admin-empty-icon mb-3 text-success d-flex align-items-center justify-content-center"
+                                            style="width: 80px; height: 80px;">
+                                            <i class="fa-solid fa-folder-open fa-2x"></i>
                                         </div>
                                         <h5 class="fw-bold text-dark mb-2">Chưa có danh mục nào</h5>
-                                        <p class="mb-4">Danh sách hiện đang trống.</p>
-                                        <button class="btn btn-primary rounded-pill px-4 shadow-sm"
+                                        <p class="mb-4">Bạn chưa thêm bất kỳ danh mục sản phẩm nào.</p>
+                                        <button
+                                            class="btn btn-success rounded-pill px-4 py-2 shadow-sm hover-lift fw-medium"
                                             (click)="openCreateModal()">
-                                            <i class="fa-solid fa-plus me-2"></i> Thêm danh mục
+                                            <i class="fa-solid fa-plus me-2"></i> Thêm danh mục ngay
                                         </button>
                                     </div>
                                 </td>
@@ -102,29 +119,44 @@
 </div>
 
 <!-- Modal Thêm/Sửa Danh mục -->
-<div class="modal fade show admin-modal-open" tabindex="-1" *ngIf="showModal">
+<div class="modal fade show admin-modal-open" tabindex="-1" *ngIf="showModal"
+    style="background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px);">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header border-bottom-0 pb-0">
-                <h5 class="modal-title fw-bold">{{ isEditMode ? 'Chỉnh sửa Danh mục' : 'Thêm Danh mục mới' }}</h5>
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <!-- Modal Header -->
+            <div class="modal-header border-bottom-0 pt-4 px-4 bg-light bg-opacity-50">
+                <h5 class="modal-title fw-bold text-dark fs-5 d-flex align-items-center">
+                    <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center me-2"
+                        style="width: 32px; height: 32px;">
+                        <i class="fa-solid" [ngClass]="isEditMode ? 'fa-pen-to-square' : 'fa-plus'"></i>
+                    </div>
+                    {{ isEditMode ? 'Chỉnh sửa Danh mục' : 'Thêm Danh mục mới' }}
+                </h5>
                 <button type="button" class="btn-close" title="Đóng" aria-label="Đóng" (click)="closeModal()"></button>
             </div>
-            <div class="modal-body pb-0">
+
+            <!-- Modal Body -->
+            <div class="modal-body px-4 py-4">
                 <form #categoryForm="ngForm">
-                    <div class="mb-3">
-                        <label for="categoryName" class="form-label fw-medium text-dark">Tên danh mục <span
-                                class="text-danger">*</span></label>
-                        <input type="text" class="form-control px-3 py-2 rounded-3 text-sm" id="categoryName"
-                            name="name" [(ngModel)]="currentCategory.name" required placeholder="Nhập tên danh mục...">
+                    <div class="mb-2">
+                        <label for="categoryName" class="form-label fw-bold small text-muted text-uppercase"
+                            style="letter-spacing: 0.5px;">Tên danh mục <span class="text-danger">*</span></label>
+                        <input type="text"
+                            class="form-control form-control-lg bg-light bg-opacity-50 border-light shadow-none focus-ring-success rounded-3 fs-6"
+                            id="categoryName" name="name" [(ngModel)]="currentCategory.name" required
+                            placeholder="Ví dụ: Cây để bàn, Cây phong thủy...">
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-top-0 pt-0">
-                <button type="button" class="btn btn-light rounded-pill px-4 fw-medium text-sm"
+
+            <!-- Modal Footer -->
+            <div class="modal-footer border-top-0 px-4 pb-4 bg-light bg-opacity-50">
+                <button type="button" class="btn btn-light rounded-pill px-4 py-2 fw-medium shadow-sm"
                     (click)="closeModal()">Huỷ</button>
-                <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm fw-medium text-sm"
+                <button type="button"
+                    class="btn btn-success rounded-pill px-4 py-2 shadow-sm fw-medium d-flex align-items-center gap-2 hover-lift transition-all"
                     [disabled]="!categoryForm.form.valid || (loading$ | async)" (click)="saveCategory()">
-                    <span *ngIf="!(loading$ | async)">Lưu lại</span>
+                    <span *ngIf="!(loading$ | async)">{{ isEditMode ? 'Cập nhật' : 'Lưu danh mục' }}</span>
                     <span *ngIf="loading$ | async" class="spinner-border spinner-border-sm" role="status"
                         aria-hidden="true"></span>
                 </button>

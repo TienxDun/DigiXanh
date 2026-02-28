@@ -86,6 +86,10 @@ src/app/
 | **US15** | **Adapter Pattern - Thanh toán** | Hệ thống cần hỗ trợ nhiều phương thức thanh toán | • Interface: `IPaymentAdapter`<br>• Implementations: `CashPaymentAdapter`, `VNPayPaymentAdapter`<br>• Factory pattern để chọn adapter theo PaymentMethod |
 | **US16** | **Decorator Pattern - Tính giá** | Hệ thống cần tính giá linh hoạt với giảm giá | • Interface: `IPriceCalculator`<br>• `BasePriceCalculator`: Tính tổng cơ bản<br>• `QuantityDiscountDecorator`: Giảm 5% (>=2sp), 7% (>=3sp)<br>• Có thể mở rộng thêm decorator khác |
 | **US17** | **Facade Pattern - Xử lý đơn hàng** | Đơn giản hóa quy trình đặt hàng phức tạp | • `OrderProcessingFacade` đóng gói toàn bộ flow<br>• Validate → Tính giá → Tạo Order → Thanh toán → Email → Xóa giỏ<br>• Transaction rollback nếu có lỗi<br>• Xử lý VNPay callback trong facade |
+| **US18** | **Xem lịch sử đơn hàng cá nhân** | Là khách hàng, tôi muốn xem các đơn hàng đã đặt | • API `GET /api/orders` - lấy danh sách đơn hàng của user hiện tại<br>• Phân trang (10 items/page), sắp xếp theo thờI gian mới nhất<br>• FE: Trang `/orders` - "Đơn hàng của tôi" với UI card-based |
+| **US19** | **Chi tiết đơn hàng cá nhân** | Là khách hàng, tôi muốn xem chi tiết đơn hàng | • API `GET /api/orders/{id}` - chi tiết đơn hàng với items, status history<br>• Hiển thị: Thông tin giao hàng, thanh toán, danh sách sản phẩm<br>• FE: Trang `/orders/:id` - chi tiết đơn hàng với timeline lịch sử |
+| **US20** | **Hủy đơn hàng (Customer)** | Là khách hàng, tôi muốn hủy đơn hàng chưa xử lý | • API `POST /api/orders/{id}/cancel` - hủy đơn hàng<br>• Chỉ cho phép hủy đơn ở trạng thái Pending<br>• Tự động khôi phục tồn kho<br>• Ghi log lịch sử vào `OrderStatusHistories`<br>• FE: Modal xác nhận hủy trong trang chi tiết đơn hàng |
+| **US21** | **Cập nhật thông tin cá nhân** | Là ngườI dùng, tôi muốn cập nhật thông tin cá nhân | • API `GET/PUT /api/user/profile` - lấy/cập nhật profile<br>• Validate SĐT Việt Nam (regex: `^(0|84|\+84)(3|5|7|8|9)\d{8}$`)<br>• Cho phép cập nhật: FullName, PhoneNumber, Address<br>• Không cho đổi email<br>• FE: Trang `/profile` với form cập nhật |
 | **US26** | **Quản lý tồn kho** | Hệ thống cần quản lý số lượng tồn kho sản phẩm | • Thêm trường StockQuantity cho Plant<br>• Validate tồn kho khi thêm vào giỏ<br>• Validate tồn kho khi đặt hàng<br>• Tự động giảm tồn kho sau thanh toán thành công<br>• Hiển thị trạng thái "Hết hàng" nếu Stock = 0 |
 
 ---
@@ -94,18 +98,13 @@ src/app/
 
 #### 🔴 **Mức độ ưu tiên CAO (High Priority)**
 
-| US | Tiêu đề | Mô tả | Acceptance Criteria | Est. |
-|----|---------|-------|---------------------|------|
-| **US18** | **Xem lịch sử đơn hàng cá nhân** | Là khách hàng, tôi muốn xem các đơn hàng đã đặt | • API lấy danh sách đơn hàng của user hiện tại<br>• Phân trang, sắp xếp theo thờI gian mới nhất<br>• Hiển thị: Mã đơn, ngày đặt, tổng tiền, trạng thái<br>• FE: Trang "Đơn hàng của tôi" | 3SP |
-| **US19** | **Chi tiết đơn hàng cá nhân** | Là khách hàng, tôi muốn xem chi tiết đơn hàng | • API chi tiết đơn hàng (chỉ của user hiện tại)<br>• Hiển thị: Thông tin đơn, danh sách items, trạng thái<br>• FE: Trang chi tiết đơn hàng | 2SP |
-| **US20** | **Hủy đơn hàng (Customer)** | Là khách hàng, tôi muốn hủy đơn hàng chưa xử lý | • Chỉ cho phép hủy đơn ở trạng thái Pending<br>• Khôi phục tồn kho khi hủy<br>• Ghi log lịch sử hủy<br>• Gửi thông báo xác nhận hủy | 2SP |
-| **US21** | **Cập nhật thông tin cá nhân** | Là ngườI dùng, tôi muốn cập nhật thông tin cá nhân | • API cập nhật: FullName, Phone, Address<br>• Validate SĐT Việt Nam<br>• FE: Trang Profile/Settings<br>• Không cho đổi email | 2SP |
+_Tất cả US ưu tiên cao đã hoàn thành. Chuyển sang Sprint 4._
 
 #### 🟡 **Mức độ ưu tiên TRUNG BÌNH (Medium Priority)**
 
 | US | Tiêu đề | Mô tả | Acceptance Criteria | Est. |
 |----|---------|-------|---------------------|------|
-| **US22** | **Trang chủ (Homepage)** | Là khách hàng, tôi muốn xem trang chủ đẹp | • Hero banner/slider<br>• Hiển thị sản phẩm nổi bật (featured)<br>• Danh mục phổ biến<br>• Footer với thông tin liên hệ | 3SP |
+| **US22** | **Trang chủ (Homepage)** | Là khách hàng, tôi muốn xem trang chủ đẹp | • Hero banner/slider<br>• Hiển thị sản phẩm nổi bật (featured)<br>• Danh mục phổ biến<br>• Footer với thông tin liên hệ | 3SP | ✅ **HOÀN THÀNH** |
 | **US23** | **Tìm kiếm nâng cao** | Là khách hàng, tôi muốn tìm kiếm nâng cao | • Tìm theo khoảng giá (min-max)<br>• Tìm theo nhiều danh mục cùng lúc<br>• Sắp xếp đa dạng (giá, tên, mớI nhất)<br>• Gợi ý tìm kiếm (autocomplete) | 3SP |
 | **US24** | **Đánh giá sản phẩm** | Là khách hàng, tôi muốn đánh giá sản phẩm đã mua | • Chỉ đánh giá sản phẩm trong đơn Delivered<br>• Rating 1-5 sao + comment<br>• Hiển thị đánh giá ở trang chi tiết sản phẩm<br>• Average rating cho mỗi sản phẩm | 3SP |
 | **US25** | **Yêu thích sản phẩm** | Là khách hàng, tôi muốn lưu sản phẩm yêu thích | • Thêm/Xóa khỏi danh sách yêu thích<br>• Xem danh sách yêu thích của tôi<br>• Persist vào database (bảng Favorites) | 2SP |
@@ -135,16 +134,16 @@ src/app/
 
 | Phân loại | Số lượng | Tình trạng |
 |-----------|----------|------------|
-| **Đã hoàn thành** | 18 US | ✅ Các chức năng core của MVP |
-| **Ưu tiên Cao** | 4 US | 🔴 Cần làm ngay sau khi MVP hoàn thành |
-| **Ưu tiên Trung bình** | 7 US | 🟡 Làm trong Sprint tiếp theo |
+| **Đã hoàn thành** | 23 US | ✅ Các chức năng core của MVP + US22 |
+| **Ưu tiên Cao** | 0 US | 🔴 Đã hoàn thành |
+| **Ưu tiên Trung bình** | 6 US | 🟡 Làm trong Sprint 4 |
 | **Ưu tiên Thấp** | 11 US | 🟢 Nice to have, làm khi có thờI gian |
 | **Tổng cộng** | 40 US | |
 
 **Ghi chú về Sprint Planning:**
-- **MVP (Sprint 1-2):** Hoàn thành 18 US (US01-US17, US26) - ĐÃ XONG
-- **Sprint 3:** US18-US21 (Lịch sử đơn hàng, Profile) - 🔴 Ưu tiên cao
-- **Sprint 4:** US22-US25, US27-US29 (Nâng cao UX, Admin features) - 🟡 Trung bình
+- **MVP (Sprint 1-2):** Hoàn thành 18 US (US01-US17, US26) - ✅ ĐÃ XONG
+- **Sprint 3:** US18-US21 (Lịch sử đơn hàng, Profile, Hủy đơn) - ✅ **HOÀN THÀNH**
+- **Sprint 4:** US22-US25, US27-US29 (Nâng cao UX, Admin features) - 🟡 **ĐANG TIẾN HÀNH** (US22 ✅)
 - **Sprint 5+:** US30-US40 (Email, Coupon, i18n, etc.) - 🟢 Thấp
 
 ---

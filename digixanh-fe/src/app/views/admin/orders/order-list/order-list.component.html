@@ -2,15 +2,15 @@
   <!-- Header -->
   <div class="card admin-card admin-header mb-4 overflow-hidden">
     <div class="card-body p-4 d-flex justify-content-between align-items-center">
-    <div>
-      <h3 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
-        <span class="admin-icon admin-icon--lg rounded-3 bg-primary bg-opacity-10 text-primary">
-          <i class="fa-solid fa-bag-shopping"></i>
-        </span>
-        Quản lý Đơn hàng
-      </h3>
-      <p class="text-muted mb-0">Theo dõi, xử lý và cập nhật trạng thái đơn hàng của khách hàng.</p>
-    </div>
+      <div>
+        <h3 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
+          <span class="admin-icon admin-icon--lg rounded-3 bg-primary bg-opacity-10 text-primary">
+            <i class="fa-solid fa-bag-shopping"></i>
+          </span>
+          Quản lý Đơn hàng
+        </h3>
+        <p class="text-muted mb-0">Theo dõi, xử lý và cập nhật trạng thái đơn hàng của khách hàng.</p>
+      </div>
     </div>
   </div>
 
@@ -47,8 +47,16 @@
           </select>
         </div>
         <div class="col-md-3 text-end">
-          <div class="admin-stat-pill bg-primary bg-opacity-10 text-primary px-3 py-2 fw-medium">
-            <i class="fa fa-shopping-bag me-2"></i>Tổng: <strong>{{ totalCount$ | async }}</strong> đơn
+          <div
+            class="bg-white border border-primary border-opacity-25 shadow-sm rounded-pill px-3 py-2 d-inline-flex align-items-center justify-content-center transition-all">
+            <div
+              class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-2"
+              style="width: 30px; height: 30px;">
+              <i class="fa-solid fa-shopping-bag" style="font-size: 0.85rem;"></i>
+            </div>
+            <span class="text-muted small fw-medium me-1">Tổng:</span>
+            <strong class="text-primary fs-6 mb-0 lh-1">{{ totalCount$ | async }}</strong>
+            <span class="text-muted small fw-medium ms-1">đơn hàng</span>
           </div>
         </div>
       </div>
@@ -82,7 +90,8 @@
             </tr>
             <tr *ngIf="(orders$ | async)?.length === 0 && !(loading$ | async)">
               <td colspan="7" class="text-center py-5 text-muted">
-                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3 u-size-80">
+                <div
+                  class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3 u-size-80">
                   <i class="fa fa-inbox fa-2x text-secondary opacity-50"></i>
                 </div>
                 <h5 class="text-dark fw-medium">Chưa có đơn hàng nào</h5>
@@ -106,11 +115,9 @@
                 <span class="fw-bold text-primary">{{ formatCurrency(order.finalAmount) }}</span>
               </td>
               <td class="text-center py-3">
-                <span class="badge rounded-pill" [class.bg-success-subtle]="order.paymentMethod === 'VNPay'"
-                  [class.text-success]="order.paymentMethod === 'VNPay'"
-                  [class.bg-secondary-subtle]="order.paymentMethod === 'Cash'"
-                  [class.text-secondary]="order.paymentMethod === 'Cash'">
-                  {{ order.paymentMethod === 'VNPay' ? 'VNPay' : 'Tiền mặt' }}
+                <span class="badge rounded-pill px-3 py-1 fw-medium"
+                  [ngClass]="getPaymentBadgeClass(order.paymentMethod)">
+                  {{ getPaymentMethodDisplay(order.paymentMethod) }}
                 </span>
               </td>
               <td class="text-center py-3">
@@ -121,9 +128,8 @@
               <td class="text-center px-4 py-3">
                 <button
                   class="btn btn-light text-primary rounded-circle shadow-sm border-0 d-inline-flex flex-center align-items-center justify-content-center u-size-36 order-detail-btn"
-                  aria-label="Xem chi tiết đơn hàng"
-                  title="Xem chi tiết" (click)="viewOrderDetail(order.id); $event.stopPropagation()"
-                  >
+                  aria-label="Xem chi tiết đơn hàng" title="Xem chi tiết"
+                  (click)="viewOrderDetail(order.id); $event.stopPropagation()">
                   <i class="fa fa-arrow-right"></i>
                 </button>
               </td>
@@ -142,9 +148,10 @@
         <nav aria-label="Page navigation" *ngIf="currentPage$ | async as currentPage">
           <ul class="pagination mb-0 gap-1">
             <li class="page-item" [class.disabled]="currentPage === 1">
-              <button class="page-link border-0 shadow-sm rounded-2 d-flex align-items-center justify-content-center u-size-36"
-                aria-label="Trang trước" title="Quay lại"
-                (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">
+              <button
+                class="page-link border-0 shadow-sm rounded-2 d-flex align-items-center justify-content-center u-size-36"
+                aria-label="Trang trước" title="Quay lại" (click)="onPageChange(currentPage - 1)"
+                [disabled]="currentPage === 1">
                 <i class="fa fa-chevron-left small"></i>
               </button>
             </li>
@@ -155,9 +162,10 @@
             </li>
             <li class="page-item" [class.disabled]="currentPage === (totalPages$ | async)"
               *ngIf="totalPages$ | async as totalPages">
-              <button class="page-link border-0 shadow-sm rounded-2 d-flex align-items-center justify-content-center u-size-36"
-                aria-label="Trang tiếp theo" title="Đi tiếp"
-                (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages">
+              <button
+                class="page-link border-0 shadow-sm rounded-2 d-flex align-items-center justify-content-center u-size-36"
+                aria-label="Trang tiếp theo" title="Đi tiếp" (click)="onPageChange(currentPage + 1)"
+                [disabled]="currentPage === totalPages">
                 <i class="fa fa-chevron-right small"></i>
               </button>
             </li>

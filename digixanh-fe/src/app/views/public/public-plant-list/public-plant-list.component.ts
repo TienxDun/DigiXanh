@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, DestroyRef, HostListener, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { BehaviorSubject, catchError, combineLatest, map, Observable, of, switchMap } from 'rxjs';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, Observable, of } from 'rxjs';
 import { CategoryDto, PlantDto } from '../../../core/models/plant.model';
 import { PagedResult } from '../../../core/models/pagination.model';
 import { PublicPlantService } from '../../../core/services/public-plant.service';
@@ -23,22 +24,32 @@ interface PublicPlantListVm {
   templateUrl: './public-plant-list.component.html',
   styleUrl: './public-plant-list.component.scss'
 })
-export class PublicPlantListComponent {
+export class PublicPlantListComponent implements OnInit {
   readonly fallbackImageUrl = 'assets/images/plant-placeholder.svg';
+  private readonly destroyRef = inject(DestroyRef);
 
-  private readonly pageSize = 12;
+  private readonly pageSize = 24;
 
-  private readonly currentPage$ = new BehaviorSubject<number>(1);
-  private readonly search$ = new BehaviorSubject<string>('');
-  private readonly categoryId$ = new BehaviorSubject<number | null>(null);
-  private readonly sortBy$ = new BehaviorSubject<string>('');
+  private currentPage = 1;
+  private currentSearch = '';
+  private currentCategoryId: number | null = null;
+  private currentSortBy = '';
+
+  isInitialLoading = false;
+  isLoadingMore = false;
 
   searchInput = '';
   selectedCategory = '';
   selectedSort = '';
 
   readonly categories$: Observable<CategoryDto[]>;
-  readonly vm$: Observable<PublicPlantListVm>;
+  vm: PublicPlantListVm = {
+    items: [],
+    totalCount: 0,
+    page: 1,
+    pageSize: this.pageSize,
+    totalPages: 0
+  };
 
   readonly sortOptions = [
     { value: '', label: 'Mặc định (Mới nhất)' },
@@ -47,69 +58,54 @@ export class PublicPlantListComponent {
     { value: 'nameAsc', label: 'Tên A-Z' }
   ];
 
-  constructor(private publicPlantService: PublicPlantService) {
+  constructor(
+    private publicPlantService: PublicPlantService,
+    private route: ActivatedRoute
+  ) {
     this.categories$ = this.publicPlantService.getCategories().pipe(
       catchError(() => of([]))
     );
+  }
 
-    this.vm$ = combineLatest([
-      this.currentPage$,
-      this.search$,
-      this.categoryId$,
-      this.sortBy$
-    ]).pipe(
-      switchMap(([page, search, categoryId, sortBy]) =>
-        this.publicPlantService.getPlants({
-          page,
-          pageSize: this.pageSize,
-          search,
-          categoryId,
-          sortBy
-        }).pipe(
-          map((result: PagedResult<PlantDto>) => ({
-            items: result.items ?? [],
-            totalCount: result.totalCount ?? 0,
-            page: result.page ?? 1,
-            pageSize: result.pageSize ?? this.pageSize,
-            totalPages: result.totalPages ?? 0
-          })),
-          catchError(() => of({
-            items: [],
-            totalCount: 0,
-            page,
-            pageSize: this.pageSize,
-            totalPages: 0
-          }))
-        )
-      )
-    );
+  ngOnInit(): void {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: any) => {
+      const category = params['category'];
+      if (category) {
+        this.selectedCategory = category;
+        this.currentCategoryId = Number(category);
+      }
+
+      this.resetAndLoadPlants();
+    });
   }
 
   onSearch(): void {
-    this.currentPage$.next(1);
-    this.search$.next(this.searchInput.trim());
+    this.currentSearch = this.searchInput.trim();
+    this.resetAndLoadPlants();
   }
 
   onCategoryChange(value: string): void {
-    this.currentPage$.next(1);
-    this.categoryId$.next(value ? Number(value) : null);
+    this.currentCategoryId = value ? Number(value) : null;
+    this.resetAndLoadPlants();
   }
 
   onSortChange(value: string): void {
-    this.currentPage$.next(1);
-    this.sortBy$.next(value);
+    this.currentSortBy = value;
+    this.resetAndLoadPlants();
   }
 
-  goToPage(page: number, totalPages: number): void {
-    if (page < 1 || page > totalPages) {
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    if (this.isInitialLoading || this.isLoadingMore || this.vm.page >= this.vm.totalPages) {
       return;
     }
 
-    this.currentPage$.next(page);
-  }
+    const scrollPosition = window.innerHeight + window.scrollY;
+    const threshold = document.body.offsetHeight - 300;
 
-  getPageRange(totalPages: number): number[] {
-    return Array.from({ length: totalPages }, (_, index) => index + 1);
+    if (scrollPosition >= threshold) {
+      this.loadMorePlants();
+    }
   }
 
   onImageError(event: Event): void {
@@ -123,5 +119,62 @@ export class PublicPlantListComponent {
 
   resolveImageUrl(imageUrl?: string | null): string {
     return resolvePlantImageUrl(imageUrl);
+  }
+
+  private resetAndLoadPlants(): void {
+    this.currentPage = 1;
+    this.vm = {
+      items: [],
+      totalCount: 0,
+      page: 1,
+      pageSize: this.pageSize,
+      totalPages: 0
+    };
+
+    this.loadPlants(false);
+  }
+
+  private loadMorePlants(): void {
+    this.currentPage += 1;
+    this.loadPlants(true);
+  }
+
+  private loadPlants(append: boolean): void {
+    if (append) {
+      this.isLoadingMore = true;
+    } else {
+      this.isInitialLoading = true;
+    }
+
+    this.publicPlantService.getPlants({
+      page: this.currentPage,
+      pageSize: this.pageSize,
+      search: this.currentSearch,
+      categoryId: this.currentCategoryId,
+      sortBy: this.currentSortBy
+    }).pipe(
+      catchError(() => of({
+        items: [],
+        totalCount: 0,
+        page: this.currentPage,
+        pageSize: this.pageSize,
+        totalPages: 0
+      } as PagedResult<PlantDto>)),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((result: PagedResult<PlantDto>) => {
+      const nextItems = result.items ?? [];
+      const mergedItems = append ? [...this.vm.items, ...nextItems] : nextItems;
+
+      this.vm = {
+        items: mergedItems,
+        totalCount: result.totalCount ?? 0,
+        page: result.page ?? this.currentPage,
+        pageSize: result.pageSize ?? this.pageSize,
+        totalPages: result.totalPages ?? 0
+      };
+
+      this.isInitialLoading = false;
+      this.isLoadingMore = false;
+    });
   }
 }

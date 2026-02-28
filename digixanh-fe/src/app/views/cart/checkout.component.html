@@ -37,18 +37,20 @@
         <div class="checkout-items-wrapper pe-md-2 mt-2">
           <div *ngFor="let item of cartSummary?.items; trackBy: trackByItemId"
             class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between py-2 border-bottom border-dashed border-secondary border-opacity-25 last-no-border">
-            <div class="d-flex align-items-center gap-3 w-100 mb-2 mb-sm-0">
-              <img [src]="resolveImageUrl(item.imageUrl)" [alt]="getItemName(item)"
-                [title]="getItemName(item)"
-                class="rounded-3 border border-secondary border-opacity-10 object-fit-cover shadow-sm bg-light checkout-item-img" (error)="onImageError($event)">
+            <a [routerLink]="['/plants', item.plantId]"
+              class="checkout-product-link d-flex align-items-center gap-3 w-100 mb-2 mb-sm-0">
+              <img [src]="resolveImageUrl(item.imageUrl)" [alt]="getItemName(item)" [title]="getItemName(item)"
+                class="rounded-3 border border-secondary border-opacity-10 object-fit-cover shadow-sm bg-light checkout-item-img"
+                (error)="onImageError($event)">
               <div class="flex-grow-1">
-                <h6 class="mb-1 fw-bold text-dark fs-6">{{ getItemName(item) }} <span
+                <h6 class="mb-1 fw-bold text-dark fs-6 item-name">{{ getItemName(item) }} <span
                     class="badge bg-light text-dark ms-1 d-inline-block d-sm-none">x{{ item.quantity }}</span></h6>
-                <small *ngIf="item.scientificName" class="text-muted fst-italic font-monospace d-block" style="font-size: 0.8rem;">{{
+                <small *ngIf="item.scientificName" class="text-muted fst-italic font-monospace d-block"
+                  style="font-size: 0.8rem;">{{
                   item.scientificName }}</small>
                 <div class="text-success fw-bold d-block d-sm-none small mt-1">{{ formatPrice(item.lineTotal) }}</div>
               </div>
-            </div>
+            </a>
 
             <!-- Desktop Layout cho Số lượng và giá -->
             <div class="d-none d-sm-flex align-items-center justify-content-end gap-4 ms-md-4 w-100"
@@ -80,6 +82,13 @@
               <i class="fa-solid fa-truck-fast text-success me-2"></i>
               Thông tin giao hàng
             </h5>
+            <!-- Auto-fill notification -->
+            <div *ngIf="userProfile?.fullName || userProfile?.phoneNumber || userProfile?.address"
+              class="alert alert-info bg-info bg-opacity-10 border-0 rounded-3 py-2 px-3 mb-3 d-flex align-items-center">
+              <i class="fa-solid fa-circle-info text-info me-2"></i>
+              <small class="text-info-emphasis">Thông tin đã được tự động điền từ hồ sơ của bạn. Bạn có thể chỉnh sửa
+                nếu cần.</small>
+            </div>
 
             <div class="row g-3 mt-1">
               <div class="col-md-6">
@@ -195,7 +204,8 @@
               <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status"></span>
               <i *ngIf="!isSubmitting && !hasOutOfStockItems" class="fa-solid fa-check-circle fs-5"></i>
               <i *ngIf="!isSubmitting && hasOutOfStockItems" class="fa-solid fa-circle-xmark fs-5"></i>
-              <span>{{ isSubmitting ? 'Đang xử lý...' : (hasOutOfStockItems ? 'Có sản phẩm hết hàng' : 'Xác nhận Đặt hàng') }}</span>
+              <span>{{ isSubmitting ? 'Đang xử lý...' : (hasOutOfStockItems ? 'Có sản phẩm hết hàng' : 'Xác nhận Đặt
+                hàng') }}</span>
             </button>
           </div>
         </form>

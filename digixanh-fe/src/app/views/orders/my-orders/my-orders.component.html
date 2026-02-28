@@ -1,0 +1,203 @@
+<div class="container py-4 my-orders-container">
+  <!-- ── PAGE HEADER ── -->
+  <div class="d-flex justify-content-between align-items-end mb-4 animation-fade-up">
+    <div>
+      <h3 class="fw-bold mb-1 text-dark">
+        <i class="fa-solid fa-list-check text-success me-2"></i>Đơn hàng của tôi
+      </h3>
+      <p class="text-muted mb-0 mt-1 small">Quản lý và theo dõi trạng thái các đơn hàng của bạn</p>
+    </div>
+  </div>
+
+  <!-- ── STATUS TAB FILTER ── -->
+  <div class="order-tabs mb-4 animation-fade-up delay-1" role="tablist" aria-label="Lọc đơn hàng theo trạng thái">
+    <button *ngFor="let tab of statusTabs" class="order-tab" [class.active]="activeStatus === tab.key"
+      (click)="selectTab(tab.key)" role="tab" [attr.aria-selected]="activeStatus === tab.key">
+      <i [class]="tab.icon"></i>
+      <span>{{ tab.label }}</span>
+      <span class="order-tab__count" *ngIf="countByStatus(tab.key) > 0">
+        {{ countByStatus(tab.key) }}
+      </span>
+    </button>
+  </div>
+
+  <!-- ── LOADING ── -->
+  <div *ngIf="isLoading" class="state-center animation-fade-up">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+    </div>
+    <p class="state-center__text">Đang tải đơn hàng...</p>
+  </div>
+
+  <!-- ── ERROR ── -->
+  <div *ngIf="errorMessage && !isLoading" class="state-error animation-fade-up">
+    <i class="fa-solid fa-triangle-exclamation state-error__icon"></i>
+    <div class="state-error__message">{{ errorMessage }}</div>
+    <button class="btn-retry" (click)="loadOrders()">
+      <i class="fa-solid fa-rotate-right me-1"></i> Thử lại
+    </button>
+  </div>
+
+  <!-- ── EMPTY STATE ── -->
+  <div *ngIf="!isLoading && !errorMessage && orders.length === 0" class="state-empty animation-fade-up delay-1">
+    <div class="state-empty__icon-wrap">
+      <i class="fa-solid fa-box-open"></i>
+    </div>
+    <h5 class="state-empty__title">
+      {{ activeStatus ? 'Không có đơn hàng nào' : 'Bạn chưa có đơn hàng nào' }}
+    </h5>
+    <p class="state-empty__desc">
+      {{
+      activeStatus
+      ? 'Không có đơn hàng nào ở trạng thái này.'
+      : 'Hãy khám phá cây xanh và tạo đơn hàng đầu tiên!'
+      }}
+    </p>
+    <a *ngIf="!activeStatus" routerLink="/" class="btn-shop" id="empty-state-shop-btn">
+      <i class="fa-solid fa-leaf me-2"></i> Mua sắm ngay
+    </a>
+    <button *ngIf="activeStatus" class="btn-shop" (click)="selectTab('')">
+      <i class="fa-solid fa-border-all me-2"></i> Xem tất cả đơn hàng
+    </button>
+  </div>
+
+  <!-- ── ORDER LIST ── -->
+  <div *ngIf="!isLoading && !errorMessage && orders.length > 0" class="order-list animation-fade-up delay-1">
+    <!-- ─ ORDER CARD ─ -->
+    <div class="order-card" *ngFor="let order of orders; let i = index" [style.animation-delay]="(i * 60) + 'ms'">
+      <!-- Card Header -->
+      <div class="order-card__header">
+        <div class="order-card__meta">
+          <span class="order-card__id">
+            <i class="fa-solid fa-hashtag"></i>{{ order.id }}
+          </span>
+          <span class="order-card__date">
+            <i class="fa-regular fa-clock"></i>{{ formatDate(order.orderDate) }}
+          </span>
+        </div>
+        <div class="order-card__status-badge" [class]="getBootstrapStatusBadgeClass(order.status)">
+          <i [class]="getStatusIcon(order.status)"></i>
+          {{ getStatusDisplayName(order.status) }}
+        </div>
+      </div>
+
+      <!-- Progress Stepper (chỉ hiện khi không bị huỷ) -->
+      <div class="order-stepper" *ngIf="!isCancelled(order.status)">
+        <ng-container *ngFor="let step of statusSteps; let si = index">
+          <div class="order-stepper__step" [class.done]="getStepIndex(order.status) > si"
+            [class.active]="getStepIndex(order.status) === si">
+            <div class="order-stepper__dot">
+              <i class="fa-solid fa-check" *ngIf="getStepIndex(order.status) > si"></i>
+              <span class="order-stepper__pulse" *ngIf="getStepIndex(order.status) === si"></span>
+            </div>
+            <span class="order-stepper__label">{{ getStatusDisplayName(step) }}</span>
+          </div>
+          <div class="order-stepper__line" [class.done]="getStepIndex(order.status) > si"
+            *ngIf="si < statusSteps.length - 1"></div>
+        </ng-container>
+      </div>
+
+      <!-- Cancelled banner -->
+      <div class="order-cancelled-banner" *ngIf="isCancelled(order.status)">
+        <i class="fa-solid fa-ban me-2"></i> Đơn hàng này đã bị hủy
+      </div>
+
+      <!-- Items Section -->
+      <div class="order-card__items" *ngIf="order.items && order.items.length > 0">
+        <!-- Item avatars stack (thu gọn) -->
+        <div class="item-stack" *ngIf="!isExpanded(order.id)">
+          <a [routerLink]="['/plants', item.plantId]" (click)="$event.stopPropagation()" class="item-avatar"
+            *ngFor="let item of order.items.slice(0, 4); let ai = index" [style.z-index]="10 - ai"
+            [style.margin-left]="ai > 0 ? '-10px' : '0'" [title]="item.plantName">
+            <img [src]="item.imageUrl || 'assets/images/plant-placeholder.svg'" [alt]="item.plantName"
+              (error)="onImageError($event)">
+            <span class="item-avatar__qty">{{ item.quantity }}</span>
+          </a>
+          <span class="item-count-label">
+            {{ order.items.length }} sản phẩm
+            <span *ngIf="order.items.length > 4" class="text-muted">(+{{ order.items.length - 4 }} khác)</span>
+          </span>
+        </div>
+
+        <!-- Expanded list -->
+        <div class="item-list-expanded" *ngIf="isExpanded(order.id)">
+          <div class="item-row" *ngFor="let item of order.items">
+            <a [routerLink]="['/plants', item.plantId]" (click)="$event.stopPropagation()" class="item-row__link">
+              <div class="item-row__img-wrap">
+                <img [src]="item.imageUrl || 'assets/images/plant-placeholder.svg'" [alt]="item.plantName"
+                  class="item-row__img" (error)="onImageError($event)">
+                <span class="item-row__qty">{{ item.quantity }}</span>
+              </div>
+              <div class="item-row__info">
+                <span class="item-row__name" [title]="item.plantName">{{ item.plantName }}</span>
+                <span class="item-row__sci">{{ item.scientificName }}</span>
+              </div>
+            </a>
+            <div class="item-row__price">{{ formatCurrency(item.lineTotal) }}</div>
+          </div>
+        </div>
+
+        <!-- Toggle expand button -->
+        <button class="btn-expand" (click)="toggleExpand(order.id, $event)" [id]="'expand-btn-' + order.id"
+          [attr.aria-expanded]="isExpanded(order.id)">
+          <i class="fa-solid" [class.fa-chevron-down]="!isExpanded(order.id)"
+            [class.fa-chevron-up]="isExpanded(order.id)"></i>
+          {{ isExpanded(order.id) ? 'Thu gọn' : 'Xem chi tiết sản phẩm' }}
+        </button>
+      </div>
+
+      <!-- Footer: Total + Payment + Action -->
+      <div class="order-card__footer">
+        <div class="order-card__totals">
+          <div class="order-total">
+            <span class="order-total__label">Tổng tiền</span>
+            <div class="order-total__value-row">
+              <span class="order-total__value">{{ formatCurrency(order.finalAmount) }}</span>
+              <span *ngIf="order.discountAmount > 0" class="discount-badge"
+                [title]="'Đã giảm ' + formatCurrency(order.discountAmount)">
+                <i class="fa-solid fa-tag"></i> -{{ formatCurrency(order.discountAmount) }}
+              </span>
+            </div>
+          </div>
+          <div class="order-payment">
+            <span class="order-payment__label">Thanh toán</span>
+            <span class="order-payment__badge" [class]="getPaymentBadgeClass(order.paymentMethod)">
+              <i [class]="getPaymentIcon(order.paymentMethod)"></i>
+              {{ getPaymentMethodDisplay(order.paymentMethod) }}
+            </span>
+          </div>
+        </div>
+
+        <button class="btn-detail" (click)="viewOrderDetail(order.id)" [id]="'view-detail-btn-' + order.id">
+          Xem chi tiết <i class="fa-solid fa-arrow-right ms-2"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- ─ PAGINATION ─ -->
+    <div class="pagination-wrap" *ngIf="pagedResult && pagedResult.totalPages > 1">
+      <small class="pagination-wrap__info">
+        Hiển thị <strong>{{ orders.length }}</strong> / <strong>{{ pagedResult.totalCount }}</strong> đơn hàng
+      </small>
+      <nav aria-label="Phân trang đơn hàng">
+        <ul class="custom-pagination">
+          <li [class.disabled]="currentPage === 1">
+            <button class="page-btn page-btn--nav" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+          </li>
+          <li *ngFor="let p of [].constructor(pagedResult.totalPages); let i = index"
+            [class.active]="currentPage === i + 1">
+            <button class="page-btn" (click)="goToPage(i + 1)">{{ i + 1 }}</button>
+          </li>
+          <li [class.disabled]="currentPage === pagedResult.totalPages">
+            <button class="page-btn page-btn--nav" (click)="goToPage(currentPage + 1)"
+              [disabled]="currentPage === pagedResult.totalPages">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

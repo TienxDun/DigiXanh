@@ -25,8 +25,12 @@ src/app/views/
 
 | Route | Component | Tên trang | Mô tả |
 |-------|-----------|-----------|-------|
-| `/` | `PublicPlantListComponent` | Danh sách cây | Trang chủ hiển thị danh sách cây, tìm kiếm, lọc |
+| `/` | `HomepageComponent` | Trang chủ | Hero banner, sản phẩm nổi bật, danh mục phổ biến (US22) |
+| `/plants` | `PublicPlantListComponent` | Danh sách cây | Danh sách cây đầy đủ với tìm kiếm, lọc |
 | `/plants/:id` | `PublicPlantDetailComponent` | Chi tiết cây | Xem chi tiết cây, thêm vào giỏ hàng |
+| `/orders` | `MyOrdersComponent` | Đơn hàng của tôi | Danh sách đơn hàng cá nhân (US18) |
+| `/orders/:id` | `OrderDetailComponent` | Chi tiết đơn hàng | Xem chi tiết đơn hàng, lịch sử trạng thái (US19) |
+| `/profile` | `ProfileComponent` | Thông tin cá nhân | Cập nhật FullName, Phone, Address (US21) |
 
 ### Layout: Không có (Standalone)
 
@@ -49,6 +53,9 @@ src/app/views/
 | `/checkout` | `CheckoutComponent` | Thanh toán | Form nhập thông tin giao hàng, chọn phương thức thanh toán |
 | `/order-success` | `OrderSuccessComponent` | Đặt hàng thành công | Hiển thị sau khi đặt hàng thành công |
 | `/payment-return` | `PaymentReturnComponent` | Kết quả thanh toán | Xử lý callback từ VNPay sau thanh toán |
+| `/orders` | `MyOrdersComponent` | Đơn hàng của tôi | Danh sách đơn hàng cá nhân (US18) |
+| `/orders/:id` | `OrderDetailComponent` | Chi tiết đơn hàng | Xem chi tiết đơn hàng, lịch sử trạng thái (US19), Hủy đơn (US20) |
+| `/profile` | `ProfileComponent` | Thông tin cá nhân | Cập nhật FullName, Phone, Address (US21) |
 
 ---
 
@@ -71,6 +78,16 @@ src/app/views/
 ## 📊 Chi tiết Components
 
 ### 1. Public Pages
+
+#### `HomepageComponent` (US22) 🆕
+- **Path**: `src/app/views/public/homepage/`
+- **Features**:
+  - Hero slider với 3 slides tự động chuyển
+  - Benefits section (4 ưu điểm)
+  - Featured products (4 sản phẩm mới nhất)
+  - Popular categories (6 danh mục)
+  - Call to action section
+  - About section với stats
 
 #### `PublicPlantListComponent`
 - **Path**: `src/app/views/public/public-plant-list/`
@@ -119,7 +136,40 @@ src/app/views/
   - Hiển thị giảm giá theo số lượng
   - Xác nhận đặt hàng
 
-### 4. Admin Pages
+### 4. User Order Pages (US18-US21)
+
+#### `MyOrdersComponent`
+- **Path**: `src/app/views/orders/my-orders/`
+- **Features**:
+  - Danh sách đơn hàng của user hiện tại
+  - Phân trang (10 items/page)
+  - Card-based UI với thông tin: Mã đơn, ngày đặt, tổng tiền, trạng thái
+  - Badge trạng thái màu sắc (Pending, Paid, Shipped, Delivered, Cancelled)
+  - Link đến chi tiết đơn hàng
+  - Empty state khi chưa có đơn hàng
+
+#### `OrderDetailComponent` (User)
+- **Path**: `src/app/views/orders/order-detail/`
+- **Features**:
+  - Thông tin chi tiết đơn hàng
+  - Thông tin giao hàng (ngườI nhận, SĐT, địa chỉ)
+  - Thông tin thanh toán (phương thức, mã giao dịch VNPay)
+  - Danh sách sản phẩm đã đặt với hình ảnh
+  - Lịch sử trạng thái (timeline)
+  - Tổng quan đơn hàng (tạm tính, khuyến mãi, tổng cộng)
+  - **US20:** Modal xác nhận hủy đơn (chỉ hiển thị khi status = Pending)
+
+#### `ProfileComponent` (US21)
+- **Path**: `src/app/views/user/`
+- **Features**:
+  - Xem thông tin cá nhân: Email, FullName, Phone, Address
+  - Form cập nhật: FullName, Phone, Address
+  - Validate SĐT Việt Nam
+  - Email chỉ đọc (không cho sửa)
+  - Thông tin tài khoản (ngày tham gia, loại tài khoản)
+  - Liên kết nhanh: Đơn hàng, Giỏ hàng, Trang chủ
+
+### 5. Admin Pages
 
 #### `DashboardComponent`
 - **Path**: `src/app/views/dashboard/dashboard.component.ts`
@@ -231,8 +281,9 @@ Login (/auth/login)
 | `PlantService` | `core/services/plant.service.ts` | Lấy danh sách cây, chi tiết cây |
 | `AdminPlantService` | `core/services/admin-plant.service.ts` | CRUD cây (admin) |
 | `CartService` | `core/services/cart.service.ts` | Quản lý giỏ hàng |
-| `OrderService` | `core/services/order.service.ts` | Đặt hàng, quản lý đơn (admin) |
+| `OrderService` | `core/services/order.service.ts` | Đặt hàng, quản lý đơn, hủy đơn |
 | `AuthService` | `core/services/auth.service.ts` | Đăng nhập/đăng ký |
+| `UserService` | `core/services/user.service.ts` | Xem/cập nhật profile (US21) |
 | `DashboardService` | `core/services/dashboard.service.ts` | Thống kê |
 
 ---
@@ -251,8 +302,10 @@ Login (/auth/login)
 - ✅ US01-US03: Auth (Login/Register/Phân quyền)
 - ✅ US04-US07: Admin CRUD Plants + Dashboard
 - ✅ US08-US10: Public xem cây + Giỏ hàng
-- ✅ US11-US15: Đặt hàng + Thanh toán (Cash/VNPay) + Design Patterns
-- ✅ US19-US21: 🆕 Quản lý đơn hàng (User & Admin)
+- ✅ US11-US17: Đặt hàng + Thanh toán (Cash/VNPay) + 3 Design Patterns
+- ✅ US18-US21: 🆕 **Sprint 3 HOÀN THÀNH** - Lịch sử đơn hàng, Hủy đơn, Profile
+- ✅ US26: Quản lý tồn kho
+- ✅ US13-US14: Quản lý đơn hàng (Admin)
 
 ---
 

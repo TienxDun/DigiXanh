@@ -20,8 +20,10 @@ import {
   cilAlignCenter,
   cilAlignLeft,
   cilAlignRight,
+  cilApplications,
   cilApplicationsSettings,
   cilArrowBottom,
+  cilArrowLeft,
   cilArrowRight,
   cilArrowTop,
   cilBasket,
@@ -34,6 +36,7 @@ import {
   cilChart,
   cilChartPie,
   cilCheck,
+  cilChevronBottom,
   cilChevronLeft,
   cilChevronRight,
   cilCloudDownload,
@@ -101,7 +104,10 @@ import {
   cilUser,
   cilUserFemale,
   cilUserFollow,
-  cilUserUnfollow
+  cilUserPlus,
+  cilUserUnfollow,
+  cilWarning,
+  cilX
 } from '@coreui/icons';
 
 import { signet } from './signet';
@@ -129,8 +135,10 @@ export const iconSubset = {
   cilAlignCenter,
   cilAlignLeft,
   cilAlignRight,
+  cilApplications,
   cilApplicationsSettings,
   cilArrowBottom,
+  cilArrowLeft,
   cilArrowRight,
   cilArrowTop,
   cilBasket,
@@ -143,6 +151,7 @@ export const iconSubset = {
   cilChart,
   cilChartPie,
   cilCheck,
+  cilChevronBottom,
   cilChevronLeft,
   cilChevronRight,
   cilCloudDownload,
@@ -210,7 +219,10 @@ export const iconSubset = {
   cilUser,
   cilUserFemale,
   cilUserFollow,
+  cilUserPlus,
   cilUserUnfollow,
+  cilWarning,
+  cilX,
   logo,
   signet
 };
@@ -237,8 +249,10 @@ export enum IconSubset {
   cilAlignCenter = 'cilAlignCenter',
   cilAlignLeft = 'cilAlignLeft',
   cilAlignRight = 'cilAlignRight',
+  cilApplications = 'cilApplications',
   cilApplicationsSettings = 'cilApplicationsSettings',
   cilArrowBottom = 'cilArrowBottom',
+  cilArrowLeft = 'cilArrowLeft',
   cilArrowRight = 'cilArrowRight',
   cilArrowTop = 'cilArrowTop',
   cilBasket = 'cilBasket',
@@ -251,6 +265,7 @@ export enum IconSubset {
   cilChart = 'cilChart',
   cilChartPie = 'cilChartPie',
   cilCheck = 'cilCheck',
+  cilChevronBottom = 'cilChevronBottom',
   cilChevronLeft = 'cilChevronLeft',
   cilChevronRight = 'cilChevronRight',
   cilCloudDownload = 'cilCloudDownload',
@@ -318,8 +333,10 @@ export enum IconSubset {
   cilUser = 'cilUser',
   cilUserFemale = 'cilUserFemale',
   cilUserFollow = 'cilUserFollow',
+  cilUserPlus = 'cilUserPlus',
   cilUserUnfollow = 'cilUserUnfollow',
+  cilWarning = 'cilWarning',
+  cilX = 'cilX',
   logo = 'logo',
   signet = 'signet'
 }
-

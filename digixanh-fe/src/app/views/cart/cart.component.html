@@ -32,7 +32,8 @@
           <div
             class="cart-item d-flex flex-column flex-md-row align-items-center justify-content-between p-2 mb-2 bg-light bg-opacity-50 rounded-4 border border-secondary border-opacity-10 position-relative transition-all">
 
-            <div class="d-flex align-items-center gap-3 w-100 mb-2 mb-md-0">
+            <a [routerLink]="['/plants', item.plantId]"
+              class="product-link d-flex align-items-center gap-3 w-100 mb-2 mb-md-0">
               <div class="position-relative">
                 <img [src]="resolveImageUrl(item.imageUrl)" [alt]="item.plantName || 'Hình ảnh sản phẩm'"
                   [title]="item.plantName" class="cart-image rounded-3 shadow-sm" (error)="onImageError($event)" />
@@ -43,18 +44,18 @@
                   item.scientificName }}</p>
                 <div class="text-success fw-bold fs-6">{{ item.price | currency:'VND':'symbol' }}</div>
                 @if (item.stockQuantity !== undefined && item.stockQuantity !== null) {
-                  @if (item.stockQuantity === 0) {
-                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill mt-1">
-                      <i class="fa-solid fa-circle-xmark me-1"></i> Hết hàng
-                    </span>
-                  } @else if (item.stockQuantity <= 10) {
-                    <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill mt-1">
-                      <i class="fa-solid fa-triangle-exclamation me-1"></i> Còn {{ item.stockQuantity }} sản phẩm
-                    </span>
+                @if (item.stockQuantity === 0) {
+                <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill mt-1">
+                  <i class="fa-solid fa-circle-xmark me-1"></i> Hết hàng
+                </span>
+                } @else if (item.stockQuantity <= 10) { <span
+                  class="badge bg-warning bg-opacity-10 text-warning rounded-pill mt-1">
+                  <i class="fa-solid fa-triangle-exclamation me-1"></i> Còn {{ item.stockQuantity }} sản phẩm
+                  </span>
                   }
-                }
+                  }
               </div>
-            </div>
+            </a>
 
             <div class="d-flex align-items-center justify-content-between w-100 w-md-auto ms-md-4 gap-3">
               <!-- Inline Quantity Controller -->
@@ -72,7 +73,7 @@
                   (change)="onQuantityInput(item, $any($event.target).value)" />
                 <button class="btn btn-light rounded-circle btn-icon text-secondary" type="button"
                   aria-label="Tăng số lượng" title="Tăng số lượng sản phẩm"
-                  [disabled]="item.quantity >= 99 || isItemProcessing(item.id) || isMaxQuantityReached(item)" 
+                  [disabled]="item.quantity >= 99 || isItemProcessing(item.id) || isMaxQuantityReached(item)"
                   (click)="increaseQuantity(item)">
                   <i class="fa-solid fa-plus" style="font-size: 0.7rem;"></i>
                 </button>

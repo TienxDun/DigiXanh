@@ -93,7 +93,7 @@ public class AdminPlantsController : ControllerBase
             Price        = dto.Price,
             CategoryId   = dto.CategoryId,
             ImageUrl     = ImageUrlSanitizer.NormalizeOrEmpty(dto.ImageUrl),
-            StockQuantity = dto.StockQuantity,
+            StockQuantity = dto.StockQuantity ?? 100,   // mặc định 100 khi bulk import không truyền
             IsDeleted    = false,
             CreatedAt    = DateTime.UtcNow
         };

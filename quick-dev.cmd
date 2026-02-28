@@ -1,221 +1,103 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
 
+:: DigiXanh - Quick Dev Launcher v2.0
+:: Usage: Double-click or run: quick-dev.cmd
+
 set "ROOT=%~dp0"
 set "BE_DIR=%ROOT%DigiXanh.API"
 set "FE_DIR=%ROOT%digixanh-fe"
+set "BE_HEALTH_URL=https://localhost:5001/api/health"
+set "MAX_WAIT_SECONDS=90"
 
+echo ================================================
+echo    DigiXanh - Quick Dev Launcher
+echo ================================================
+echo.
+
+:: Check directories exist
 if not exist "%BE_DIR%" (
-  echo [ERROR] Khong tim thay thu muc BE: "%BE_DIR%"
-  call :WAIT
-  exit /b 1
+  echo [ERROR] Khong tim thay: %BE_DIR%
+  pause & exit /b 1
 )
-
 if not exist "%FE_DIR%" (
-  echo [ERROR] Khong tim thay thu muc FE: "%FE_DIR%"
-  call :WAIT
-  exit /b 1
+  echo [ERROR] Khong tim thay: %FE_DIR%
+  pause & exit /b 1
 )
 
-:MENU
-cls
-echo ================================================
-echo DigiXanh - Quick CMD (BE ^& FE)
-echo Root: %ROOT%
-echo ================================================
-echo === Cau hinh Port (da thong nhat) ===
-echo BE: http://localhost:5000  ^|  https://localhost:5001
-echo FE: http://localhost:4200
-echo ================================================
-echo [1] Kiem tra version (dotnet/node/npm)
-echo [2] BE - dotnet restore
-echo [3] BE - dotnet ef database update
-echo [4] BE - Them migration moi
-echo [5] BE - dotnet run (HTTP - port 5000)
-echo [6] BE - dotnet run --launch-profile https (KHUYEN DUNG)
-echo [7] FE - npm install
-echo [8] FE - npm start
-echo [9] Chay ca BE ^& FE (2 cua so moi)
-echo [T] Chay unit test backend (dotnet test DigiXanh.sln)
-echo [A] Mo Swagger (https://localhost:5001/swagger)
-echo [B] Dung cac dotnet run cua API
-echo [Q] Thoat
-echo ================================================
-choice /c 123456789TABQ /n /m "Nhap lua chon: "
+:: Step 1: Kill existing processes
+echo [1/4] Dang dung cac tien trinh cu...
+taskkill /F /IM "DigiXanh.API.exe" >nul 2>&1
+taskkill /F /IM "dotnet.exe" >nul 2>&1  
+taskkill /F /IM "node.exe" >nul 2>&1
 
-if errorlevel 13 goto END
-if errorlevel 12 goto STOP_BE
-if errorlevel 11 goto OPEN_SWAGGER
-if errorlevel 10 goto TEST_BE
-if errorlevel 9 goto RUN_BOTH
-if errorlevel 8 goto RUN_FE
-if errorlevel 7 goto NPM_INSTALL
-if errorlevel 6 goto RUN_BE_HTTPS
-if errorlevel 5 goto RUN_BE
-if errorlevel 4 goto ADD_MIGRATION
-if errorlevel 3 goto EF_UPDATE
-if errorlevel 2 goto RESTORE_BE
-if errorlevel 1 goto CHECK_VERSION
-goto MENU
-
-:CHECK_VERSION
-echo.
-echo ---- dotnet --info (rut gon) ----
-dotnet --info | findstr /R /C:"Version:" /C:"OS Name" /C:"RID"
-echo.
-echo ---- node -v ----
-node -v
-echo ---- npm -v ----
-npm -v
-echo.
-call :WAIT
-goto MENU
-
-:RESTORE_BE
-echo.
-echo [BE] dotnet restore
-pushd "%BE_DIR%"
-dotnet restore
-set "CODE=%ERRORLEVEL%"
-popd
-echo.
-echo Exit code: %CODE%
-call :WAIT
-goto MENU
-
-:EF_UPDATE
-echo.
-echo [BE] dotnet ef database update
-pushd "%BE_DIR%"
-dotnet ef database update
-set "CODE=%ERRORLEVEL%"
-popd
-echo.
-echo Exit code: %CODE%
-call :WAIT
-goto MENU
-
-:ADD_MIGRATION
-echo.
-set /p MIGRATION_NAME=Nhap ten migration (vd: AddAuthTables): 
-if "%MIGRATION_NAME%"=="" (
-  echo Ten migration khong duoc de trong.
-  call :WAIT
-  goto MENU
-)
-echo [BE] dotnet ef migrations add %MIGRATION_NAME%
-pushd "%BE_DIR%"
-dotnet ef migrations add %MIGRATION_NAME%
-set "CODE=%ERRORLEVEL%"
-popd
-echo.
-echo Exit code: %CODE%
-call :WAIT
-goto MENU
-
-:RUN_BE
-echo.
-echo [BE] dotnet run (HTTP - port 5000)
-echo Nhan Ctrl+C de dung server.
-pushd "%BE_DIR%"
-dotnet run
-set "CODE=%ERRORLEVEL%"
-popd
-echo.
-echo Exit code: %CODE%
-call :WAIT
-goto MENU
-
-:RUN_BE_HTTPS
-echo.
-echo [BE] dotnet run --launch-profile https (KHUYEN DUNG)
-echo URL: https://localhost:5001
-echo Nhan Ctrl+C de dung server.
-pushd "%BE_DIR%"
-dotnet run --launch-profile https
-set "CODE=%ERRORLEVEL%"
-popd
-echo.
-echo Exit code: %CODE%
-call :WAIT
-goto MENU
-
-:NPM_INSTALL
-echo.
-echo [FE] npm install
-pushd "%FE_DIR%"
-npm install
-set "CODE=%ERRORLEVEL%"
-popd
-echo.
-echo Exit code: %CODE%
-call :WAIT
-goto MENU
-
-:RUN_FE
-echo.
-echo [FE] npm start
-echo URL: http://localhost:4200
-echo Proxy: https://localhost:5001
-echo Nhan Ctrl+C de dung dev server.
-pushd "%FE_DIR%"
-npm start
-set "CODE=%ERRORLEVEL%"
-popd
-echo.
-echo Exit code: %CODE%
-call :WAIT
-goto MENU
-
-:RUN_BOTH
-echo.
-echo [BE+FE] Mo 2 cua so cmd moi...
-echo BE chay o: https://localhost:5001
-echo FE chay o: http://localhost:4200
-echo.
-start "DigiXanh BE" /d "%BE_DIR%" cmd /k "dotnet run --launch-profile https"
+:: Wait for ports to be released
 timeout /t 3 /nobreak >nul
+echo     OK - Da don dep
+echo.
+
+:: Step 2: Start Backend
+echo [2/4] Khoi dong Backend...
+start "DigiXanh BE" /d "%BE_DIR%" cmd /k "dotnet run --launch-profile https"
+
+:: Step 3: Wait for BE to be healthy
+echo [3/4] Doi BE san sang (toi da %MAX_WAIT_SECONDS%s)...
+echo          (Nhan Ctrl+C de bo qua va khoi dong FE ngay)
+echo.
+
+set /a "elapsed=0"
+set "be_ready=0"
+
+:CHECK_LOOP
+if !elapsed! geq %MAX_WAIT_SECONDS% goto BE_TIMEOUT
+
+:: Check if BE is ready using curl (with cert ignore)
+curl.exe -k -s -o nul -w "%%{http_code}" "%BE_HEALTH_URL%" > "%TEMP%\be_status.txt" 2>nul
+set /p STATUS=<"%TEMP%\be_status.txt"
+
+if "!STATUS!"=="200" (
+  set "be_ready=1"
+  goto BE_READY
+)
+
+:: Not ready yet, show progress and wait
+set /a "elapsed+=2"
+<nul set /p="."
+timeout /t 2 /nobreak >nul
+goto CHECK_LOOP
+
+:BE_TIMEOUT
+echo.
+echo.
+echo [WARN] BE chua san sang sau %MAX_WAIT_SECONDS%s
+echo         Cua so BE van dang mo de ban kiem tra.
+echo.
+echo [?] Ban muon:
+echo     [C] - Tiep tuc khoi dong FE (khuyen nghi)
+echo     [D] - Dung lai va xem loi BE
+echo.
+choice /C CD /M "Lua chon"
+if %ERRORLEVEL%==2 exit /b 1
+
+:BE_READY
+echo.
+echo     OK - BE san sang tai https://localhost:5001
+echo.
+
+:: Step 4: Start Frontend
+echo [4/4] Khoi dong Frontend...
 start "DigiXanh FE" /d "%FE_DIR%" cmd /k "npm start"
-echo Da mo 2 cua so.
-call :WAIT
-goto MENU
+timeout /t 2 /nobreak >nul
 
-:TEST_BE
 echo.
-echo [TEST] dotnet test DigiXanh.sln
-pushd "%ROOT%"
-dotnet test DigiXanh.sln
-set "CODE=%ERRORLEVEL%"
-popd
+echo ================================================
+echo    🚀 MO TRUONG DEV THANH CONG!
+echo ================================================
 echo.
-echo Exit code: %CODE%
-call :WAIT
-goto MENU
-
-:OPEN_SWAGGER
+echo    BE: https://localhost:5001
+echo    FE: http://localhost:4200
 echo.
-echo Thu mo Swagger tai https://localhost:5001/swagger
-start "" "https://localhost:5001/swagger"
-call :WAIT
-goto MENU
-
-:STOP_BE
-echo.
-echo [BE] Dung cac tien trinh DigiXanh.API dang chay
-powershell -NoProfile -Command "$procs = Get-CimInstance Win32_Process | Where-Object { $_.Name -ieq 'DigiXanh.API.exe' -or ($_.Name -ieq 'dotnet.exe' -and $_.CommandLine -like '*DigiXanh.API*') -or ($_.Name -ieq 'dotnet-watch.exe' -and $_.CommandLine -like '*DigiXanh.API*') }; if (-not $procs) { Write-Host 'Khong tim thay tien trinh API dang chay.'; exit 0 }; $count = 0; foreach ($p in $procs) { Stop-Process -Id $p.ProcessId -Force -ErrorAction SilentlyContinue; if (-not (Get-Process -Id $p.ProcessId -ErrorAction SilentlyContinue)) { $count++ } }; Write-Host ('Da dung ' + $count + ' tien trinh API.')"
-set "CODE=%ERRORLEVEL%"
-echo.
-echo Exit code: %CODE%
-call :WAIT
-goto MENU
-
-:END
-echo Thoat.
-call :WAIT
-endlocal
-exit /b 0
-
-:WAIT
+echo    De dung: dong cua so cmd "DigiXanh BE" va "DigiXanh FE"
 echo.
 pause
 exit /b 0

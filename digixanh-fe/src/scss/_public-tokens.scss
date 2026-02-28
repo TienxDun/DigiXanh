@@ -1,0 +1,162 @@
+// ============================================================
+// DigiXanh Public – Design Tokens
+// Áp dụng cho toàn bộ khu vực giao diện User (Public Layout)
+// ============================================================
+
+// --- TYPOGRAPHY SCALE ---
+// Base: 1rem = 16px (browser default)
+//
+//  xs    → 0.75rem  = 12px   (label phụ, badge, caption)
+//  sm    → 0.813rem = 13px   (text phụ, mô tả nhỏ)
+//  base  → 0.875rem = 14px   (body text mặc định)
+//  md    → 0.938rem = 15px   (nội dung chính, card text)
+//  lg    → 1rem     = 16px   (tiêu đề nhỏ, button text)
+//  xl    → 1.125rem = 18px   (tiêu đề section nhỏ)
+//  2xl   → 1.25rem  = 20px   (tiêu đề card lớn)
+//  3xl   → 1.5rem   = 24px   (heading section)
+//  4xl   → 2rem     = 32px   (hero title)
+//  5xl   → 2.5rem   = 40px   (hero title lớn)
+
+:root {
+    // Typography
+    --dg-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+    --dg-text-xs: 0.75rem; // 12px
+    --dg-text-sm: 0.813rem; // 13px
+    --dg-text-base: 0.875rem; // 14px  ← body text chuẩn
+    --dg-text-md: 0.938rem; // 15px
+    --dg-text-lg: 1rem; // 16px
+    --dg-text-xl: 1.125rem; // 18px
+    --dg-text-2xl: 1.25rem; // 20px
+    --dg-text-3xl: 1.5rem; // 24px
+    --dg-text-4xl: 2rem; // 32px
+    --dg-text-5xl: 2.5rem; // 40px
+
+    // Font Weights
+    --dg-font-normal: 400;
+    --dg-font-medium: 500;
+    --dg-font-semibold: 600;
+    --dg-font-bold: 700;
+    --dg-font-extrabold: 800;
+
+    // Line Heights
+    --dg-leading-tight: 1.25;
+    --dg-leading-snug: 1.375;
+    --dg-leading-normal: 1.5;
+    --dg-leading-relaxed: 1.65;
+    --dg-leading-loose: 1.8;
+
+    // Colors (Text)
+    --dg-text-primary: #2c3e50; // Ưu tiên màu xanh đen sẫm thay vì đen thuần
+    --dg-text-secondary: #555b6e;
+    --dg-text-muted: #8a94a6;
+    --dg-text-light: #b5bcc9;
+
+    // Brand - Forest Green Theme
+    --dg-brand-primary: #2e7d32;
+    --dg-brand-primary-rgb: 46, 125, 50;
+    --dg-brand-secondary: #81c784;
+    --dg-brand-light: rgba(46, 125, 50, 0.08);
+    --dg-brand-medium: rgba(46, 125, 50, 0.15);
+    --dg-brand-deep: #1b5e20;
+
+    // Spacing
+    --dg-radius-sm: 8px;
+    --dg-radius-md: 12px;
+    --dg-radius-lg: 16px;
+    --dg-radius-xl: 24px;
+    --dg-radius-pill: 100px;
+}
+
+// ============================================================
+// Global base reset cho khu vực Public
+// ============================================================
+.app-public-layout,
+app-public-layout {
+    font-family: var(--dg-font-family);
+    font-size: var(--dg-text-base);
+    color: var(--dg-text-primary);
+    line-height: var(--dg-leading-normal);
+}
+
+// ============================================================
+// Utility classes chuẩn hoá Typography
+// Dùng trong HTML: class="dg-text-sm", class="dg-text-lg"...
+// ============================================================
+.dg-text-xs {
+    font-size: var(--dg-text-xs) !important;
+}
+
+.dg-text-sm {
+    font-size: var(--dg-text-sm) !important;
+}
+
+.dg-text-base {
+    font-size: var(--dg-text-base) !important;
+}
+
+.dg-text-md {
+    font-size: var(--dg-text-md) !important;
+}
+
+.dg-text-lg {
+    font-size: var(--dg-text-lg) !important;
+}
+
+.dg-text-xl {
+    font-size: var(--dg-text-xl) !important;
+}
+
+.dg-text-2xl {
+    font-size: var(--dg-text-2xl) !important;
+}
+
+.dg-text-3xl {
+    font-size: var(--dg-text-3xl) !important;
+}
+
+.dg-text-4xl {
+    font-size: var(--dg-text-4xl) !important;
+}
+
+.dg-text-5xl {
+    font-size: var(--dg-text-5xl) !important;
+}
+
+// Weight utilities
+.dg-normal {
+    font-weight: var(--dg-font-normal) !important;
+}
+
+.dg-medium {
+    font-weight: var(--dg-font-medium) !important;
+}
+
+.dg-semibold {
+    font-weight: var(--dg-font-semibold) !important;
+}
+
+.dg-bold {
+    font-weight: var(--dg-font-bold) !important;
+}
+
+.dg-extrabold {
+    font-weight: var(--dg-font-extrabold) !important;
+}
+
+// Color utilities
+.dg-text-primary {
+    color: var(--dg-text-primary) !important;
+}
+
+.dg-text-secondary {
+    color: var(--dg-text-secondary) !important;
+}
+
+.dg-text-muted {
+    color: var(--dg-text-muted) !important;
+}
+
+.dg-brand {
+    color: var(--dg-brand-primary) !important;
+}

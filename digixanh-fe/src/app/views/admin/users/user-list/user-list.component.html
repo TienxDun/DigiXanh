@@ -1,0 +1,202 @@
+<div class="admin-page container-fluid py-4 px-lg-4 text-dark">
+  <!-- Header -->
+  <div class="card admin-card admin-header mb-4 overflow-hidden">
+    <div class="card-body p-4 d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
+          <span class="admin-icon admin-icon--lg rounded-3 bg-primary bg-opacity-10 text-primary">
+            <i class="fa-solid fa-users"></i>
+          </span>
+          Quản lý NgườI dùng
+        </h3>
+        <p class="text-muted mb-0">Quản lý tài khoản ngườI dùng, phân quyền và trạng thái tài khoản.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Messages -->
+  <div *ngIf="actionMessage$ | async as message"
+    class="alert alert-success shadow-sm border-0 rounded-3 mb-4 d-flex align-items-center" role="alert">
+    <i class="fa fa-check-circle me-3 fs-5"></i>
+    <div>{{ message }}</div>
+    <button type="button" class="btn-close ms-auto" aria-label="Đóng thông báo" title="Đóng thông báo"
+      (click)="dismissMessage()"></button>
+  </div>
+
+  <!-- Filters -->
+  <div class="card admin-card mb-4">
+    <div class="card-body p-3">
+      <div class="row g-3 align-items-center">
+        <div class="col-md-5">
+          <div class="input-group">
+            <span class="input-group-text bg-light border-end-0 px-3"><i class="fa fa-search text-muted"></i></span>
+            <input type="text" class="form-control bg-light border-start-0 ps-0 shadow-none focus-ring-none"
+              placeholder="Tìm theo tên, email, SĐT..." #searchInput (keyup.enter)="onSearch(searchInput.value)">
+            <button class="btn btn-primary px-4 fw-medium" type="button" (click)="onSearch(searchInput.value)">
+              Tìm kiếm
+            </button>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <select class="form-select bg-light shadow-none cursor-pointer" aria-label="Lọc theo phân quyền"
+            title="Lọc theo phân quyền" (change)="onRoleChange($any($event.target).value)">
+            <option value="">Tất cả phân quyền</option>
+            <option *ngFor="let role of roles$ | async" [value]="role.name">
+              {{ role.displayName }}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-3 text-end">
+          <div
+            class="bg-white border border-primary border-opacity-25 shadow-sm rounded-pill px-3 py-2 d-inline-flex align-items-center justify-content-center transition-all">
+            <div
+              class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-2"
+              style="width: 30px; height: 30px;">
+              <i class="fa-solid fa-users" style="font-size: 0.85rem;"></i>
+            </div>
+            <span class="text-muted small fw-medium me-1">Tổng:</span>
+            <strong class="text-primary fs-6 mb-0 lh-1">{{ totalCount$ | async }}</strong>
+            <span class="text-muted small fw-medium ms-1">người dùng</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <div class="card admin-card overflow-hidden">
+    <div class="card-body p-0">
+      <div class="table-responsive admin-table-wrap">
+        <table class="table admin-table align-middle text-nowrap mb-0">
+          <thead class="bg-light text-muted small text-uppercase">
+            <tr>
+              <th class="px-4 py-3 border-0">Thông tin</th>
+              <th class="py-3 border-0">Email</th>
+              <th class="py-3 border-0">Số điện thoại</th>
+              <th class="text-center py-3 border-0 u-w-120">Phân quyền</th>
+              <th class="text-center py-3 border-0 u-w-100">Trạng thái</th>
+              <th class="text-center py-3 border-0 u-w-120">Ngày tạo</th>
+              <th class="text-center px-4 py-3 border-0 u-w-180">Hành động</th>
+            </tr>
+          </thead>
+          <tbody class="border-top-0">
+            <tr *ngIf="loading$ | async">
+              <td colspan="7" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Đang tải...</span>
+                </div>
+                <div class="mt-2 text-secondary fw-medium">Đang tải dữ liệu...</div>
+              </td>
+            </tr>
+            <tr *ngIf="(users$ | async)?.length === 0 && !(loading$ | async)">
+              <td colspan="7" class="text-center py-5 text-muted">
+                <div
+                  class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3 u-size-80">
+                  <i class="fa fa-user-slash fa-2x text-secondary opacity-50"></i>
+                </div>
+                <h5 class="text-dark fw-medium">Chưa có ngườI dùng nào</h5>
+                <p class="mb-0 text-muted">Không tìm thấy ngườI dùng phù hợp với điều kiện tìm kiếm.</p>
+              </td>
+            </tr>
+            <tr *ngFor="let user of users$ | async" class="user-row">
+              <td class="px-4 py-3">
+                <div class="d-flex align-items-center gap-3">
+                  <div
+                    class="user-avatar bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                    style="width: 42px; height: 42px; font-size: 1rem;">
+                    {{ user.fullName.charAt(0).toUpperCase() }}
+                  </div>
+                  <div>
+                    <div class="fw-bold text-dark">{{ user.fullName }}</div>
+                    <div class="small text-muted text-truncate" style="max-width: 200px;" [title]="user.address">
+                      <i class="fa fa-map-marker-alt me-1"></i>{{ user.address || 'Chưa cập nhật địa chỉ' }}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td class="py-3">
+                <div class="text-dark">{{ user.email }}</div>
+              </td>
+              <td class="py-3">
+                <div class="text-dark">{{ user.phoneNumber || 'Chưa cập nhật' }}</div>
+              </td>
+              <td class="text-center py-3">
+                <span class="badge rounded-pill px-3 py-1 fw-medium" [ngClass]="getRoleBadgeClass(user)">
+                  {{ getRoleDisplayName(getPrimaryRole(user)) }}
+                </span>
+              </td>
+              <td class="text-center py-3">
+                <span class="badge rounded-pill px-3 py-1 fw-medium" [ngClass]="getLockBadgeClass(user.isLocked)">
+                  <i class="fa" [class.fa-lock]="user.isLocked" [class.fa-unlock]="!user.isLocked" class="me-1"></i>
+                  {{ user.isLocked ? 'Đã khóa' : 'Hoạt động' }}
+                </span>
+              </td>
+              <td class="text-center py-3">
+                <div class="text-dark">{{ user.createdAt | date:'dd/MM/yyyy' }}</div>
+                <div class="small text-muted">{{ user.createdAt | date:'HH:mm' }}</div>
+              </td>
+              <td class="text-center px-4 py-3">
+                <div class="d-flex justify-content-center gap-2">
+                  <!-- Lock/Unlock Button -->
+                  <button
+                    class="btn btn-sm rounded-circle d-inline-flex align-items-center justify-content-center u-size-36"
+                    [class.btn-outline-danger]="!user.isLocked" [class.btn-outline-success]="user.isLocked"
+                    [title]="user.isLocked ? 'Mở khóa tài khoản' : 'Khóa tài khoản'" (click)="toggleUserLock(user)">
+                    <i class="fa" [class.fa-lock]="!user.isLocked" [class.fa-unlock]="user.isLocked"></i>
+                  </button>
+
+                  <!-- Change Role Button (only for non-admin users) -->
+                  <button *ngIf="!isAdmin(user)"
+                    class="btn btn-sm btn-outline-primary rounded-circle d-inline-flex align-items-center justify-content-center u-size-36"
+                    title="Nâng cấp lên Admin" (click)="changeUserRole(user, 'Admin')">
+                    <i class="fa fa-user-shield"></i>
+                  </button>
+                  <button *ngIf="isAdmin(user)"
+                    class="btn btn-sm btn-outline-info rounded-circle d-inline-flex align-items-center justify-content-center u-size-36"
+                    title="Hạ xuống User" (click)="changeUserRole(user, 'User')">
+                    <i class="fa fa-user"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="card-footer bg-transparent border-top p-3" *ngIf="(totalPages$ | async) || 0 > 1">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="text-muted small fw-medium">
+          Hiển thị trang <strong class="text-dark">{{ currentPage$ | async }}</strong> / {{ totalPages$ | async }}
+        </div>
+        <nav aria-label="Page navigation" *ngIf="currentPage$ | async as currentPage">
+          <ul class="pagination mb-0 gap-1">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button
+                class="page-link border-0 shadow-sm rounded-2 d-flex align-items-center justify-content-center u-size-36"
+                aria-label="Trang trước" title="Quay lại" (click)="onPageChange(currentPage - 1)"
+                [disabled]="currentPage === 1">
+                <i class="fa fa-chevron-left small"></i>
+              </button>
+            </li>
+            <li class="page-item" *ngFor="let page of getPageArray()" [class.active]="page === currentPage">
+              <button
+                class="page-link border-0 shadow-sm rounded-2 d-flex align-items-center justify-content-center fw-medium u-size-36"
+                (click)="onPageChange(page)">{{ page }}</button>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === (totalPages$ | async)"
+              *ngIf="totalPages$ | async as totalPages">
+              <button
+                class="page-link border-0 shadow-sm rounded-2 d-flex align-items-center justify-content-center u-size-36"
+                aria-label="Trang tiếp theo" title="Đi tiếp" (click)="onPageChange(currentPage + 1)"
+                [disabled]="currentPage === totalPages">
+                <i class="fa fa-chevron-right small"></i>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>

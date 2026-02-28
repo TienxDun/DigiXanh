@@ -1,295 +1,359 @@
 <div class="admin-page animation-fade-up pb-4">
-    <div class="col-12">
-        <div class="card admin-card add-plant-card border-0 shadow-sm mb-4 bg-transparent">
 
-            <!-- Header -->
-            <div
-                class="card-header admin-header bg-white border-0 d-flex justify-content-between align-items-center py-4 rounded-4 shadow-sm mb-4">
-                <div class="d-flex align-items-center gap-3">
-                    <a routerLink="/admin/plants"
-                        class="btn btn-light rounded-circle back-btn shadow-sm d-flex align-items-center justify-content-center"
-                        title="Quay lại danh sách" aria-label="Quay lại danh sách">
-                        <i class="fa-solid fa-arrow-left text-dark"></i>
-                    </a>
-                    <div>
-                        <h4 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
-                            <div class="icon-square u-size-36 bg-success bg-opacity-10 text-success rounded-3 d-flex align-items-center justify-content-center">
-                                <i class="fa-solid " [class.fa-seedling]="!isEditMode"
-                                    [class.fa-pen-to-square]="isEditMode"></i>
-                            </div>
-                            {{ isEditMode ? 'Chỉnh sửa Cây' : 'Thêm Cây Mới' }}
-                        </h4>
-                        <p class="text-muted mb-0 small ms-1 ps-5 d-none d-sm-block">{{ isEditMode ? 'Cập nhật lại thông
-                            tin sản phẩm trên hệ thống' : 'Thêm một loài cây mới vào hệ sinh thái DigiXanh' }}</p>
+    <!-- ── PAGE HEADER ── -->
+    <div
+        class="admin-header bg-white rounded-4 shadow-sm px-4 py-3 mb-4 d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <a routerLink="/admin/plants"
+                class="btn btn-light rounded-circle back-btn shadow-sm d-flex align-items-center justify-content-center"
+                title="Quay lại danh sách" aria-label="Quay lại danh sách">
+                <i class="fa-solid fa-arrow-left text-dark"></i>
+            </a>
+            <div>
+                <h4 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <div
+                        class="icon-square u-size-36 bg-success bg-opacity-10 text-success rounded-3 d-flex align-items-center justify-content-center">
+                        <i class="fa-solid" [class.fa-seedling]="!isEditMode" [class.fa-pen-to-square]="isEditMode"></i>
                     </div>
-                </div>
-                <div class="badge-wrapper" *ngIf="!isEditMode">
-                    <span
-                        class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 fw-semibold shadow-sm d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Tích hợp AI & Perenual
-                    </span>
-                </div>
+                    {{ isEditMode ? 'Chỉnh sửa Cây' : 'Thêm Cây Mới' }}
+                </h4>
+                <p class="text-muted mb-0 small ms-1 ps-5 d-none d-sm-block mt-1">
+                    {{ isEditMode ? 'Cập nhật lại thông tin sản phẩm trên hệ thống' : 'Thêm một loài cây mới vào hệ sinh
+                    thái DigiXanh' }}
+                </p>
             </div>
+        </div>
+        <span *ngIf="!isEditMode"
+            class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2 fw-semibold d-flex align-items-center gap-2">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Tích hợp AI & Perenual
+        </span>
+    </div>
 
-            <div class="card-body px-0 py-0">
-                <div class="row g-4">
+    <!-- ── STEP INDICATOR (chỉ ở create mode) ── -->
+    <div class="wizard-steps mb-4" *ngIf="!isEditMode">
+        <div class="wizard-step" [class.active]="currentStep === 1" [class.done]="currentStep === 2"
+            (click)="goToStep(1)">
+            <div class="wizard-step__circle">
+                <i class="fa-solid fa-check" *ngIf="currentStep === 2"></i>
+                <span *ngIf="currentStep === 1">1</span>
+            </div>
+            <div class="wizard-step__label">
+                <div class="wizard-step__title">Import từ Perenual</div>
+                <div class="wizard-step__sub">Tìm kiếm & chọn cây từ AI</div>
+            </div>
+        </div>
 
-                    <!-- LEFT: Perenual Search + Form -->
-                    <div class="col-lg-8">
-                        <div class="bg-white rounded-4 shadow-sm p-4 h-100">
-                            <!-- Perenual Search Box -->
-                            <div class="perenual-search-section mb-4 p-4 rounded-4 bg-light bg-opacity-50 border border-success border-opacity-10"
-                                *ngIf="!isEditMode">
-                                <label class="form-label fw-bold text-dark mb-2 d-flex align-items-center gap-2">
-                                    <i class="fa-solid fa-magnifying-glass text-success"></i>
-                                    Tìm kiếm nhanh từ Perenual (Import hàng loạt)
-                                </label>
-                                <p class="text-muted small mb-3">
-                                    Gõ tên cây và nhấn Enter, hệ thống sẽ tự động tìm và hiển thị danh sách ở bên dưới.
-                                    Bạn có thể chọn/bỏ chọn các cây muốn nhập.
-                                </p>
-                                <div class="position-relative search-container">
-                                    <i
-                                        class="fa-solid fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
-                                    <input type="text"
-                                        class="form-control form-control-lg rounded-pill ps-5 pe-4 shadow-sm border-0"
-                                        placeholder="VD: Bamboo, Pine, Oak..." [formControl]="searchControl"
-                                        (input)="onSearchInput($event)" (blur)="closeDropdown()"
-                                        id="perenual-search-input" autocomplete="off" />
-                                    <!-- Spinner -->
-                                    <div class="position-absolute top-50 end-0 translate-middle-y pe-3"
-                                        *ngIf="searching$ | async">
-                                        <div class="spinner-border spinner-border-sm text-success" role="status">
-                                            <span class="visually-hidden">Đang tìm...</span>
-                                        </div>
-                                    </div>
+        <div class="wizard-step__connector"></div>
 
-                                    <!-- Dropdown kết quả -->
-                                    <div class="perenual-dropdown shadow-lg rounded-4 overflow-hidden border-0"
-                                        *ngIf="showDropdown && (searchResults$ | async) as results">
-                                        <div *ngIf="searchError && !(searching$ | async)"
-                                            class="dropdown-empty text-danger p-3 bg-danger bg-opacity-10">
-                                            <i class="fa-solid fa-triangle-exclamation me-2"></i>
-                                            {{ searchError }}
-                                        </div>
-                                        <div *ngIf="results.length === 0 && !(searching$ | async) && !searchError"
-                                            class="dropdown-empty p-3">
-                                            <i class="fa-solid fa-circle-exclamation me-2 text-warning"></i>
-                                            Không tìm thấy cây nào phù hợp
-                                        </div>
-                                        <div class="dropdown-list">
-                                            <div *ngFor="let result of results"
-                                                class="perenual-result-item d-flex align-items-center gap-3 p-3 border-bottom"
-                                                (mousedown)="onSelectPerenualResult(result)"
-                                                [attr.title]="result.scientificName">
-                                                <div class="perenual-thumb-wrapper shadow-sm rounded-3">
-                                                    <img *ngIf="result.imageUrl; else noThumb" [src]="resolveImageUrl(result.imageUrl)"
-                                                        (error)="onImageError($event)"
-                                                        [alt]="result.scientificName"
-                                                        title="{{ result.scientificName }}" class="perenual-thumb" />
-                                                    <ng-template #noThumb>
-                                                        <div class="perenual-thumb-placeholder bg-light text-success">
-                                                            <i class="fa-solid fa-leaf"></i>
-                                                        </div>
-                                                    </ng-template>
-                                                </div>
-                                                <div class="flex-grow-1 overflow-hidden">
-                                                    <div class="fw-bold text-dark text-truncate fs-6">
-                                                        {{ result.commonName || result.scientificName }}
-                                                    </div>
-                                                    <div class="text-muted small fst-italic text-truncate">
-                                                        {{ result.scientificName }}
-                                                    </div>
-                                                </div>
-                                                <button
-                                                    class="btn btn-sm btn-light rounded-circle text-success add-btn"
-                                                    title="Thêm vào danh sách nhập" aria-label="Thêm vào danh sách nhập">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="bulk-section mt-4" *ngIf="(bulkItems$ | async) as bulkItems">
-                                    <div class="d-flex justify-content-between align-items-center mb-3"
-                                        *ngIf="bulkItems.length > 0">
-                                        <div class="fw-bold text-dark d-flex align-items-center gap-2">
-                                            <div class="badge bg-primary rounded-pill px-3">{{ bulkItems.length }} cây
-                                            </div>
-                                            Đã chọn để nhập
-                                        </div>
-                                        <button type="button"
-                                            class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-medium"
-                                            (click)="clearBulkItems()">
-                                            <i class="fa-solid fa-trash-can me-1"></i> Xoá tất cả
-                                        </button>
-                                    </div>
-
-                                    <div class="bulk-list shadow-sm rounded-4 bg-white" *ngIf="bulkItems.length > 0">
-                                        <div class="bulk-item p-3 border-bottom" *ngFor="let item of bulkItems">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <div class="form-check custom-checkbox m-0">
-                                                    <input type="checkbox" class="form-check-input"
-                                                        title="Chọn cây {{ item.name }}"
-                                                        aria-label="Chọn cây {{ item.name }}"
-                                                        [checked]="item.selected"
-                                                        (change)="toggleBulkSelection(item.id, $any($event.target).checked)" />
-                                                </div>
-                                                <div
-                                                    class="bulk-thumb-wrapper position-relative rounded-3 shadow-sm overflow-hidden">
-                                                    <img *ngIf="item.imageUrl" [src]="resolveImageUrl(item.imageUrl)"
-                                                        (error)="onImageError($event)"
-                                                        [alt]="item.scientificName" class="bulk-thumb" />
-                                                    <div *ngIf="!item.imageUrl"
-                                                        class="bulk-thumb-placeholder bg-light text-success">
-                                                        <i class="fa-solid fa-leaf"></i>
-                                                    </div>
-                                                </div>
-                                                <div class="text-truncate flex-grow-1">
-                                                    <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
-                                                        <span class="text-truncate">{{ item.name }}</span>
-                                                        <span
-                                                            class="badge u-fs-70 bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">{{ item.categoryName }}</span>
-                                                    </div>
-                                                    <div class="d-flex gap-3 text-muted small">
-                                                        <span class="fst-italic"><i class="fa-solid fa-tag me-1"></i>{{
-                                                            item.scientificName }}</span>
-                                                        <span class="fw-semibold text-dark"><i
-                                                                class="fa-solid fa-coins text-warning me-1"></i>{{
-                                                            item.price | number:'1.0-0' }} đ</span>
-                                                    </div>
-                                                    <div class="small text-danger mt-1 fw-medium" *ngIf="item.error"><i
-                                                            class="fa-solid fa-circle-xmark me-1"></i>{{ item.error }}
-                                                    </div>
-                                                </div>
-                                                <div *ngIf="item.loading"
-                                                    class="spinner-border spinner-border-sm text-success ms-auto"
-                                                    role="status"></div>
-                                                <button type="button"
-                                                    class="btn btn-icon btn-light text-danger rounded-circle ms-auto"
-                                                    title="Bỏ chọn" (click)="removeBulkItem(item.id)">
-                                                    <i class="fa-solid fa-xmark"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Divider -->
-                            <div class="divider-with-text mb-4">
-                                <span class="bg-white px-3 fw-bold text-success"><i
-                                        class="fa-solid fa-pen-nib me-2"></i>Thông tin Chi tiết</span>
-                            </div>
-
-                            <!-- Formly Form -->
-                            <form [formGroup]="form" (ngSubmit)="onSubmit()" class="premium-form">
-                                <formly-form [form]="form" [fields]="fields" [model]="model"
-                                    (modelChange)="onModelChange($event)"></formly-form>
-
-                                <!-- Error Alert -->
-                                <div class="alert alert-danger rounded-3 mt-4 d-flex align-items-center gap-2 shadow-sm border-0"
-                                    *ngIf="submitError" role="alert">
-                                    <div class="bg-white rounded-circle u-size-24 d-flex align-items-center justify-content-center text-danger">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </div>
-                                    <span class="fw-medium">{{ submitError }}</span>
-                                </div>
-
-                                <!-- Actions -->
-                                <div class="d-flex flex-wrap gap-3 mt-5 pt-3 border-top">
-                                    <button type="submit"
-                                        class="btn btn-success btn-action primary-action rounded-pill px-5 py-2 fw-bold shadow position-relative overflow-hidden"
-                                        [disabled]="submitting$ | async" id="btn-submit-plant">
-                                        <div class="d-flex align-items-center gap-2">
-                                            <ng-container *ngIf="submitting$ | async; else submitLabel">
-                                                <span class="spinner-border spinner-border-sm" role="status"></span>
-                                                <span>{{ isEditMode ? 'Đang cập nhật...' : 'Đang xử lý...' }}</span>
-                                            </ng-container>
-                                            <ng-template #submitLabel>
-                                                <i class="fa-solid fa-floppy-disk"></i>
-                                                <span>{{ isEditMode ? 'Lưu thay đổi' : 'Tạo sản phẩm' }}</span>
-                                            </ng-template>
-                                        </div>
-                                    </button>
-
-                                    <button type="button"
-                                        class="btn btn-outline-success rounded-pill px-4 py-2 fw-bold bg-success bg-opacity-10 border-0"
-                                        [disabled]="(submitting$ | async) || (searching$ | async)"
-                                        (click)="onBulkImport()" *ngIf="!isEditMode">
-                                        <i class="fa-solid fa-layer-group me-1"></i>Nhập hàng loạt
-                                    </button>
-
-                                    <a routerLink="/admin/plants"
-                                        class="btn btn-light text-dark rounded-pill px-4 py-2 fw-medium border shadow-sm ms-auto">
-                                        Huỷ bỏ
-                                    </a>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <!-- RIGHT: Image Preview -->
-                    <div class="col-lg-4">
-                        <div class="bg-white rounded-4 shadow-sm p-4 h-100 admin-sticky-panel">
-                            <div
-                                class="preview-label fw-bold text-dark mb-4 d-flex align-items-center gap-2 border-bottom pb-3">
-                                <div class="icon-square u-size-32 bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center">
-                                    <i class="fa-solid fa-image"></i>
-                                </div>
-                                Xem trước Hình ảnh
-                            </div>
-
-                            <div class="preview-box position-relative rounded-4 overflow-hidden mb-4"
-                                [class.has-image]="previewImage">
-                                <ng-container *ngIf="previewImage; else noPreview">
-                                    <img [src]="resolveImageUrl(previewImage)" alt="Ảnh xem trước"
-                                        class="preview-img w-100 h-100 object-fit-cover"
-                                        (error)="previewImage = null" />
-                                    <div
-                                        class="preview-overlay position-absolute bottom-0 start-0 w-100 p-3 bg-dark bg-opacity-50 text-white backdrop-blur">
-                                        <div class="small fw-medium"><i
-                                                class="fa-solid fa-check-circle text-success me-1"></i>Ảnh hợp lệ</div>
-                                    </div>
-                                </ng-container>
-                                <ng-template #noPreview>
-                                    <div
-                                        class="no-preview-content d-flex flex-column align-items-center justify-content-center h-100 p-4 text-center bg-light border border-dashed rounded-4">
-                                        <div class="bg-white rounded-circle u-size-60 shadow-sm d-flex align-items-center justify-content-center mb-3">
-                                            <i class="fa-regular fa-image fa-2x text-muted opacity-50"></i>
-                                        </div>
-                                        <p class="fw-semibold text-dark mb-1">Chưa có ảnh</p>
-                                        <p class="text-muted small mb-0">Nhập URL hình ảnh vào form hoặc chọn cây từ
-                                            danh sách Perenual để tự động tải ảnh</p>
-                                    </div>
-                                </ng-template>
-                            </div>
-
-                            <!-- Tips -->
-                            <div class="tips-box rounded-4 border-0 bg-warning bg-opacity-10 p-4">
-                                <div class="tips-title d-flex align-items-center gap-2 mb-3 fw-bold text-dark">
-                                    <i class="fa-regular fa-lightbulb text-warning fs-5"></i> Mẹo nhanh
-                                </div>
-                                <ul class="tips-list m-0 ps-3 text-muted small fw-medium d-flex flex-column gap-2"
-                                    *ngIf="!isEditMode">
-                                    <li>Tìm kiếm cây sẽ tự động tạo danh sách import.</li>
-                                    <li>Hệ thống <strong>tự động gán giá</strong> ngẫu nhiên và chọn danh mục phù hợp.
-                                    </li>
-                                    <li>Kiểm tra lại danh sách lưới và bấm Nhập hàng loạt.</li>
-                                </ul>
-                                <ul class="tips-list m-0 ps-3 text-muted small fw-medium d-flex flex-column gap-2"
-                                    *ngIf="isEditMode">
-                                    <li>Chỉnh sửa thông tin cẩn thận.</li>
-                                    <li>Giá tiền nên là số nguyên dương hợp lệ.</li>
-                                    <li>URL ảnh phải là định dạng hình ảnh chuẩn (jpg, png, webp).</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+        <div class="wizard-step" [class.active]="currentStep === 2">
+            <div class="wizard-step__circle">
+                <span>2</span>
+            </div>
+            <div class="wizard-step__label">
+                <div class="wizard-step__title">Thông tin chi tiết</div>
+                <div class="wizard-step__sub">Nhập & xác nhận thông tin</div>
             </div>
         </div>
     </div>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- BƯỚC 1 — Import từ Perenual                             -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <div *ngIf="currentStep === 1 && !isEditMode" class="step-panel animation-fade-up">
+        <div class="bg-white rounded-4 shadow-sm p-4">
+
+            <!-- Search header -->
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                    style="width: 36px; height: 36px;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold text-dark mb-0">Tìm kiếm từ Perenual</h5>
+                    <p class="text-muted small mb-0">Gõ tên cây, hệ thống tự động tìm và tạo danh sách nhập hàng loạt.
+                    </p>
+                </div>
+            </div>
+
+            <hr class="my-3 border-secondary-subtle">
+
+            <!-- Search input -->
+            <div class="position-relative search-container mb-4">
+                <i class="fa-solid fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                <input type="text"
+                    class="form-control form-control-lg rounded-pill ps-5 pe-4 shadow-sm border-0 bg-light"
+                    placeholder="VD: Bamboo, Pine, Oak..." [formControl]="searchControl" (input)="onSearchInput($event)"
+                    (blur)="closeDropdown()" id="perenual-search-input" autocomplete="off" />
+                <div class="position-absolute top-50 end-0 translate-middle-y pe-3" *ngIf="searching$ | async">
+                    <div class="spinner-border spinner-border-sm text-success" role="status">
+                        <span class="visually-hidden">Đang tìm...</span>
+                    </div>
+                </div>
+
+                <!-- Dropdown kết quả -->
+                <div class="perenual-dropdown shadow-lg rounded-4 overflow-hidden border-0"
+                    *ngIf="showDropdown && (searchResults$ | async) as results">
+                    <div *ngIf="searchError && !(searching$ | async)"
+                        class="dropdown-empty text-danger p-3 bg-danger bg-opacity-10">
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ searchError }}
+                    </div>
+                    <div *ngIf="results.length === 0 && !(searching$ | async) && !searchError"
+                        class="dropdown-empty p-3">
+                        <i class="fa-solid fa-circle-exclamation me-2 text-warning"></i>Không tìm thấy cây nào phù hợp
+                    </div>
+                    <div class="dropdown-list">
+                        <div *ngFor="let result of results"
+                            class="perenual-result-item d-flex align-items-center gap-3 p-3 border-bottom"
+                            (mousedown)="onSelectPerenualResult(result)" [attr.title]="result.scientificName">
+                            <div class="perenual-thumb-wrapper shadow-sm rounded-3">
+                                <img *ngIf="result.imageUrl; else noThumb" [src]="resolveImageUrl(result.imageUrl)"
+                                    (error)="onImageError($event)" [alt]="result.scientificName"
+                                    title="{{ result.scientificName }}" class="perenual-thumb" />
+                                <ng-template #noThumb>
+                                    <div class="perenual-thumb-placeholder bg-light text-success">
+                                        <i class="fa-solid fa-leaf"></i>
+                                    </div>
+                                </ng-template>
+                            </div>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <div class="fw-bold text-dark text-truncate fs-6">{{ result.commonName ||
+                                    result.scientificName }}</div>
+                                <div class="text-muted small fst-italic text-truncate">{{ result.scientificName }}</div>
+                            </div>
+                            <button class="btn btn-sm btn-light rounded-circle text-success add-btn"
+                                title="Thêm vào danh sách nhập" aria-label="Thêm vào danh sách nhập">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bulk list -->
+            <div *ngIf="(bulkItems$ | async) as bulkItems">
+                <div *ngIf="bulkItems.length > 0">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-bold text-dark d-flex align-items-center gap-2">
+                            <span class="badge bg-success rounded-pill px-3">{{ bulkItems.length }} cây</span>
+                            Đã tìm thấy để nhập
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-medium"
+                            (click)="clearBulkItems()">
+                            <i class="fa-solid fa-trash-can me-1"></i> Xoá tất cả
+                        </button>
+                    </div>
+
+                    <div class="bulk-list shadow-sm rounded-4 bg-white">
+                        <div class="bulk-item p-3 border-bottom" *ngFor="let item of bulkItems">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="form-check custom-checkbox m-0">
+                                    <input type="checkbox" class="form-check-input" title="Chọn cây {{ item.name }}"
+                                        aria-label="Chọn cây {{ item.name }}" [checked]="item.selected"
+                                        (change)="toggleBulkSelection(item.id, $any($event.target).checked)" />
+                                </div>
+                                <div class="bulk-thumb-wrapper position-relative rounded-3 shadow-sm overflow-hidden">
+                                    <img *ngIf="item.imageUrl" [src]="resolveImageUrl(item.imageUrl)"
+                                        (error)="onImageError($event)" [alt]="item.scientificName" class="bulk-thumb" />
+                                    <div *ngIf="!item.imageUrl" class="bulk-thumb-placeholder bg-light text-success">
+                                        <i class="fa-solid fa-leaf"></i>
+                                    </div>
+                                </div>
+                                <div class="text-truncate flex-grow-1">
+                                    <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                                        <span class="text-truncate">{{ item.name }}</span>
+                                        <span
+                                            class="badge u-fs-70 bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">{{
+                                            item.categoryName }}</span>
+                                    </div>
+                                    <div class="d-flex gap-3 text-muted small">
+                                        <span class="fst-italic"><i class="fa-solid fa-tag me-1"></i>{{
+                                            item.scientificName }}</span>
+                                        <span class="fw-semibold text-dark"><i
+                                                class="fa-solid fa-coins text-warning me-1"></i>{{ item.price |
+                                            number:'1.0-0' }} đ</span>
+                                    </div>
+                                    <div class="small text-danger mt-1 fw-medium" *ngIf="item.error">
+                                        <i class="fa-solid fa-circle-xmark me-1"></i>{{ item.error }}
+                                    </div>
+                                </div>
+                                <div *ngIf="item.loading" class="spinner-border spinner-border-sm text-success ms-auto"
+                                    role="status"></div>
+                                <button type="button" class="btn btn-icon btn-light text-danger rounded-circle ms-auto"
+                                    title="Bỏ chọn" (click)="removeBulkItem(item.id)">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty search hint -->
+                <div *ngIf="bulkItems.length === 0 && !hasSearched"
+                    class="text-center py-5 text-muted border border-dashed rounded-4 bg-light">
+                    <i class="fa-solid fa-seedling fa-2x mb-3 text-success opacity-50"></i>
+                    <p class="fw-medium mb-1">Gõ tên cây vào ô tìm kiếm để bắt đầu</p>
+                    <p class="small">Hệ thống sẽ tự động tạo danh sách nhập hàng loạt</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer actions Step 1 -->
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <a routerLink="/admin/plants"
+                class="btn btn-light text-dark rounded-pill px-4 py-2 fw-medium border shadow-sm">
+                <i class="fa-solid fa-xmark me-2"></i>Huỷ bỏ
+            </a>
+            <div class="d-flex gap-3">
+                <button type="button" class="btn btn-outline-success rounded-pill px-4 py-2 fw-bold"
+                    [disabled]="(submitting$ | async) || getBulkSelectedCount() === 0" (click)="onBulkImport()">
+                    <span *ngIf="!(submitting$ | async)">
+                        <i class="fa-solid fa-layer-group me-2"></i>
+                        Nhập hàng loạt
+                        <span class="badge bg-success ms-1" *ngIf="getBulkSelectedCount() > 0">{{ getBulkSelectedCount()
+                            }}</span>
+                    </span>
+                    <span *ngIf="submitting$ | async" class="spinner-border spinner-border-sm" role="status"></span>
+                </button>
+                <button type="button" class="btn btn-success rounded-pill px-5 py-2 fw-bold shadow-sm"
+                    (click)="goToStep(2)">
+                    Điền thủ công <i class="fa-solid fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════ -->
+    <!-- BƯỚC 2 — Form Chi tiết + Preview                        -->
+    <!-- ════════════════════════════════════════════════════════ -->
+    <div *ngIf="currentStep === 2 || isEditMode" class="step-panel animation-fade-up">
+        <div class="row g-4">
+
+            <!-- LEFT: Form -->
+            <div class="col-lg-8">
+                <div class="bg-white rounded-4 shadow-sm p-4 h-100">
+
+                    <!-- Section header -->
+                    <div class="d-flex align-items-center gap-2 mb-4 pb-3 border-bottom">
+                        <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                            style="width: 36px; height: 36px;">
+                            <i class="fa-solid fa-pen-nib"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold text-dark mb-0">Thông tin chi tiết</h5>
+                            <p class="text-muted small mb-0">{{ isEditMode ? 'Cập nhật lại thông tin sản phẩm' : 'Điền
+                                thông tin cho cây trồng mới' }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Formly form -->
+                    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="premium-form">
+                        <formly-form [form]="form" [fields]="fields" [model]="model"
+                            (modelChange)="onModelChange($event)"></formly-form>
+
+                        <!-- Error -->
+                        <div class="alert alert-danger rounded-3 mt-4 d-flex align-items-center gap-2 shadow-sm border-0"
+                            *ngIf="submitError" role="alert">
+                            <div
+                                class="bg-white rounded-circle u-size-24 d-flex align-items-center justify-content-center text-danger">
+                                <i class="fa-solid fa-xmark"></i>
+                            </div>
+                            <span class="fw-medium">{{ submitError }}</span>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex flex-wrap gap-3 mt-5 pt-3 border-top align-items-center">
+                            <!-- Back to step 1 (create mode only) -->
+                            <button type="button"
+                                class="btn btn-light text-dark rounded-pill px-4 py-2 fw-medium border shadow-sm"
+                                *ngIf="!isEditMode" (click)="goToStep(1)">
+                                <i class="fa-solid fa-arrow-left me-2"></i>Quay lại
+                            </button>
+                            <a routerLink="/admin/plants"
+                                class="btn btn-light text-dark rounded-pill px-4 py-2 fw-medium border shadow-sm"
+                                *ngIf="isEditMode">
+                                <i class="fa-solid fa-xmark me-2"></i>Huỷ bỏ
+                            </a>
+
+                            <button type="submit"
+                                class="btn btn-success btn-action primary-action rounded-pill px-5 py-2 fw-bold shadow ms-auto"
+                                [disabled]="submitting$ | async" id="btn-submit-plant">
+                                <div class="d-flex align-items-center gap-2">
+                                    <ng-container *ngIf="submitting$ | async; else submitLabel">
+                                        <span class="spinner-border spinner-border-sm" role="status"></span>
+                                        <span>{{ isEditMode ? 'Đang cập nhật...' : 'Đang xử lý...' }}</span>
+                                    </ng-container>
+                                    <ng-template #submitLabel>
+                                        <i class="fa-solid fa-floppy-disk"></i>
+                                        <span>{{ isEditMode ? 'Lưu thay đổi' : 'Tạo sản phẩm' }}</span>
+                                    </ng-template>
+                                </div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- RIGHT: Preview + Tips (sticky) -->
+            <div class="col-lg-4">
+                <div class="bg-white rounded-4 shadow-sm p-4 admin-sticky-panel">
+
+                    <!-- Preview header -->
+                    <div
+                        class="preview-label fw-bold text-dark mb-3 d-flex align-items-center gap-2 pb-3 border-bottom">
+                        <div
+                            class="icon-square u-size-32 bg-success bg-opacity-10 text-success rounded-3 d-flex align-items-center justify-content-center">
+                            <i class="fa-solid fa-image"></i>
+                        </div>
+                        Xem trước Hình ảnh
+                    </div>
+
+                    <!-- Preview box -->
+                    <div class="preview-box position-relative rounded-4 overflow-hidden mb-4"
+                        [class.has-image]="previewImage">
+                        <ng-container *ngIf="previewImage; else noPreview">
+                            <img [src]="resolveImageUrl(previewImage)" alt="Ảnh xem trước"
+                                class="preview-img w-100 h-100 object-fit-cover" (error)="previewImage = null" />
+                            <div
+                                class="preview-overlay position-absolute bottom-0 start-0 w-100 p-3 bg-dark bg-opacity-50 text-white backdrop-blur">
+                                <div class="small fw-medium"><i
+                                        class="fa-solid fa-check-circle text-success me-1"></i>Ảnh hợp lệ</div>
+                            </div>
+                        </ng-container>
+                        <ng-template #noPreview>
+                            <div
+                                class="no-preview-content d-flex flex-column align-items-center justify-content-center h-100 p-4 text-center bg-light border border-dashed rounded-4">
+                                <div
+                                    class="bg-white rounded-circle u-size-60 shadow-sm d-flex align-items-center justify-content-center mb-3">
+                                    <i class="fa-regular fa-image fa-2x text-muted opacity-50"></i>
+                                </div>
+                                <p class="fw-semibold text-dark mb-1">Chưa có ảnh</p>
+                                <p class="text-muted small mb-0">Nhập URL hình ảnh vào form để xem trước</p>
+                            </div>
+                        </ng-template>
+                    </div>
+
+                    <!-- Tips -->
+                    <div class="tips-box rounded-4 border-0 bg-warning bg-opacity-10 p-3">
+                        <div class="tips-title d-flex align-items-center gap-2 mb-2 fw-bold text-dark">
+                            <i class="fa-regular fa-lightbulb text-warning fs-5"></i> Mẹo nhanh
+                        </div>
+                        <ul class="tips-list m-0 ps-3 text-muted small fw-medium d-flex flex-column gap-2"
+                            *ngIf="!isEditMode">
+                            <li>Quay lại Bước 1 để import hàng loạt từ AI.</li>
+                            <li>Hệ thống <strong>tự động gán giá</strong> khi import từ Perenual.</li>
+                            <li>URL ảnh phải là định dạng chuẩn (jpg, png, webp).</li>
+                        </ul>
+                        <ul class="tips-list m-0 ps-3 text-muted small fw-medium d-flex flex-column gap-2"
+                            *ngIf="isEditMode">
+                            <li>Chỉnh sửa thông tin cẩn thận.</li>
+                            <li>Giá tiền nên là số nguyên dương hợp lệ.</li>
+                            <li>URL ảnh phải là định dạng hình ảnh chuẩn (jpg, png, webp).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 </div>

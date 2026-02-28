@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { AsyncPipe, DatePipe, NgFor, NgIf } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { AsyncPipe, DatePipe, NgFor, NgIf, UpperCasePipe } from '@angular/common';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
 import { catchError, finalize, switchMap, tap } from 'rxjs/operators';
 import { OrderService } from '../../../../core/services/order.service';
@@ -11,7 +11,7 @@ import { resolvePlantImageUrl } from '../../../../core/utils/image-url.util';
 @Component({
   selector: 'app-admin-order-detail',
   standalone: true,
-  imports: [NgIf, NgFor, AsyncPipe, DatePipe, FormsModule],
+  imports: [NgIf, NgFor, AsyncPipe, DatePipe, FormsModule, UpperCasePipe, RouterLink],
   templateUrl: './order-detail.component.html',
   styleUrls: ['./order-detail.component.scss']
 })
@@ -46,6 +46,22 @@ export class OrderDetailComponent implements OnInit {
     'Cancelled': 'Đã hủy'
   };
 
+  readonly statusIcons: { [key: string]: string } = {
+    'Pending': 'fa-solid fa-clock',
+    'Paid': 'fa-solid fa-circle-check',
+    'Shipped': 'fa-solid fa-truck',
+    'Delivered': 'fa-solid fa-box-open',
+    'Cancelled': 'fa-solid fa-ban'
+  };
+
+  readonly statusBtnClasses: { [key: string]: string } = {
+    'Pending': 'status-btn--warning',
+    'Paid': 'status-btn--info',
+    'Shipped': 'status-btn--primary',
+    'Delivered': 'status-btn--success',
+    'Cancelled': 'status-btn--danger'
+  };
+
   constructor(
     private orderService: OrderService,
     private route: ActivatedRoute,
@@ -54,7 +70,7 @@ export class OrderDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.orderId = parseInt(this.route.snapshot.paramMap.get('id') || '0', 10);
-    
+
     if (!this.orderId) {
       this.error$.next('ID đơn hàng không hợp lệ');
       return;
@@ -144,8 +160,20 @@ export class OrderDetailComponent implements OnInit {
   }
 
   getStatusBadgeClass(status: string): string {
-    const color = this.statusColors[status] || 'secondary';
-    return `badge bg-${color}`;
+    switch (status) {
+      case 'Pending':
+        return 'badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25';
+      case 'Paid':
+        return 'badge bg-info bg-opacity-10 text-info border border-info border-opacity-25';
+      case 'Shipped':
+        return 'badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25';
+      case 'Delivered':
+        return 'badge bg-success bg-opacity-10 text-success border border-success border-opacity-25';
+      case 'Cancelled':
+        return 'badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25';
+      default:
+        return 'badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25';
+    }
   }
 
   getStatusDisplayName(status: string): string {
@@ -159,9 +187,31 @@ export class OrderDetailComponent implements OnInit {
     }).format(amount);
   }
 
+  getPaymentMethodDisplay(method: string): string {
+    switch ((method || '').toLowerCase()) {
+      case 'cash':
+        return 'Tiền mặt';
+      case 'vnpay':
+        return 'VNPay';
+      default:
+        return method;
+    }
+  }
+
+  getPaymentBadgeClass(method: string): string {
+    switch ((method || '').toLowerCase()) {
+      case 'cash':
+        return 'bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25';
+      case 'vnpay':
+        return 'bg-success bg-opacity-10 text-success border border-success border-opacity-25';
+      default:
+        return 'bg-light text-dark border';
+    }
+  }
+
   getAvailableStatuses(currentStatus: string): OrderStatusOption[] {
     const allStatuses = this.statuses$.getValue();
-    
+
     // Define allowed transitions
     const allowedTransitions: { [key: string]: string[] } = {
       'Pending': ['Paid', 'Cancelled'],
@@ -172,15 +222,40 @@ export class OrderDetailComponent implements OnInit {
     };
 
     const allowed = allowedTransitions[currentStatus] || [];
-    
+
     // Return current status + allowed next statuses
-    return allStatuses.filter(s => 
+    return allStatuses.filter(s =>
       s.name === currentStatus || allowed.includes(s.name)
     );
   }
 
   isFinalStatus(status: string): boolean {
     return status === 'Delivered' || status === 'Cancelled';
+  }
+
+  getStatusBtnClass(statusName: string): string {
+    return this.statusBtnClasses[statusName] || '';
+  }
+
+  getStatusIcon(statusName: string): string {
+    return this.statusIcons[statusName] || 'fa-solid fa-circle';
+  }
+
+  /** Tên hiển thị của trạng thái đang được chọn trong button group */
+  getSelectedStatusName(): string {
+    const statuses = this.statuses$.getValue();
+    const found = statuses.find(s => s.value === this.selectedStatus);
+    return found ? (this.statusDisplayNames[found.name] || found.name) : '';
+  }
+
+  /** Badge class để preview trạng thái sắp chuyển tới */
+  getSelectedStatusBadgeClass(): string {
+    const statuses = this.statuses$.getValue();
+    const found = statuses.find(s => s.value === this.selectedStatus);
+    if (!found) return '';
+    return this.getStatusBadgeClass(found.name)
+      .replace('badge ', '') // bỏ 'badge' vì preview-badge tự có style riêng
+      .trim();
   }
 
   resolveImageUrl(imageUrl?: string | null): string {
