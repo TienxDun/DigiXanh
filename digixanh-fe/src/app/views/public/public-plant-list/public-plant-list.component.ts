@@ -27,6 +27,7 @@ interface PublicPlantListVm {
 export class PublicPlantListComponent implements OnInit {
   readonly fallbackImageUrl = 'assets/images/plant-placeholder.svg';
   private readonly destroyRef = inject(DestroyRef);
+  private latestRequestId = 0;
 
   private readonly pageSize = 24;
 
@@ -70,9 +71,14 @@ export class PublicPlantListComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: any) => {
       const category = params['category'];
-      if (category) {
+      const parsedCategory = Number(category);
+
+      if (category && !Number.isNaN(parsedCategory) && parsedCategory > 0) {
         this.selectedCategory = category;
-        this.currentCategoryId = Number(category);
+        this.currentCategoryId = parsedCategory;
+      } else {
+        this.selectedCategory = '';
+        this.currentCategoryId = null;
       }
 
       this.resetAndLoadPlants();
@@ -140,6 +146,8 @@ export class PublicPlantListComponent implements OnInit {
   }
 
   private loadPlants(append: boolean): void {
+    const requestId = ++this.latestRequestId;
+
     if (append) {
       this.isLoadingMore = true;
     } else {
@@ -162,6 +170,10 @@ export class PublicPlantListComponent implements OnInit {
       } as PagedResult<PlantDto>)),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((result: PagedResult<PlantDto>) => {
+      if (requestId !== this.latestRequestId) {
+        return;
+      }
+
       const nextItems = result.items ?? [];
       const mergedItems = append ? [...this.vm.items, ...nextItems] : nextItems;
 

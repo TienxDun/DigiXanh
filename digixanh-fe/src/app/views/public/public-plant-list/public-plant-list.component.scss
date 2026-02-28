@@ -116,6 +116,70 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
+// 🌟 Modern Filter Toolbar
+.filter-toolbar {
+  background: #fff;
+  padding: 1.25rem 1.5rem;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+}
+
+.category-scroll-container {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  margin: 0 -0.5rem;
+  padding: 0.2rem 0.5rem;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.category-chips {
+  display: flex;
+  gap: 0.6rem;
+  white-space: nowrap;
+}
+
+.category-chip {
+  padding: 0.5rem 1.1rem;
+  border-radius: 100px;
+  border: 1px solid #f1f3f5;
+  background: #f8f9fa;
+  color: #495057;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  &:hover:not(.active) {
+    background: #e9ecef;
+    border-color: #dee2e6;
+    color: var(--cui-success);
+    transform: translateY(-1px);
+  }
+
+  &.active {
+    background: var(--cui-success);
+    border-color: var(--cui-success);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(var(--cui-success-rgb), 0.25);
+  }
+}
+
+.sort-dropdown {
+  width: auto !important;
+  padding-right: 1.8rem !important;
+  font-size: 0.85rem !important;
+  min-width: 140px;
+
+  &:focus {
+    color: var(--cui-success) !important;
+  }
+}
+
 .plant-card {
   border-radius: 16px;
   background: var(--cui-body-bg);

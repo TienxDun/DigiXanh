@@ -75,11 +75,10 @@ export class LoginComponent {
           this.toastColor = 'success';
           this.showToast = true;
 
-          const rawReturnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/';
-          const returnUrl = rawReturnUrl.startsWith('/') ? rawReturnUrl : '/';
-          setTimeout(() => {
-            this.router.navigateByUrl(returnUrl);
-          }, 1000);
+          const returnUrl = this.resolveReturnUrl();
+          this.router.navigateByUrl(returnUrl).catch(() => {
+            this.router.navigateByUrl('/');
+          });
         },
         error: (err) => {
           this.isLoading = false;
@@ -93,5 +92,18 @@ export class LoginComponent {
         },
       });
     }
+  }
+
+  private resolveReturnUrl(): string {
+    const rawReturnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/';
+    if (!rawReturnUrl.startsWith('/') || rawReturnUrl.startsWith('//')) {
+      return '/';
+    }
+
+    if (rawReturnUrl === '/auth' || rawReturnUrl.startsWith('/auth/login')) {
+      return '/';
+    }
+
+    return rawReturnUrl;
   }
 }

@@ -175,9 +175,9 @@
         [disabled]="isLoadingMore()">
         @if (isLoadingMore()) {
         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-        Đang tải...
+        <span>Đang tải...</span>
         } @else {
-        <i class="fa-solid fa-rotate me-2"></i>Xem thêm sản phẩm
+        <i class="fa-solid fa-rotate me-2"></i><span>Xem thêm sản phẩm</span>
         }
       </button>
     </div>
@@ -259,7 +259,7 @@
               <i class="fa-solid fa-leaf me-2"></i> Khám phá ngay
             </a>
             <a href="tel:1900123456"
-              class="btn btn-outline-light btn-lg rounded-pill px-5 py-3 border-2 fw-bold text-white hover-lift">
+              class="btn btn-outline-light btn-lg rounded-pill px-5 py-3 border-2 fw-bold hover-lift">
               <i class="fa-solid fa-phone me-2"></i> Gọi 1900 1234
             </a>
           </div>

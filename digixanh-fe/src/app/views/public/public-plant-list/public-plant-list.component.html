@@ -25,47 +25,45 @@
 </section>
 
 <section class="container pb-4">
-  <div
-    class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-3 bg-white p-3 rounded-4 shadow-sm border border-light animation-fade-up delay-3">
-    <!-- Tiêu đề & Tổng số -->
-    <div>
-      <h4 class="fw-bold mb-1 fs-5 text-dark">Danh sách cây</h4>
-      <p class="text-muted mb-0 small d-flex align-items-center gap-1">
-        <i class="fa-solid fa-leaf text-success"></i>
-        <span>{{ vm.totalCount }} sản phẩm</span>
-      </p>
+  <!-- 🌟 Modern Filter & Sort Bar -->
+  <div class="filter-toolbar mb-4 animation-fade-up delay-3">
+    <!-- Category Chips (Horizontal Scroll) -->
+    <div class="category-scroll-container">
+      <div class="category-chips">
+        <button class="category-chip" [class.active]="!selectedCategory" (click)="onCategoryChange('')">
+          <i class="fa-solid fa-border-all me-1"></i> Tất cả
+        </button>
+        @if (categories$ | async; as categories) {
+        @for (category of categories; track category.id) {
+        <button class="category-chip" [class.active]="selectedCategory == category.id.toString()"
+          (click)="onCategoryChange(category.id.toString())">
+          {{ category.name }}
+        </button>
+        }
+        }
+      </div>
     </div>
 
-    <!-- Bộ lọc & Sắp xếp -->
-    <div class="d-flex flex-column flex-sm-row gap-2 flex-grow-1 flex-md-grow-0">
-      <div class="filter-group flex-grow-1">
-        <label class="form-label fw-medium text-muted mb-1 small" for="categoryFilter">
-          <i class="fa-solid fa-layer-group me-1"></i>Danh mục
-        </label>
-        <select id="categoryFilter"
-          class="form-select form-select-sm border-secondary-subtle rounded-3 shadow-none custom-select"
-          style="min-width: 180px; cursor: pointer" [(ngModel)]="selectedCategory"
-          (ngModelChange)="onCategoryChange($event)">
-          <option value="">🌿 Tất cả danh mục</option>
-          @if (categories$ | async; as categories) {
-          @for (category of categories; track category.id) {
-          <option [value]="category.id">{{ category.name }}</option>
-          }
-          }
-        </select>
+    <div class="toolbar-bottom d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+      <!-- Total Count Info -->
+      <div class="results-info">
+        <span class="text-muted small">Tìm thấy <strong class="text-dark">{{ vm.totalCount }}</strong> sản phẩm</span>
       </div>
 
-      <div class="filter-group flex-grow-1">
-        <label class="form-label fw-medium text-muted mb-1 small" for="sortBy">
-          <i class="fa-solid fa-arrow-down-short-wide me-1"></i>Sắp xếp
-        </label>
-        <select id="sortBy"
-          class="form-select form-select-sm border-secondary-subtle rounded-3 shadow-none custom-select"
-          style="min-width: 180px; cursor: pointer" [(ngModel)]="selectedSort" (ngModelChange)="onSortChange($event)">
-          @for (option of sortOptions; track option.value) {
-          <option [value]="option.value">{{ option.label }}</option>
-          }
-        </select>
+      <!-- Compact Sort Dropdown -->
+      <div class="sort-control">
+        <div class="input-group input-group-sm">
+          <label class="input-group-text bg-transparent border-0 text-muted small pe-1" for="sortBy">
+            <i class="fa-solid fa-arrow-down-short-wide me-1"></i>Sắp xếp:
+          </label>
+          <select id="sortBy"
+            class="form-select form-select-sm border-0 bg-transparent fw-bold text-success shadow-none cursor-pointer sort-dropdown"
+            [(ngModel)]="selectedSort" (ngModelChange)="onSortChange($event)">
+            @for (option of sortOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
+        </div>
       </div>
     </div>
   </div>

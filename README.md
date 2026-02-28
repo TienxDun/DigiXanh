@@ -117,7 +117,14 @@
 |----------|------|
 | 🌐 Live Demo | *Đang deploy* |
 | 📚 API Docs | `https://localhost:5001/swagger` |
-| 💻 Source Code | `https://github.com/TienxDun/DigiXanh` |
+| 💻 Source Code | `https://github.com/yourusername/DigiXanh` |
 
 ---
 
+## 👤 About Me
+
+**[Your Name]** - Full-stack Developer  
+📧 your.email@example.com  
+💼 [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile)
+
+> *Sẵn sàng thảo luận về kiến trúc hệ thống, design patterns, hoặc bất kỳ phần nào của dự án!*
