@@ -1,10 +1,11 @@
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, OnDestroy, ViewChild } from '@angular/core';
 import { Chart, ChartOptions } from 'chart.js/auto';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NgIf } from '@angular/common';
 import { finalize } from 'rxjs/operators';
 import { AdminDashboardDto } from '../../core/models/dashboard.model';
 import { AdminDashboardService } from '../../core/services/admin-dashboard.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   templateUrl: 'dashboard.component.html',
@@ -74,7 +75,9 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     private dashboardService: AdminDashboardService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private authService: AuthService,
+    private router: Router
   ) {
     this.loadDashboard();
   }
@@ -107,8 +110,17 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
           this.renderChart();
           this.cdr.markForCheck();
         },
-        error: () => {
-          this.errorMessage = 'Không thể tải dữ liệu dashboard. Vui lòng thử lại.';
+        error: (err) => {
+          if (err.status === 401) {
+            this.errorMessage = 'Phiên đăng nhập đã hết hạn hoặc bạn không có quyền truy cập. Vui lòng đăng nhập lại.';
+            // Tự động logout và redirect sau 2 giây
+            setTimeout(() => {
+              this.authService.logout();
+              this.router.navigate(['/auth/login'], { queryParams: { returnUrl: '/admin/dashboard' } });
+            }, 2000);
+          } else {
+            this.errorMessage = 'Không thể tải dữ liệu dashboard. Vui lòng thử lại.';
+          }
           this.cdr.markForCheck();
         }
       });

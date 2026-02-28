@@ -2,6 +2,7 @@ import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { errorInterceptor } from './core/interceptors/error.interceptor';
 import {
   provideRouter,
   withEnabledBlockingInitialNavigation,
@@ -31,7 +32,7 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions()
       // Note: withHashLocation() removed - using standard HTML5 history API
     ),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, errorInterceptor])),
     importProvidersFrom(
       ReactiveFormsModule,
       FormlyModule.forRoot({
