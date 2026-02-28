@@ -6,10 +6,8 @@ import { errorInterceptor } from './core/interceptors/error.interceptor';
 import {
   provideRouter,
   withEnabledBlockingInitialNavigation,
-  withHashLocation,
   withInMemoryScrolling,
-  withRouterConfig,
-  withViewTransitions
+  withRouterConfig
 } from '@angular/router';
 import { IconSetService } from '@coreui/icons-angular';
 import { routes } from './app.routes';
@@ -28,8 +26,8 @@ export const appConfig: ApplicationConfig = {
         scrollPositionRestoration: 'top',
         anchorScrolling: 'enabled'
       }),
-      withEnabledBlockingInitialNavigation(),
-      withViewTransitions()
+      withEnabledBlockingInitialNavigation()
+      // Note: withViewTransitions() removed - causing InvalidStateError
       // Note: withHashLocation() removed - using standard HTML5 history API
     ),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor, errorInterceptor])),

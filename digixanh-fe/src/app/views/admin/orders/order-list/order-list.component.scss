@@ -1,50 +1,11 @@
-.cursor-pointer {
+.order-row {
   cursor: pointer;
 }
 
-.table-hover tbody tr:hover {
-  background-color: rgba(0, 0, 0, 0.02);
+.order-detail-btn {
+  transition: transform 0.2s ease;
 }
 
-.badge {
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 0.35em 0.65em;
-}
-
-.pagination-sm .page-link {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
-}
-
-// Compact table styling
-.table-sm > :not(caption) > * > * {
-  padding: 0.5rem 0.75rem;
-}
-
-// Status badge colors
-.bg-warning {
-  background-color: #ffc107 !important;
-  color: #000;
-}
-
-.bg-info {
-  background-color: #0dcaf0 !important;
-  color: #000;
-}
-
-.bg-primary {
-  background-color: #0d6efd !important;
-}
-
-.bg-success {
-  background-color: #198754 !important;
-}
-
-.bg-danger {
-  background-color: #dc3545 !important;
-}
-
-.bg-secondary {
-  background-color: #6c757d !important;
+.order-detail-btn:hover {
+  transform: scale(1.1);
 }

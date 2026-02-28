@@ -1,0 +1,134 @@
+<div class="admin-page animation-fade-up pb-4">
+    <!-- Header Card -->
+    <div class="card admin-card admin-header mb-4 overflow-hidden">
+        <div
+            class="card-body p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 bg-white">
+            <div>
+                <h4 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
+                    <div class="icon-square admin-icon admin-icon--lg bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                    Quản lý Danh mục
+                </h4>
+                <p class="text-muted mb-0 ms-1 ps-5">Cập nhật, thêm mới và quản lý danh mục sản phẩm</p>
+            </div>
+            <div class="d-flex flex-column flex-sm-row gap-2">
+                <button
+                    class="btn btn-primary btn-custom-action rounded-pill px-4 fw-semibold text-white shadow-sm d-flex align-items-center gap-2"
+                    (click)="openCreateModal()">
+                    <i class="fa-solid fa-plus"></i> Thêm danh mục
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Message -->
+    <div class="alert alert-success d-flex align-items-center gap-2 shadow-sm rounded-3 mb-4 border-0"
+        *ngIf="actionMessage$ | async as msg">
+        <div class="bg-white rounded-circle admin-alert-icon text-success">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <span class="fw-medium">{{ msg }}</span>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="card admin-card bg-transparent">
+        <div class="card-body bg-transparent px-0 py-0">
+            <!-- Loading State -->
+            <div class="text-center py-5 bg-white rounded-4 shadow-sm" *ngIf="loading$ | async">
+                <div class="spinner-grow text-primary me-2 spinner-sm" role="status"></div>
+                <div class="spinner-grow text-primary me-2 spinner-sm spinner-delay-1" role="status"></div>
+                <div class="spinner-grow text-primary spinner-sm spinner-delay-2" role="status"></div>
+                <p class="text-muted mt-3 fw-medium">Đang tải dữ liệu...</p>
+            </div>
+
+            <!-- Table Container -->
+            <div class="table-responsive admin-table-wrap" *ngIf="!(loading$ | async)">
+                <table class="table admin-table align-middle">
+                    <thead>
+                        <tr class="text-muted text-uppercase text-xs fw-bold">
+                            <th class="ps-4">ID</th>
+                            <th>Tên danh mục</th>
+                            <th class="text-center pe-4 u-w-120">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngIf="(categories$ | async) as categories">
+                            <tr *ngFor="let category of categories" class="table-row-card shadow-sm mb-3">
+                                <td class="ps-4 py-3 border-0 rounded-start-4 fw-medium text-muted">
+                                    #{{ category.id }}
+                                </td>
+                                <td class="py-3 border-0">
+                                    <h6 class="mb-0 fw-bold text-dark">{{ category.name }}</h6>
+                                </td>
+                                <td class="text-center pe-4 border-0 rounded-end-4">
+                                    <div class="action-buttons d-flex justify-content-center gap-2">
+                                        <button
+                                            class="btn btn-icon admin-action btn-action btn-edit text-primary bg-primary bg-opacity-10 rounded-circle"
+                                            title="Chỉnh sửa" (click)="openEditModal(category)">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button
+                                            class="btn btn-icon admin-action btn-action btn-delete text-danger bg-danger bg-opacity-10 rounded-circle"
+                                            title="Xoá" (click)="deleteCategory(category.id)">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Empty State -->
+                            <tr *ngIf="categories.length === 0">
+                                <td colspan="3" class="text-center py-5 border-0 bg-white rounded-4 shadow-sm">
+                                    <div class="empty-state text-muted d-flex flex-column align-items-center py-4">
+                                        <div class="bg-light rounded-circle admin-empty-icon mb-3 text-primary">
+                                            <i class="fa-solid fa-layer-group fs-1"></i>
+                                        </div>
+                                        <h5 class="fw-bold text-dark mb-2">Chưa có danh mục nào</h5>
+                                        <p class="mb-4">Danh sách hiện đang trống.</p>
+                                        <button class="btn btn-primary rounded-pill px-4 shadow-sm"
+                                            (click)="openCreateModal()">
+                                            <i class="fa-solid fa-plus me-2"></i> Thêm danh mục
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thêm/Sửa Danh mục -->
+<div class="modal fade show admin-modal-open" tabindex="-1" *ngIf="showModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold">{{ isEditMode ? 'Chỉnh sửa Danh mục' : 'Thêm Danh mục mới' }}</h5>
+                <button type="button" class="btn-close" title="Đóng" aria-label="Đóng" (click)="closeModal()"></button>
+            </div>
+            <div class="modal-body pb-0">
+                <form #categoryForm="ngForm">
+                    <div class="mb-3">
+                        <label for="categoryName" class="form-label fw-medium text-dark">Tên danh mục <span
+                                class="text-danger">*</span></label>
+                        <input type="text" class="form-control px-3 py-2 rounded-3 text-sm" id="categoryName"
+                            name="name" [(ngModel)]="currentCategory.name" required placeholder="Nhập tên danh mục...">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4 fw-medium text-sm"
+                    (click)="closeModal()">Huỷ</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4 shadow-sm fw-medium text-sm"
+                    [disabled]="!categoryForm.form.valid || (loading$ | async)" (click)="saveCategory()">
+                    <span *ngIf="!(loading$ | async)">Lưu lại</span>
+                    <span *ngIf="loading$ | async" class="spinner-border spinner-border-sm" role="status"
+                        aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

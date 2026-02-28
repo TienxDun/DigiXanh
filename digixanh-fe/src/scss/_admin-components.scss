@@ -1,0 +1,131 @@
+.admin-page {
+  display: block;
+}
+
+.admin-card {
+  border: 0;
+  border-radius: var(--admin-radius-xl);
+  box-shadow: var(--admin-elevation-sm);
+  background-color: var(--cui-body-bg);
+}
+
+.admin-header {
+  border-radius: var(--admin-radius-xl);
+}
+
+.admin-icon {
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-icon--lg {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.btn-custom-action {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: var(--admin-elevation-md);
+  }
+}
+
+.admin-alert-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-table-wrap {
+  padding-inline: 0.5rem;
+}
+
+.admin-table {
+  border-collapse: separate;
+  border-spacing: 0 0.85rem;
+
+  thead th {
+    border-bottom: 0;
+    letter-spacing: 0.5px;
+    font-size: 0.8rem;
+    color: var(--admin-table-head-color);
+  }
+
+  tbody tr {
+    background: var(--admin-table-row-bg);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--admin-elevation-sm);
+      background-color: var(--admin-table-row-hover-bg);
+    }
+  }
+}
+
+.admin-search {
+  max-width: 25rem;
+
+  .admin-search__icon {
+    position: absolute;
+    top: 50%;
+    left: 1.25rem;
+    transform: translateY(-50%);
+    z-index: 2;
+  }
+
+  .form-control {
+    min-height: 3rem;
+    padding-left: 2.8rem;
+    border: 0;
+    box-shadow: var(--admin-elevation-sm);
+  }
+
+  .form-control:focus {
+    box-shadow: var(--admin-focus-ring);
+  }
+
+  .admin-search__button {
+    margin: 0.2rem;
+    height: calc(100% - 0.4rem);
+  }
+}
+
+.admin-action {
+  width: 2.375rem;
+  height: 2.375rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-empty-icon {
+  width: 5rem;
+  height: 5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-modal-open {
+  display: block;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.admin-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--admin-radius-lg);
+}
+
+.admin-sticky-panel {
+  position: sticky;
+  top: 1.5rem;
+}

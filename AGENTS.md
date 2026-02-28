@@ -34,7 +34,7 @@ DigiXanh/
 | ORM | Entity Framework Core 8 (Code First) |
 | Database | SQL Server (local dev) / MonsterASP.NET (production) |
 | Authentication | ASP.NET Core Identity + JWT Bearer |
-| External APIs | Trefle API (dữ liệu cây), VNPay Sandbox (thanh toán) |
+| External APIs | Perenual API (dữ liệu cây), VNPay Sandbox (thanh toán) |
 | Testing | xUnit, Moq, Microsoft.AspNetCore.Mvc.Testing |
 | Hosting | Render (free plan) |
 
@@ -78,13 +78,12 @@ DigiXanh.API/
 │   ├── AuthController.cs
 │   ├── PlantsController.cs
 │   ├── CategoriesController.cs
+│   ├── AdminPerenualController.cs
 │   ├── AdminPlantsController.cs
-│   ├── AdminTrefleController.cs
-│   ├── DashboardController.cs
-│   └── TrefleController.cs
+│   └── DashboardController.cs
 ├── Services/
-│   ├── Interfaces/ITrefleService.cs
-│   └── Implementations/TrefleService.cs
+│   ├── Interfaces/IPerenualService.cs
+│   └── Implementations/PerenualService.cs
 ├── Data/
 │   └── ApplicationDbContext.cs
 ├── Models/                    # Entity Framework entities
@@ -98,7 +97,7 @@ DigiXanh.API/
 │   ├── Common/
 │   ├── Dashboard/
 │   ├── Plants/
-│   └── Trefle/
+│   └── Perenual/
 ├── Constants/
 │   └── DefaultRoles.cs        # "Admin", "User"
 └── Migrations/                # EF Core migrations
@@ -243,7 +242,7 @@ npm test
 1. `20260225114315_InitialIdentity` - Identity tables
 2. `20260225160855_AddPlantAndCategory` - Plants và Categories
 3. `20260225162034_SeedPlantsData` - Seed dữ liệu mẫu
-4. `20260225165902_AddPlantDescriptionAndTrefleId` - Thêm mô tả và TrefleId
+4. `20260225165902_AddPlantDescriptionAndTrefleId` - Thêm mô tả và External Plant ID
 5. `20260225175932_AddOrdersForDashboard` - Thêm Orders và seed data
 
 ---
@@ -295,8 +294,8 @@ Password: Admin@123
 - `PUT /api/admin/plants/{id}` - Cập nhật cây
 - `DELETE /api/admin/plants/{id}` - Xóa cây (soft delete)
 - `POST /api/admin/plants/bulk-soft-delete` - Xóa nhiều cây
-- `GET /api/admin/trefle/search?q={query}` - Tìm kiếm cây từ Trefle API
-- `GET /api/admin/trefle/{id}` - Chi tiết cây từ Trefle
+- `GET /api/admin/perenual/search?q={query}` - Tìm kiếm cây từ Perenual API
+- `GET /api/admin/perenual/{id}` - Chi tiết cây từ Perenual
 - `GET /api/admin/dashboard` - Thống kê dashboard
 
 ---
@@ -400,8 +399,8 @@ Trước khi bàn giao task, kiểm tra:
     "Password": "Admin@123",
     "FullName": "DigiXanh Admin"
   },
-  "Trefle": {
-    "ApiKey": "usr-Rv-29a-iwQALB-hFIH2K8zZRi8agHad9ZsvSZa7216E"
+  "Perenual": {
+    "ApiKey": "your-perenual-api-key"
   }
 }
 ```
@@ -441,7 +440,7 @@ Khi task liên quan đến cả FE và BE:
   - CoreUI Angular: https://coreui.io/angular/docs/
   - Angular: https://angular.io/docs
   - ASP.NET Core: https://docs.microsoft.com/aspnet/core
-  - Trefle API: https://docs.trefle.io/
+  - Perenual API: https://perenual.com/docs/api
 
 ---
 

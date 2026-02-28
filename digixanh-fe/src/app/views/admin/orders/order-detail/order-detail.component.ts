@@ -6,6 +6,7 @@ import { catchError, finalize, switchMap, tap } from 'rxjs/operators';
 import { OrderService } from '../../../../core/services/order.service';
 import { AdminOrderDetailDto, OrderStatusOption, UpdateOrderStatusRequest } from '../../../../core/models/order.model';
 import { FormsModule } from '@angular/forms';
+import { resolvePlantImageUrl } from '../../../../core/utils/image-url.util';
 
 @Component({
   selector: 'app-admin-order-detail',
@@ -15,6 +16,8 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./order-detail.component.scss']
 })
 export class OrderDetailComponent implements OnInit {
+  readonly fallbackImageUrl = 'assets/images/plant-placeholder.svg';
+
   order$ = new BehaviorSubject<AdminOrderDetailDto | null>(null);
   loading$ = new BehaviorSubject<boolean>(false);
   updating$ = new BehaviorSubject<boolean>(false);
@@ -178,5 +181,18 @@ export class OrderDetailComponent implements OnInit {
 
   isFinalStatus(status: string): boolean {
     return status === 'Delivered' || status === 'Cancelled';
+  }
+
+  resolveImageUrl(imageUrl?: string | null): string {
+    return resolvePlantImageUrl(imageUrl);
+  }
+
+  onImageError(event: Event): void {
+    const target = event.target as HTMLImageElement | null;
+    if (!target || target.src.endsWith(this.fallbackImageUrl)) {
+      return;
+    }
+
+    target.src = this.fallbackImageUrl;
   }
 }

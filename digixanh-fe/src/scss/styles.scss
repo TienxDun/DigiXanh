@@ -18,6 +18,9 @@
 
 // Custom styles for this theme
 @use "theme";
+@use "admin-tokens";
+@use "admin-components";
+@use "admin-utilities";
 
 // Some temp fixes
 //@use "fixes";

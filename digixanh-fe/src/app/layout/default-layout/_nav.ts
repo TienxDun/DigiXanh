@@ -13,82 +13,54 @@ export const navItems: INavData[] = [
   {
     name: 'Quản lý Đơn hàng',
     url: '/admin/orders',
-    iconComponent: { name: 'cil-cart' },
-    children: [
-      {
-        name: 'Tất cả Đơn hàng',
-        url: '/admin/orders'
-      },
-      {
-        name: 'Chờ xác nhận',
-        url: '/admin/orders/pending'
-      },
-      {
-        name: 'Đang giao & Hoàn tất',
-        url: '/admin/orders/completed'
-      }
-    ]
-  },
-  {
-    name: 'Giao dịch / Thanh toán',
-    url: '/admin/transactions',
-    iconComponent: { name: 'cil-money' }
+    iconComponent: { name: 'cil-cart' }
   },
   {
     title: true,
     name: 'Quản lý Sản phẩm'
   },
   {
-    name: 'Sản phẩm',
+    name: 'Danh sách Cây cảnh',
     url: '/admin/plants',
-    iconComponent: { name: 'cil-leaf' },
-    children: [
-      {
-        name: 'Danh sách Cây cảnh',
-        url: '/admin/plants'
-      },
-      {
-        name: 'Danh mục / Phân loại',
-        url: '/admin/categories'
-      }
-    ]
+    iconComponent: { name: 'cil-leaf' }
   },
   {
-    name: 'Kho hàng / Nhập xuất',
-    url: '/admin/inventory',
-    iconComponent: { name: 'cil-library' }
-  },
-  {
-    name: 'Khuyến mãi / Voucher',
-    url: '/admin/promotions',
+    name: 'Quản lý Danh mục',
+    url: '/admin/categories',
     iconComponent: { name: 'cil-tags' }
   },
   {
-    title: true,
-    name: 'Khách hàng & Tương tác'
-  },
-  {
-    name: 'Quản lý Khách hàng',
-    url: '/admin/customers',
-    iconComponent: { name: 'cil-user' }
-  },
-  {
-    name: 'Đánh giá / Phản hồi',
-    url: '/admin/reviews',
-    iconComponent: { name: 'cil-star' }
-  },
-  {
-    title: true,
-    name: 'Hệ thống & Cài đặt'
-  },
-  {
-    name: 'Phân quyền Admin',
-    url: '/admin/accounts',
-    iconComponent: { name: 'cil-shield-alt' }
-  },
-  {
-    name: 'Cài đặt Cửa hàng',
-    url: '/admin/settings',
-    iconComponent: { name: 'cil-settings' }
+    name: 'Thêm cây mới',
+    url: '/admin/plants/create',
+    iconComponent: { name: 'cil-plus' }
   }
+  // Các menu dưới đây sẽ được thêm khi implement các features tương ứng:
+  // {
+  //   title: true,
+  //   name: 'Khách hàng & Tương tác'
+  // },
+  // {
+  //   name: 'Quản lý Khách hàng',
+  //   url: '/admin/customers',
+  //   iconComponent: { name: 'cil-user' }
+  // },
+  // {
+  //   name: 'Đánh giá / Phản hồi',
+  //   url: '/admin/reviews',
+  //   iconComponent: { name: 'cil-star' }
+  // },
+  // {
+  //   title: true,
+  //   name: 'Hệ thống & Cài đặt'
+  // },
+  // {
+  //   name: 'Phân quyền Admin',
+  //   url: '/admin/accounts',
+  //   iconComponent: { name: 'cil-shield-alt' }
+  // },
+  // {
+  //   name: 'Cài đặt Cửa hàng',
+  //   url: '/admin/settings',
+  //   iconComponent: { name: 'cil-settings' }
+  // }
 ];

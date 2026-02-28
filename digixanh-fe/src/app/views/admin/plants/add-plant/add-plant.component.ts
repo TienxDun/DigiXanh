@@ -33,6 +33,7 @@ import {
     PerenualPlantDetail,
     CreatePlantRequest
 } from '../../../../core/models/plant.model';
+import { resolvePlantImageUrl } from '../../../../core/utils/image-url.util';
 
 type BulkImportItem = {
     id: number;
@@ -62,6 +63,7 @@ export class AddPlantComponent implements OnInit, OnDestroy {
     private destroy$ = new Subject<void>();
     private categories: CategoryDto[] = [];
     private currentSearchVersion = 0;
+    readonly fallbackImageUrl = 'assets/images/plant-placeholder.svg';
 
     // ─── Form ─────────────────────────────────────────────────────────────────
     form = new FormGroup({});
@@ -81,7 +83,6 @@ export class AddPlantComponent implements OnInit, OnDestroy {
 
     // ─── Preview ─────────────────────────────────────────────────────────────
     previewImage: string | null = null;
-    selectedPerenualId: number | null = null;
     isEditMode = false;
     editingPlantId: number | null = null;
 
@@ -177,7 +178,7 @@ export class AddPlantComponent implements OnInit, OnDestroy {
             takeUntil(this.destroy$)
         ).subscribe({
             next: plant => {
-                this.selectedPerenualId = plant.trefleId ?? null;
+
                 this.model = {
                     name: plant.name,
                     scientificName: plant.scientificName,
@@ -364,7 +365,7 @@ export class AddPlantComponent implements OnInit, OnDestroy {
             takeUntil(this.destroy$)
         ).subscribe({
             next: (detail: PerenualPlantDetail) => {
-                this.selectedPerenualId = detail.id;
+
                 this.model = {
                     ...this.model,
                     name: detail.commonName ?? detail.scientificName,
@@ -497,7 +498,7 @@ export class AddPlantComponent implements OnInit, OnDestroy {
             imageUrl: this.model['imageUrl'] ? String(this.model['imageUrl']) : undefined,
             price: Number(this.model['price'] ?? 0),
             categoryId: this.model['categoryId'] ? Number(this.model['categoryId']) : undefined,
-            trefleId: this.selectedPerenualId ?? undefined,
+
             stockQuantity: this.model['stockQuantity'] !== undefined && this.model['stockQuantity'] !== '' 
                 ? Number(this.model['stockQuantity']) 
                 : null
@@ -545,7 +546,7 @@ export class AddPlantComponent implements OnInit, OnDestroy {
                     imageUrl: item.imageUrl,
                     price: item.price,
                     categoryId: item.categoryId,
-                    trefleId: item.id
+
                 };
 
                 return this.plantService.createPlant(payload).pipe(
@@ -569,5 +570,18 @@ export class AddPlantComponent implements OnInit, OnDestroy {
 
             this.router.navigate(['/admin/plants']);
         });
+    }
+
+    resolveImageUrl(imageUrl?: string | null): string {
+        return resolvePlantImageUrl(imageUrl);
+    }
+
+    onImageError(event: Event): void {
+        const target = event.target as HTMLImageElement | null;
+        if (!target || target.src.endsWith(this.fallbackImageUrl)) {
+            return;
+        }
+
+        target.src = this.fallbackImageUrl;
     }
 }

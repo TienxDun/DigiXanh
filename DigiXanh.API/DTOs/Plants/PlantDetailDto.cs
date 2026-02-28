@@ -9,6 +9,5 @@ public record PlantDetailDto(
     int CategoryId,
     string CategoryName,
     string ImageUrl,
-    int? TrefleId,
     int? StockQuantity = null
 );

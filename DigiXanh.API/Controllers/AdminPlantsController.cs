@@ -93,7 +93,6 @@ public class AdminPlantsController : ControllerBase
             Price        = dto.Price,
             CategoryId   = dto.CategoryId,
             ImageUrl     = ImageUrlSanitizer.NormalizeOrEmpty(dto.ImageUrl),
-            TrefleId     = dto.TrefleId,
             StockQuantity = dto.StockQuantity,
             IsDeleted    = false,
             CreatedAt    = DateTime.UtcNow
@@ -137,7 +136,6 @@ public class AdminPlantsController : ControllerBase
                 item.CategoryId ?? 0,
                 item.Category != null ? item.Category.Name : string.Empty,
                 ImageUrlSanitizer.NormalizeOrEmpty(item.ImageUrl),
-                item.TrefleId,
                 item.StockQuantity
             ))
             .FirstOrDefaultAsync();
@@ -184,7 +182,6 @@ public class AdminPlantsController : ControllerBase
         plant.Price = dto.Price;
         plant.CategoryId = dto.CategoryId;
         plant.ImageUrl = ImageUrlSanitizer.NormalizeOrEmpty(dto.ImageUrl);
-        plant.TrefleId = dto.TrefleId;
         plant.StockQuantity = dto.StockQuantity;
 
         await _dbContext.SaveChangesAsync();

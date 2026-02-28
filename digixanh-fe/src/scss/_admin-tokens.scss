@@ -1,0 +1,10 @@
+:root {
+  --admin-radius-lg: 1rem;
+  --admin-radius-xl: 1.25rem;
+  --admin-elevation-sm: var(--cui-box-shadow-sm);
+  --admin-elevation-md: var(--cui-box-shadow);
+  --admin-table-head-color: var(--cui-secondary-color);
+  --admin-table-row-bg: var(--cui-body-bg);
+  --admin-table-row-hover-bg: color-mix(in srgb, var(--cui-primary) 4%, var(--cui-body-bg));
+  --admin-focus-ring: 0 0 0 0.25rem color-mix(in srgb, var(--cui-primary) 18%, transparent);
+}

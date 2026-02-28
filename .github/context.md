@@ -18,7 +18,7 @@ Dưới đây là file **context.md** hoàn chỉnh, tích hợp tất cả các
 - **Framework:** ASP.NET Core 8 Web API
 - **Database:** SQL Server + Entity Framework Core (Code First)
 - **Authentication:** ASP.NET Core Identity (JWT)
-- **Tích hợp:** Trefle API (lấy dữ liệu cây), VNPay Sandbox
+- **Tích hợp:** Perenual API (lấy dữ liệu cây), VNPay Sandbox
 - **Patterns:** Adapter, Decorator, Facade
 - **Hosting:** Render (free plan)
 
@@ -63,67 +63,91 @@ src/app/
 - Sử dụng **lazy-loading** cho Admin và Cart modules.
 - **Auth guard** bảo vệ route Admin (kiểm tra role).
 
-## 4. Product Backlog (User Stories ưu tiên MVP)
+## 4. Product Backlog (User Stories)
 
-| ID    | User Story                                                                 | Ghi chú |
-|-------|-----------------------------------------------------------------------------|---------|
-| US01  | Đăng ký tài khoản                                                           |         |
-| US02  | Đăng nhập                                                                   |         |
-| US03  | Phân quyền Admin/User                                                        |         |
-| US04  | Xem danh sách cây (Admin)                                                   |         |
-| US05  | Thêm cây mới từ Trefle API                                                   |         |
-| US06  | Sửa / Xoá cây (soft delete)                                                 |         |
-| US07  | Dashboard thống kê đơn giản (Admin)                                         |         |
-| US08  | Xem danh sách cây (Public)                                                  |         |
-| US09  | Xem chi tiết cây + Thêm vào giỏ hàng                                        |         |
-| US10  | Quản lý giỏ hàng (xem, sửa số lượng, xoá)                                   |         |
-| US11  | Đặt hàng (nhập thông tin giao hàng, chọn thanh toán)                        |         |
-| US12  | Thanh toán tiền mặt (Cash)                                                  | Adapter |
-| US13  | Thanh toán VNPay (Sandbox)                                                  | Adapter |
-| US14  | Áp dụng giảm giá theo số lượng (mua 2 giảm 5%, ≥3 giảm 7%)                  | Decorator |
-| US15  | Xử lý đơn hàng (validate, tính giá, tạo order, thanh toán, email, xoá giỏ) | Facade |
-| US16  | Thiết kế database (Migration)                                               |         |
-| US17  | Triển khai API lên Render                                                    |         |
-| US18  | Triển khai FE lên GitHub Pages                                               |         |
+### 4.1. Các User Stories ĐÃ HOÀN THÀNH ✅
 
-### Phase 2: Pre-deploy (Critical & High Priority)
+| US | Tiêu đề | Mô tả | Acceptance Criteria |
+|----|---------|-------|---------------------|
+| **US01** | **Đăng ký tài khoản** | Là khách hàng, tôi muốn đăng ký tài khoản để mua hàng và theo dõi đơn hàng | • Form đăng ký với Email, Password, FullName<br>• Validate: Email đúng format, Password >= 6 ký tự<br>• Tự động gán role "User"<br>• Trả về JWT token sau đăng ký |
+| **US02** | **Đăng nhập** | Là ngườI dùng, tôi muốn đăng nhập để truy cập chức năng riêng | • Đăng nhập bằng Email + Password<br>• Trả về JWT token với role (Admin/User)<br>• ThờI gian hết hạn token: 60 phút<br>• Thông báo lỗi rõ ràng |
+| **US03** | **Xem danh sách cây (Public)** | Là khách hàng, tôi muốn xem danh sách cây để chọn mua | • Phân trang (mặc định 12 items/page)<br>• Tìm kiếm theo tên/tên khoa học<br>• Lọc theo danh mục<br>• Sắp xếp: Giá tăng/giảm, Tên A-Z, MớI nhất<br>• Hiển thị: Tên, giá, ảnh, danh mục |
+| **US04** | **Xem chi tiết cây** | Là khách hàng, tôi muốn xem chi tiết cây để biết thông tin đầy đủ | • Hiển thị: Tên, tên khoa học, mô tả, giá, ảnh, tồn kho<br>• Trả 404 nếu cây không tồn tại hoặc đã xóa |
+| **US05** | **Quản lý cây - Admin CRUD** | Là admin, tôi muốn quản lý danh sách cây | • Phân trang, tìm kiếm<br>• Thêm/Sửa/Xóa (soft delete) cây<br>• Validate CategoryId tồn tại<br>• Chỉ Admin mới có quyền |
+| **US06** | **Soft Delete & Bulk Delete** | Là admin, tôi muốn xóa cây an toàn | • Soft delete (đánh dấu IsDeleted = true)<br>• Xóa nhiều cây cùng lúc (bulk)<br>• Cây đã xóa không hiển thị ở public API |
+| **US07** | **Quản lý danh mục** | Là admin, tôi muốn quản lý danh mục cây | • API CRUD danh mục<br>• Danh mục có thể phân cấp (ParentCategoryId)<br>• Danh sách danh mục cho public và admin |
+| **US08** | **Dashboard thống kê** | Là admin, tôi muốn xem thống kê để quản lý | • Tổng số đơn hàng<br>• Tổng doanh thu (Paid + Delivered)<br>• Đơn hàng hôm nay<br>• Doanh thu hôm nay<br>• Biểu đồ đơn hàng 7 ngày gần nhất |
+| **US09** | **Tích hợp Perenual API** | Là admin, tôi muốn tìm cây từ API bên ngoài để thêm nhanh | • Tìm kiếm cây theo tên qua Perenual API<br>• Xem chi tiết cây từ Perenual<br>• Handle timeout và rate limit<br>• Tự động điền form thêm cây |
+| **US10** | **Giỏ hàng** | Là khách hàng, tôi muốn quản lý giỏ hàng | • Thêm sản phẩm vào giỏ<br>• Cập nhật số lượng (1-99)<br>• Xóa sản phẩm khỏi giỏ<br>• Xem tổng quan giỏ hàng<br>• Validate tồn kho khi thêm |
+| **US11** | **Đặt hàng (Checkout)** | Là khách hàng, tôi muốn đặt hàng từ giỏ hàng | • Nhập: Tên ngườI nhận, SĐT, Địa chỉ giao hàng<br>• Chọn phương thức thanh toán (Cash/VNPay)<br>• Tính giá với Decorator Pattern (giảm 5% nếu >=2sp, 7% nếu >=3sp)<br>• Validate tồn kho trước khi đặt<br>• Xóa giỏ hàng sau đặt thành công |
+| **US12** | **Thanh toán VNPay** | Là khách hàng, tôi muốn thanh toán online qua VNPay | • Tạo URL thanh toán VNPay Sandbox<br>• Xử lý Return URL (success/failed)<br>• Xử lý IPN (Instant Payment Notification)<br>• Khôi phục giỏ hàng nếu thanh toán thất bại<br>• Validate signature |
+| **US13** | **Quản lý đơn hàng - Admin** | Là admin, tôi muốn quản lý đơn hàng | • Danh sách đơn hàng (phân trang, lọc theo status, tìm kiếm)<br>• Chi tiết đơn hàng (items, lịch sử trạng thái)<br>• Cập nhật trạng thái đơn hàng với validation transition<br>• Audit log (ai thay đổi, lý do) |
+| **US14** | **Lịch sử trạng thái đơn hàng** | Là admin, tôi muốn theo dõi lịch sử thay đổi đơn hàng | • Tự động ghi log khi thay đổi trạng thái<br>• Lưu: OldStatus, NewStatus, ChangedBy, Reason, Timestamp<br>• Hiển thị lịch sử trong chi tiết đơn hàng |
+| **US15** | **Adapter Pattern - Thanh toán** | Hệ thống cần hỗ trợ nhiều phương thức thanh toán | • Interface: `IPaymentAdapter`<br>• Implementations: `CashPaymentAdapter`, `VNPayPaymentAdapter`<br>• Factory pattern để chọn adapter theo PaymentMethod |
+| **US16** | **Decorator Pattern - Tính giá** | Hệ thống cần tính giá linh hoạt với giảm giá | • Interface: `IPriceCalculator`<br>• `BasePriceCalculator`: Tính tổng cơ bản<br>• `QuantityDiscountDecorator`: Giảm 5% (>=2sp), 7% (>=3sp)<br>• Có thể mở rộng thêm decorator khác |
+| **US17** | **Facade Pattern - Xử lý đơn hàng** | Đơn giản hóa quy trình đặt hàng phức tạp | • `OrderProcessingFacade` đóng gói toàn bộ flow<br>• Validate → Tính giá → Tạo Order → Thanh toán → Email → Xóa giỏ<br>• Transaction rollback nếu có lỗi<br>• Xử lý VNPay callback trong facade |
+| **US26** | **Quản lý tồn kho** | Hệ thống cần quản lý số lượng tồn kho sản phẩm | • Thêm trường StockQuantity cho Plant<br>• Validate tồn kho khi thêm vào giỏ<br>• Validate tồn kho khi đặt hàng<br>• Tự động giảm tồn kho sau thanh toán thành công<br>• Hiển thị trạng thái "Hết hàng" nếu Stock = 0 |
 
-| ID    | User Story                                                                 | Ghi chú | Ưu tiên |
-|-------|-----------------------------------------------------------------------------|---------|---------|
-| US19  | Xem lịch sử đơn hàng (User)                                                  |         | P0 - Critical |
-| US20  | Xem chi tiết đơn hàng (User)                                                 |         | P0 - Critical |
-| US21  | Quản lý đơn hàng (Admin) - Xem danh sách & cập nhật trạng thái              |         | P0 - Critical |
-| US22  | Tìm kiếm và lọc cây (Public) - Theo tên, danh mục, khoảng giá               |         | P1 - High |
-| US23  | Quản lý danh mục cây (Admin) - CRUD Category                                |         | P1 - High |
-| US24  | Upload ảnh cây trực tiếp (thay vì chỉ URL)                                  |         | P1 - High |
-| US25  | Quản lý tồn kho (Stock) - Cập nhật số lượng, hiển thị "Hết hàng"            |         | P1 - High |
-| US26  | Validate tồn kho khi đặt hàng - Không cho đặt vượt stock                     |         | P1 - High |
-| US27  | Xử lý callback VNPay (IPN) - Cập nhật trạng thái tự động                    |         | P1 - High |
-| US28  | Thông báo lỗi thanh toán - Hiển thị lý do thất bại                          |         | P2 - Medium |
+---
 
-### Phase 3: Hoàn thiện hệ sinh thái (Medium Priority)
+### 4.2. Các User Stories CẦN LÀM (Backlog) 📋
 
-| ID    | User Story                                                                 | Ghi chú | Ưu tiên |
-|-------|-----------------------------------------------------------------------------|---------|---------|
-| US29  | Quản lý thông tin cá nhân (Profile) - Cập nhật tên, địa chỉ, SĐT            |         | P2 - Medium |
-| US30  | Đổi mật khẩu                                                                 |         | P2 - Medium |
-| US31  | Quản lý ngườI dùng (Admin) - Xem danh sách, khóa/mở khóa tài khoản          |         | P2 - Medium |
-| US32  | Phân trang và sắp xếp sản phẩm - Theo giá, tên, ngày thêm                   |         | P2 - Medium |
-| US33  | Hiển thị cây liên quan - Cùng danh mục ở trang chi tiết                     |         | P3 - Low |
-| US34  | Audit log cho Admin - Lịch sử thay đổi trạng thái đơn hàng                  |         | P3 - Low |
-| US35  | Trang lỗi 404/403 - Giao diện thân thiện cho lỗi không tìm thấy/không có quyền |     | P3 - Low |
+#### 🔴 **Mức độ ưu tiên CAO (High Priority)**
 
-### Phase 4: Nice to Have (Sau MVP)
+| US | Tiêu đề | Mô tả | Acceptance Criteria | Est. |
+|----|---------|-------|---------------------|------|
+| **US18** | **Xem lịch sử đơn hàng cá nhân** | Là khách hàng, tôi muốn xem các đơn hàng đã đặt | • API lấy danh sách đơn hàng của user hiện tại<br>• Phân trang, sắp xếp theo thờI gian mới nhất<br>• Hiển thị: Mã đơn, ngày đặt, tổng tiền, trạng thái<br>• FE: Trang "Đơn hàng của tôi" | 3SP |
+| **US19** | **Chi tiết đơn hàng cá nhân** | Là khách hàng, tôi muốn xem chi tiết đơn hàng | • API chi tiết đơn hàng (chỉ của user hiện tại)<br>• Hiển thị: Thông tin đơn, danh sách items, trạng thái<br>• FE: Trang chi tiết đơn hàng | 2SP |
+| **US20** | **Hủy đơn hàng (Customer)** | Là khách hàng, tôi muốn hủy đơn hàng chưa xử lý | • Chỉ cho phép hủy đơn ở trạng thái Pending<br>• Khôi phục tồn kho khi hủy<br>• Ghi log lịch sử hủy<br>• Gửi thông báo xác nhận hủy | 2SP |
+| **US21** | **Cập nhật thông tin cá nhân** | Là ngườI dùng, tôi muốn cập nhật thông tin cá nhân | • API cập nhật: FullName, Phone, Address<br>• Validate SĐT Việt Nam<br>• FE: Trang Profile/Settings<br>• Không cho đổi email | 2SP |
 
-| ID    | User Story                                                                 | Ghi chú | Ưu tiên |
-|-------|-----------------------------------------------------------------------------|---------|---------|
-| US36  | Đánh giá sản phẩm - User đánh giá sau khi nhận hàng                         |         | P4 - Future |
-| US37  | Wishlist/Favorite - Lưu cây yêu thích                                       |         | P4 - Future |
-| US38  | Thống kê nâng cao (Dashboard) - Biểu đồ doanh thu, top sản phẩm             |         | P4 - Future |
-| US39  | Email thông báo - Xác nhận đặt hàng/thanh toán                              |         | P4 - Future |
-| US40  | Dark Mode toggle - Chuyển đổi light/dark mode                               |         | P4 - Future |
+#### 🟡 **Mức độ ưu tiên TRUNG BÌNH (Medium Priority)**
 
-*Lưu ý:* Các story có thể được chia nhỏ thêm trong quá trình Sprint Planning.
+| US | Tiêu đề | Mô tả | Acceptance Criteria | Est. |
+|----|---------|-------|---------------------|------|
+| **US22** | **Trang chủ (Homepage)** | Là khách hàng, tôi muốn xem trang chủ đẹp | • Hero banner/slider<br>• Hiển thị sản phẩm nổi bật (featured)<br>• Danh mục phổ biến<br>• Footer với thông tin liên hệ | 3SP |
+| **US23** | **Tìm kiếm nâng cao** | Là khách hàng, tôi muốn tìm kiếm nâng cao | • Tìm theo khoảng giá (min-max)<br>• Tìm theo nhiều danh mục cùng lúc<br>• Sắp xếp đa dạng (giá, tên, mớI nhất)<br>• Gợi ý tìm kiếm (autocomplete) | 3SP |
+| **US24** | **Đánh giá sản phẩm** | Là khách hàng, tôi muốn đánh giá sản phẩm đã mua | • Chỉ đánh giá sản phẩm trong đơn Delivered<br>• Rating 1-5 sao + comment<br>• Hiển thị đánh giá ở trang chi tiết sản phẩm<br>• Average rating cho mỗi sản phẩm | 3SP |
+| **US25** | **Yêu thích sản phẩm** | Là khách hàng, tôi muốn lưu sản phẩm yêu thích | • Thêm/Xóa khỏi danh sách yêu thích<br>• Xem danh sách yêu thích của tôi<br>• Persist vào database (bảng Favorites) | 2SP |
+| **US27** | **Quản lý ngườI dùng - Admin** | Là admin, tôi muốn quản lý tài khoản ngườI dùng | • Danh sách users (phân trang, tìm kiếm)<br>• Xem chi tiết user<br>• Khóa/Mở khóa tài khoản<br>• Phân quyền (đổi role) | 3SP |
+| **US28** | **Thống kê nâng cao - Admin** | Là admin, tôi muốn xem báo cáo chi tiết | • Doanh thu theo tháng/quý/năm<br>• Top sản phẩm bán chạy<br>• Biểu đồ doanh thu theo danh mục<br>• Export báo cáo (CSV/Excel) | 3SP |
+| **US29** | **Quản lý Banner/Slider** | Là admin, tôi muốn quản lý banner trang chủ | • CRUD banner (tiêu đề, ảnh, link, thứ tự)<br>• Kích hoạt/Vô hiệu hóa banner<br>• Hiển thị ở trang chủ FE | 2SP |
+
+#### 🟢 **Mức độ ưu tiên THẤP (Low Priority) / Nice to have**
+
+| US | Tiêu đề | Mô tả | Acceptance Criteria | Est. |
+|----|---------|-------|---------------------|------|
+| **US30** | **Gửi Email thực tế** | Hệ thống cần gửi email thực tế cho ngườI dùng | • Tích hợp SMTP (Gmail/SendGrid)<br>• Email đặt hàng thành công<br>• Email thanh toán thành công<br>• Email cập nhật trạng thái đơn hàng<br>• Template email đẹp | 3SP |
+| **US31** | **Nhập hàng/Restock - Admin** | Là admin, tôi muốn quản lý nhập hàng | • Form nhập hàng: Chọn sản phẩm, số lượng, giá nhập<br>• Cập nhật tồn kho khi nhập<br>• Lịch sử nhập hàng<br>• Báo cáo tồn kho thấp (alert) | 3SP |
+| **US32** | **Mã giảm giá (Coupon)** | Là khách hàng, tôi muốn áp dụng mã giảm giá | • CRUD mã giảm giá (Admin)<br>• Áp dụng mã ở checkout: % giảm hoặc fixed amount<br>• Validate: Hạn sử dụng, số lần dùng, đơn hàng tối thiểu<br>• Hiển thị giá sau giảm | 3SP |
+| **US33** | **Danh sách yêu thích đồng bộ** | Là khách hàng, tôi muốn lưu yêu thích vào tài khoản | • Đồng bộ wishlist khi đăng nhập trên thiết bị khác<br>• Merge wishlist local với server<br>• Hiển thị indicator số lượng wishlist | 2SP |
+| **US34** | **So sánh sản phẩm** | Là khách hàng, tôi muốn so sánh nhiều sản phẩm | • Chọn tối đa 3 sản phẩm để so sánh<br>• Bảng so sánh: Giá, danh mục, tên khoa học<br>• Modal hoặc trang riêng | 2SP |
+| **US35** | **Gợi ý sản phẩm liên quan** | Là khách hàng, tôi muốn xem sản phẩm tương tự | • Gợi ý cùng danh mục<br>• Gợi ý dựa trên lịch sử xem (nếu có)<br>• Hiển thị ở trang chi tiết sản phẩm | 2SP |
+| **US36** | **Đa ngôn ngữ (i18n)** | Hệ thống hỗ trợ đa ngôn ngữ | • Hỗ trợ Tiếng Việt và English<br>• Switch language ở header<br>• Lưu preference vào localStorage | 3SP |
+| **US37** | **Dark Mode** | Là ngườI dùng, tôi muốn dùng giao diện tối | • Toggle dark/light mode<br>• Lưu preference<br>• CoreUI đã hỗ trợ, chỉ cần implement toggle | 1SP |
+| **US38** | **Chat/Chatbot hỗ trợ** | Là khách hàng, tôi muốn được hỗ trợ trực tuyến | • Widget chat ở góc phải<br>• Chat với admin (real-time hoặc polling)<br>• Hoặc tích hợp chatbot cơ bản | 5SP |
+| **US39** | **Tích hợp Firebase Cloud Messaging** | Gửi thông báo push cho ngườI dùng | • Thông báo khi đơn hàng thay đổi trạng thái<br>• Thông báo khuyến mãi<br>• Subscribe/unsubscribe topics | 3SP |
+| **US40** | **SEO Optimization** | Cải thiện SEO cho website | • Meta tags động theo trang<br>• Sitemap.xml<br>• Robots.txt<br>• Structured data (JSON-LD) | 2SP |
+
+---
+
+### 4.3. Bảng tổng hợp tiến độ
+
+| Phân loại | Số lượng | Tình trạng |
+|-----------|----------|------------|
+| **Đã hoàn thành** | 18 US | ✅ Các chức năng core của MVP |
+| **Ưu tiên Cao** | 4 US | 🔴 Cần làm ngay sau khi MVP hoàn thành |
+| **Ưu tiên Trung bình** | 7 US | 🟡 Làm trong Sprint tiếp theo |
+| **Ưu tiên Thấp** | 11 US | 🟢 Nice to have, làm khi có thờI gian |
+| **Tổng cộng** | 40 US | |
+
+**Ghi chú về Sprint Planning:**
+- **MVP (Sprint 1-2):** Hoàn thành 18 US (US01-US17, US26) - ĐÃ XONG
+- **Sprint 3:** US18-US21 (Lịch sử đơn hàng, Profile) - 🔴 Ưu tiên cao
+- **Sprint 4:** US22-US25, US27-US29 (Nâng cao UX, Admin features) - 🟡 Trung bình
+- **Sprint 5+:** US30-US40 (Email, Coupon, i18n, etc.) - 🟢 Thấp
+
+---
 
 ## 5. Database Schema (Optimized)
 
@@ -175,7 +199,7 @@ src/app/
 | Price | decimal(18,2) | CHECK >= 0 |
 | CategoryId | int | FK → Categories.Id, Nullable, ON DELETE SET NULL |
 | ImageUrl | nvarchar(500) | NOT NULL |
-| TrefleId | int | Nullable |
+
 | StockQuantity | int | Nullable, CHECK >= 0 |
 | IsDeleted | bit | DEFAULT 0 (Soft Delete) |
 | IsActive | bit | DEFAULT 1 |
@@ -187,7 +211,6 @@ src/app/
 - `IX_Plants_Filter_Sort` - (IsDeleted, IsActive, CreatedAt) - Query chính
 - `IX_Plants_Name` - Tìm kiếm theo tên
 - `IX_Plants_ScientificName` - Tìm kiếm theo tên khoa học
-- `IX_Plants_TrefleId` - Filtered index WHERE TrefleId IS NOT NULL
 
 **Check Constraints:**
 - `CK_Plants_Price`: `[Price] >= 0`
@@ -287,7 +310,7 @@ src/app/
 1. `20260225114315_InitialIdentity` - Identity tables
 2. `20260225160855_AddPlantAndCategory` - Plants và Categories
 3. `20260225162034_SeedPlantsData` - Seed dữ liệu mẫu
-4. `20260225165902_AddPlantDescriptionAndTrefleId` - Thêm mô tả và TrefleId
+4. `20260225165902_AddPlantDescriptionAndTrefleId` - Thêm mô tả (TrefleId đã bị xóa)
 5. `20260225175932_AddOrdersForDashboard` - Thêm Orders và seed data
 6. `20260226131828_AddCartItems` - Thêm CartItems
 7. `20260226172016_US11_UpdateOrderSchema` - Cập nhật Order schema (US11)
@@ -372,14 +395,14 @@ public class OrderProcessingFacade
 }
 ```
 
-## 7. Tích hợp Trefle API
-- **Tài liệu:** [https://docs.trefle.io/](https://docs.trefle.io/)
-- **API Key:** Cần đăng ký tài khoản Trefle để lấy key.
+## 7. Tích hợp Perenual API
+- **Tài liệu:** [https://perenual.com/docs/api](https://perenual.com/docs/api)
+- **API Key:** Cần đăng ký tài khoản Perenual để lấy key.
 - **Endpoints chính:**
-  - `GET /api/v1/plants/search?q={query}` – tìm kiếm cây theo tên
-  - `GET /api/v1/plants/{id}` – lấy chi tiết cây
+  - `GET /api/species-list?q={query}` – tìm kiếm cây theo tên
+  - `GET /api/species/details/{id}` – lấy chi tiết cây
 - **Cách dùng:** Admin nhập tên cây → gọi `search` → hiển thị danh sách → chọn → gọi `details` → tự động điền form thêm cây. Chỉ lưu vào DB sau khi admin nhập giá và danh mục.
-- **Xử lý rate limit:** Trefle giới hạn số request, nên cache kết quả tìm kiếm trong phiên làm việc (session) hoặc dùng memory cache ngắn hạn.
+- **Xử lý rate limit:** Perenual giới hạn số request (100/ngày), nên cache kết quả tìm kiếm trong phiên làm việc (session) hoặc dùng memory cache ngắn hạn.
 
 ## 8. Style Guide cho Frontend
 
@@ -444,8 +467,8 @@ $dark: #343a40;
     "Issuer": "DigiXanh",
     "Audience": "DigiXanhClient"
   },
-  "Trefle": {
-    "ApiKey": "your-trefle-api-key"
+  "Perenual": {
+    "ApiKey": "your-perenual-api-key"
   },
   "VNPay": {
     "TmnCode": "your-tmn-code",

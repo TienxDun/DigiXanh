@@ -99,7 +99,6 @@ public class PlantsController : ControllerBase
                 item.CategoryId ?? 0,
                 item.Category != null ? item.Category.Name : string.Empty,
                 ImageUrlSanitizer.NormalizeOrEmpty(item.ImageUrl),
-                item.TrefleId,
                 item.StockQuantity))
             .FirstOrDefaultAsync();
 

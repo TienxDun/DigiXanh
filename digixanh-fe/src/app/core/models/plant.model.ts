@@ -19,7 +19,6 @@ export interface PlantDetailDto {
     categoryId: number;
     categoryName: string;
     imageUrl: string;
-    trefleId?: number | null;  // Giữ tên cũ để tương thích database, đây là external plant ID
     stockQuantity?: number | null;
 }
 
@@ -54,11 +53,7 @@ export interface PerenualPlantDetail {
     image_url?: string | null;
 }
 
-// Alias cho backward compatibility (sẽ bỏ sau khi refactor xong)
-/** @deprecated Use PerenualSearchResult instead */
-export type TrefleSearchResult = PerenualSearchResult;
-/** @deprecated Use PerenualPlantDetail instead */
-export type TreflePlantDetail = PerenualPlantDetail;
+
 
 // Request tạo cây mới
 export interface CreatePlantRequest {
@@ -68,6 +63,5 @@ export interface CreatePlantRequest {
     imageUrl?: string;
     price: number;
     categoryId?: number;
-    trefleId?: number;  // Giữ tên cũ để tương thích database - đây là external plant ID
     stockQuantity?: number | null;
 }

@@ -421,9 +421,6 @@ namespace DigiXanh.API.Migrations
                     b.Property<int?>("StockQuantity")
                         .HasColumnType("int");
 
-                    b.Property<int?>("TrefleId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -440,10 +437,6 @@ namespace DigiXanh.API.Migrations
 
                     b.HasIndex("ScientificName")
                         .HasDatabaseName("IX_Plants_ScientificName");
-
-                    b.HasIndex("TrefleId")
-                        .HasDatabaseName("IX_Plants_TrefleId")
-                        .HasFilter("[TrefleId] IS NOT NULL");
 
                     b.HasIndex("IsDeleted", "IsActive", "CreatedAt")
                         .HasDatabaseName("IX_Plants_Filter_Sort");

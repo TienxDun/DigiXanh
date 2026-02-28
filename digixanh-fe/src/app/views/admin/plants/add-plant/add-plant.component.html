@@ -1,10 +1,10 @@
-<div class="animation-fade-up pb-4">
+<div class="admin-page animation-fade-up pb-4">
     <div class="col-12">
-        <div class="card add-plant-card border-0 shadow-sm mb-4 bg-transparent">
+        <div class="card admin-card add-plant-card border-0 shadow-sm mb-4 bg-transparent">
 
             <!-- Header -->
             <div
-                class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-4 rounded-4 shadow-sm mb-4">
+                class="card-header admin-header bg-white border-0 d-flex justify-content-between align-items-center py-4 rounded-4 shadow-sm mb-4">
                 <div class="d-flex align-items-center gap-3">
                     <a routerLink="/admin/plants"
                         class="btn btn-light rounded-circle back-btn shadow-sm d-flex align-items-center justify-content-center"
@@ -13,8 +13,7 @@
                     </a>
                     <div>
                         <h4 class="mb-1 fw-bold text-dark d-flex align-items-center gap-2">
-                            <div class="icon-square bg-success bg-opacity-10 text-success rounded-3 d-flex align-items-center justify-content-center"
-                                style="width: 36px; height: 36px;">
+                            <div class="icon-square u-size-36 bg-success bg-opacity-10 text-success rounded-3 d-flex align-items-center justify-content-center">
                                 <i class="fa-solid " [class.fa-seedling]="!isEditMode"
                                     [class.fa-pen-to-square]="isEditMode"></i>
                             </div>
@@ -84,7 +83,8 @@
                                                 (mousedown)="onSelectPerenualResult(result)"
                                                 [attr.title]="result.scientificName">
                                                 <div class="perenual-thumb-wrapper shadow-sm rounded-3">
-                                                    <img *ngIf="result.imageUrl; else noThumb" [src]="result.imageUrl"
+                                                    <img *ngIf="result.imageUrl; else noThumb" [src]="resolveImageUrl(result.imageUrl)"
+                                                        (error)="onImageError($event)"
                                                         [alt]="result.scientificName"
                                                         title="{{ result.scientificName }}" class="perenual-thumb" />
                                                     <ng-template #noThumb>
@@ -102,7 +102,8 @@
                                                     </div>
                                                 </div>
                                                 <button
-                                                    class="btn btn-sm btn-light rounded-circle text-success add-btn">
+                                                    class="btn btn-sm btn-light rounded-circle text-success add-btn"
+                                                    title="Thêm vào danh sách nhập" aria-label="Thêm vào danh sách nhập">
                                                     <i class="fa-solid fa-plus"></i>
                                                 </button>
                                             </div>
@@ -130,12 +131,15 @@
                                             <div class="d-flex align-items-center gap-3">
                                                 <div class="form-check custom-checkbox m-0">
                                                     <input type="checkbox" class="form-check-input"
+                                                        title="Chọn cây {{ item.name }}"
+                                                        aria-label="Chọn cây {{ item.name }}"
                                                         [checked]="item.selected"
                                                         (change)="toggleBulkSelection(item.id, $any($event.target).checked)" />
                                                 </div>
                                                 <div
                                                     class="bulk-thumb-wrapper position-relative rounded-3 shadow-sm overflow-hidden">
-                                                    <img *ngIf="item.imageUrl" [src]="item.imageUrl"
+                                                    <img *ngIf="item.imageUrl" [src]="resolveImageUrl(item.imageUrl)"
+                                                        (error)="onImageError($event)"
                                                         [alt]="item.scientificName" class="bulk-thumb" />
                                                     <div *ngIf="!item.imageUrl"
                                                         class="bulk-thumb-placeholder bg-light text-success">
@@ -146,8 +150,7 @@
                                                     <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
                                                         <span class="text-truncate">{{ item.name }}</span>
                                                         <span
-                                                            class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1"
-                                                            style="font-size: 0.7rem;">{{ item.categoryName }}</span>
+                                                            class="badge u-fs-70 bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">{{ item.categoryName }}</span>
                                                     </div>
                                                     <div class="d-flex gap-3 text-muted small">
                                                         <span class="fst-italic"><i class="fa-solid fa-tag me-1"></i>{{
@@ -188,8 +191,7 @@
                                 <!-- Error Alert -->
                                 <div class="alert alert-danger rounded-3 mt-4 d-flex align-items-center gap-2 shadow-sm border-0"
                                     *ngIf="submitError" role="alert">
-                                    <div class="bg-white rounded-circle d-flex align-items-center justify-content-center text-danger"
-                                        style="width: 24px; height: 24px;">
+                                    <div class="bg-white rounded-circle u-size-24 d-flex align-items-center justify-content-center text-danger">
                                         <i class="fa-solid fa-xmark"></i>
                                     </div>
                                     <span class="fw-medium">{{ submitError }}</span>
@@ -230,11 +232,10 @@
 
                     <!-- RIGHT: Image Preview -->
                     <div class="col-lg-4">
-                        <div class="bg-white rounded-4 shadow-sm p-4 h-100 position-sticky" style="top: 1.5rem;">
+                        <div class="bg-white rounded-4 shadow-sm p-4 h-100 admin-sticky-panel">
                             <div
                                 class="preview-label fw-bold text-dark mb-4 d-flex align-items-center gap-2 border-bottom pb-3">
-                                <div class="icon-square bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center"
-                                    style="width: 32px; height: 32px;">
+                                <div class="icon-square u-size-32 bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center">
                                     <i class="fa-solid fa-image"></i>
                                 </div>
                                 Xem trước Hình ảnh
@@ -243,7 +244,7 @@
                             <div class="preview-box position-relative rounded-4 overflow-hidden mb-4"
                                 [class.has-image]="previewImage">
                                 <ng-container *ngIf="previewImage; else noPreview">
-                                    <img [src]="previewImage" alt="Ảnh xem trước"
+                                    <img [src]="resolveImageUrl(previewImage)" alt="Ảnh xem trước"
                                         class="preview-img w-100 h-100 object-fit-cover"
                                         (error)="previewImage = null" />
                                     <div
@@ -255,8 +256,7 @@
                                 <ng-template #noPreview>
                                     <div
                                         class="no-preview-content d-flex flex-column align-items-center justify-content-center h-100 p-4 text-center bg-light border border-dashed rounded-4">
-                                        <div class="bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mb-3"
-                                            style="width: 60px; height: 60px;">
+                                        <div class="bg-white rounded-circle u-size-60 shadow-sm d-flex align-items-center justify-content-center mb-3">
                                             <i class="fa-regular fa-image fa-2x text-muted opacity-50"></i>
                                         </div>
                                         <p class="fw-semibold text-dark mb-1">Chưa có ảnh</p>
@@ -264,19 +264,6 @@
                                             danh sách Perenual để tự động tải ảnh</p>
                                     </div>
                                 </ng-template>
-                            </div>
-
-                            <!-- Perenual badge nếu đã chọn -->
-                            <div class="perenual-badge rounded-3 p-3 mb-4 d-flex align-items-center gap-3 shadow-sm border-0"
-                                *ngIf="selectedPerenualId">
-                                <div class="bg-white rounded-circle d-flex align-items-center justify-content-center text-success"
-                                    style="width: 36px; height: 36px;">
-                                    <i class="fa-solid fa-link"></i>
-                                </div>
-                                <div>
-                                    <div class="small text-success fw-bold">Đã đồng bộ Perenual</div>
-                                    <div class="text-dark fw-medium small">ID: #{{ selectedPerenualId }}</div>
-                                </div>
                             </div>
 
                             <!-- Tips -->

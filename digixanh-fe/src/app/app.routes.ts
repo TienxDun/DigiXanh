@@ -58,6 +58,13 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'categories',
+        loadComponent: () => import('./views/admin/categories/category-list/category-list.component').then(m => m.CategoryListComponent),
+        data: {
+          title: 'Quản lý danh mục'
+        }
+      },
+      {
         path: 'orders',
         loadComponent: () => import('./views/admin/orders/order-list/order-list.component').then(m => m.OrderListComponent),
         data: {

@@ -124,11 +124,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasIndex(p => p.ScientificName)
             .HasDatabaseName("IX_Plants_ScientificName");
 
-        builder.Entity<Plant>()
-            .HasIndex(p => p.TrefleId)
-            .HasFilter("[TrefleId] IS NOT NULL")
-            .HasDatabaseName("IX_Plants_TrefleId");
-
         // Check constraints for data integrity
         builder.Entity<Plant>()
             .ToTable("Plants", b => b.HasCheckConstraint("CK_Plants_Price", "[Price] >= 0"));

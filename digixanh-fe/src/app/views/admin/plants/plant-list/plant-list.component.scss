@@ -1,98 +1,3 @@
-:host {
-    display: block;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-}
-
-.premium-card {
-    border-radius: 1.25rem;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
-}
-
-.btn-custom-action {
-    transition: all 0.25s ease;
-
-    &:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1) !important;
-    }
-
-    &:active:not(:disabled) {
-        transform: translateY(0);
-    }
-}
-
-.search-box {
-    .search-icon {
-        position: absolute;
-        top: 50%;
-        left: 1.25rem;
-        transform: translateY(-50%);
-        z-index: 10;
-    }
-
-    .form-control {
-        height: 3.2rem;
-        padding-left: 2.8rem;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-        background-color: #f8f9fa;
-
-        &:focus {
-            background-color: #ffffff;
-            box-shadow: 0 0 0 4px rgba(var(--cui-primary-rgb), 0.1) !important;
-        }
-    }
-
-    .search-btn {
-        font-weight: 600;
-        transition: all 0.2s;
-        margin: 0.2rem;
-        height: calc(100% - 0.4rem) !important;
-
-        &:hover {
-            background-color: rgba(var(--cui-primary-rgb), 0.1);
-        }
-    }
-}
-
-.max-w-400 {
-    max-width: 400px;
-}
-
-.premium-table {
-    border-collapse: separate;
-    border-spacing: 0 0.85rem;
-
-    thead th {
-        border-bottom: none;
-        letter-spacing: 0.5px;
-        font-size: 0.8rem;
-        color: #6c757d;
-    }
-
-    .table-row-card {
-        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-
-        td {
-            transition: background-color 0.3s;
-        }
-
-        &:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06) !important;
-
-            td {
-                background-color: #fcfcfc;
-            }
-
-            .img-overlay {
-                opacity: 0.1;
-            }
-        }
-    }
-}
-
 .image-wrapper {
     width: 56px;
     height: 56px;
@@ -118,6 +23,10 @@
         opacity: 0;
         transition: opacity 0.3s;
     }
+}
+
+.table-row-card:hover .img-overlay {
+    opacity: 0.1;
 }
 
 .category-badge {

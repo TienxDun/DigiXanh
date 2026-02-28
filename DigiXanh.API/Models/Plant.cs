@@ -10,7 +10,6 @@ public class Plant
     public int? CategoryId { get; set; }
     public Category? Category { get; set; }
     public string ImageUrl { get; set; } = string.Empty;
-    public int? TrefleId { get; set; }  // External Plant ID (from Perenual API)
     public int? StockQuantity { get; set; }
     public bool IsDeleted { get; set; }
     public bool IsActive { get; set; } = true;
