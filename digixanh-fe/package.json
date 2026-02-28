@@ -26,7 +26,9 @@
     "perf:test": "k6 run k6/load-test.js",
     "perf:checkout": "k6 run k6/checkout-flow.js",
     "perf:stress": "k6 run k6/stress-test.js",
-    "test:all": "npm run test:ci && npm run e2e:ci"
+    "test:all": "npm run test:ci && npm run e2e:ci",
+    "deploy": "ng build --configuration production --base-href '/DigiXanh/' && npx angular-cli-ghpages --dir=dist/digixanh-fe/browser",
+    "postbuild": "cp dist/digixanh-fe/browser/index.html dist/digixanh-fe/browser/404.html"
   },
   "private": true,
   "dependencies": {

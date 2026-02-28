@@ -10,9 +10,7 @@
 |:---|:---|
 | **Mô tả** | Nền tảng mua bán cây xanh trực tuyến |
 | **Mô hình** | Micro-frontend & API-based architecture |
-| **ThờI gian** | 3 tháng (Agile/Scrum) |
-| **Team** | 2 developers (Full-stack) |
-| **Vai trò của tôi** | Backend Lead + DevOps |
+| **Vai trò của tôi** | Fullstack + DevOps |
 
 ---
 
@@ -117,14 +115,6 @@
 |----------|------|
 | 🌐 Live Demo | *Đang deploy* |
 | 📚 API Docs | `https://localhost:5001/swagger` |
-| 💻 Source Code | `https://github.com/yourusername/DigiXanh` |
+| 💻 Source Code | `https://github.com/TienxDun/DigiXanh` |
 
 ---
-
-## 👤 About Me
-
-**[Your Name]** - Full-stack Developer  
-📧 your.email@example.com  
-💼 [linkedin.com/in/yourprofile](https://linkedin.com/in/yourprofile)
-
-> *Sẵn sàng thảo luận về kiến trúc hệ thống, design patterns, hoặc bất kỳ phần nào của dự án!*
