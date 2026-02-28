@@ -25,6 +25,7 @@ export class PublicPlantDetailComponent {
   successMessage = '';
 
   private currentPlantId: number | null = null;
+  currentPlant: PlantDetailDto | null = null;
 
   readonly plant$: Observable<PlantDetailDto | null>;
 
@@ -47,8 +48,11 @@ export class PublicPlantDetailComponent {
         this.errorMessage = '';
 
         return this.publicPlantService.getPlantDetail(id).pipe(
-          tap(() => {
+          tap((plant) => {
             this.successMessage = '';
+            this.currentPlant = plant;
+            // Reset quantity to 1 when loading new plant
+            this.quantity = 1;
           }),
           catchError(() => {
             this.errorMessage = 'Không tải được thông tin chi tiết cây.';
@@ -60,9 +64,21 @@ export class PublicPlantDetailComponent {
   }
 
   increaseQuantity(): void {
-    if (this.quantity < 99) {
+    const maxQuantity = this.getMaxQuantity();
+    if (this.quantity < maxQuantity) {
       this.quantity += 1;
     }
+  }
+
+  getMaxQuantity(): number {
+    if (!this.currentPlant?.stockQuantity) {
+      return 99; // Không giới hạn nếu không có stock
+    }
+    return Math.min(99, this.currentPlant.stockQuantity);
+  }
+
+  isOutOfStock(): boolean {
+    return this.currentPlant?.stockQuantity === 0;
   }
 
   decreaseQuantity(): void {
@@ -78,7 +94,8 @@ export class PublicPlantDetailComponent {
       return;
     }
 
-    this.quantity = Math.max(1, Math.min(99, Math.trunc(parsed)));
+    const maxQuantity = this.getMaxQuantity();
+    this.quantity = Math.max(1, Math.min(maxQuantity, Math.trunc(parsed)));
   }
 
   addToCart(): void {
@@ -96,6 +113,11 @@ export class PublicPlantDetailComponent {
           returnUrl: this.router.url
         }
       });
+      return;
+    }
+
+    if (this.isOutOfStock()) {
+      this.errorMessage = 'Sản phẩm đã hết hàng.';
       return;
     }
 

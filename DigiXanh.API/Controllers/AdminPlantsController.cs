@@ -60,7 +60,8 @@ public class AdminPlantsController : ControllerBase
                 plant.Price,
                 plant.Category != null ? plant.Category.Name : string.Empty,
                 ImageUrlSanitizer.NormalizeOrEmpty(plant.ImageUrl),
-                plant.CreatedAt))
+                plant.CreatedAt,
+                plant.StockQuantity))
             .ToListAsync();
 
         return Ok(new PagedResult<PlantDto>(items, totalCount, page, pageSize, totalPages));
@@ -93,6 +94,7 @@ public class AdminPlantsController : ControllerBase
             CategoryId   = dto.CategoryId,
             ImageUrl     = ImageUrlSanitizer.NormalizeOrEmpty(dto.ImageUrl),
             TrefleId     = dto.TrefleId,
+            StockQuantity = dto.StockQuantity,
             IsDeleted    = false,
             CreatedAt    = DateTime.UtcNow
         };
@@ -110,7 +112,8 @@ public class AdminPlantsController : ControllerBase
             plant.Price,
             plant.Category?.Name ?? string.Empty,
             ImageUrlSanitizer.NormalizeOrEmpty(plant.ImageUrl),
-            plant.CreatedAt
+            plant.CreatedAt,
+            plant.StockQuantity
         );
 
         return CreatedAtAction(nameof(GetPlants), new { id = plant.Id }, result);
@@ -134,7 +137,8 @@ public class AdminPlantsController : ControllerBase
                 item.CategoryId ?? 0,
                 item.Category != null ? item.Category.Name : string.Empty,
                 ImageUrlSanitizer.NormalizeOrEmpty(item.ImageUrl),
-                item.TrefleId
+                item.TrefleId,
+                item.StockQuantity
             ))
             .FirstOrDefaultAsync();
 
@@ -181,6 +185,7 @@ public class AdminPlantsController : ControllerBase
         plant.CategoryId = dto.CategoryId;
         plant.ImageUrl = ImageUrlSanitizer.NormalizeOrEmpty(dto.ImageUrl);
         plant.TrefleId = dto.TrefleId;
+        plant.StockQuantity = dto.StockQuantity;
 
         await _dbContext.SaveChangesAsync();
 
@@ -193,7 +198,8 @@ public class AdminPlantsController : ControllerBase
             plant.Price,
             plant.Category?.Name ?? string.Empty,
             ImageUrlSanitizer.NormalizeOrEmpty(plant.ImageUrl),
-            plant.CreatedAt
+            plant.CreatedAt,
+            plant.StockQuantity
         );
 
         return Ok(result);

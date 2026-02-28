@@ -7,4 +7,5 @@ public record PlantDto(
     decimal Price,
     string CategoryName,
     string ImageUrl,
-    DateTime CreatedAt);
+    DateTime CreatedAt,
+    int? StockQuantity = null);

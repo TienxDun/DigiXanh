@@ -54,7 +54,32 @@ public class CartController : BaseController
         if (plant is null)
             return NotFound(new { message = "Không tìm thấy cây." });
 
-        await AddOrUpdateCartItemAsync(userId, request.PlantId, request.Quantity);
+        // Validate stock quantity (US26)
+        if (plant.StockQuantity.HasValue)
+        {
+            if (plant.StockQuantity.Value == 0)
+            {
+                return BadRequest(new { message = $"Sản phẩm '{plant.Name}' đã hết hàng." });
+            }
+
+            // Check existing quantity in cart
+            var existingItem = await _dbContext.CartItems
+                .FirstOrDefaultAsync(item => item.UserId == userId && item.PlantId == request.PlantId);
+            var currentCartQuantity = existingItem?.Quantity ?? 0;
+            var totalQuantity = currentCartQuantity + request.Quantity;
+
+            if (totalQuantity > plant.StockQuantity.Value)
+            {
+                var availableQuantity = plant.StockQuantity.Value - currentCartQuantity;
+                if (availableQuantity <= 0)
+                {
+                    return BadRequest(new { message = $"Bạn đã có {currentCartQuantity} sản phẩm '{plant.Name}' trong giỏ. Không thể thêm thêm do vượt quá tồn kho ({plant.StockQuantity.Value})." });
+                }
+                return BadRequest(new { message = $"Sản phẩm '{plant.Name}' chỉ còn {plant.StockQuantity.Value} trong kho. Bạn đã có {currentCartQuantity} trong giỏ, chỉ có thể thêm tối đa {availableQuantity} sản phẩm nữa." });
+            }
+        }
+
+        await AddOrUpdateCartItemAsync(userId, request.PlantId, request.Quantity, plant.StockQuantity);
         await _dbContext.SaveChangesAsync();
 
         return await GetMyCart();
@@ -77,6 +102,18 @@ public class CartController : BaseController
         var item = await GetCartItemAsync(cartItemId, userId);
         if (item is null)
             return NotFound(new { message = "Không tìm thấy sản phẩm trong giỏ hàng." });
+
+        // Validate stock quantity (US26)
+        if (item.Plant?.StockQuantity.HasValue == true)
+        {
+            if (request.Quantity > item.Plant.StockQuantity.Value)
+            {
+                return BadRequest(new 
+                { 
+                    message = $"Sản phẩm '{item.Plant.Name}' chỉ còn {item.Plant.StockQuantity.Value} trong kho. Không thể cập nhật số lượng vượt quá tồn kho." 
+                });
+            }
+        }
 
         item.Quantity = request.Quantity;
         item.UpdatedAt = DateTime.UtcNow;
@@ -185,7 +222,8 @@ public class CartController : BaseController
                 item.Plant.Price,
                 ImageUrlSanitizer.NormalizeOrEmpty(item.Plant.ImageUrl),
                 item.Quantity,
-                item.Quantity * item.Plant.Price))
+                item.Quantity * item.Plant.Price,
+                item.Plant.StockQuantity))
             .ToListAsync();
     }
 
@@ -201,7 +239,7 @@ public class CartController : BaseController
         return new CartSummaryDto(items, totalQuantity, baseAmount, discountAmount, discountPercent, finalAmount);
     }
 
-    private async Task AddOrUpdateCartItemAsync(string userId, int plantId, int quantity)
+    private async Task AddOrUpdateCartItemAsync(string userId, int plantId, int quantity, int? stockQuantity)
     {
         var existingItem = await _dbContext.CartItems
             .FirstOrDefaultAsync(item => item.UserId == userId && item.PlantId == plantId);
@@ -219,7 +257,13 @@ public class CartController : BaseController
         }
         else
         {
-            existingItem.Quantity = Math.Min(MaxQuantityPerItem, existingItem.Quantity + quantity);
+            var newQuantity = existingItem.Quantity + quantity;
+            // Respect stock limit if available
+            if (stockQuantity.HasValue)
+            {
+                newQuantity = Math.Min(newQuantity, stockQuantity.Value);
+            }
+            existingItem.Quantity = Math.Min(MaxQuantityPerItem, newQuantity);
             existingItem.UpdatedAt = DateTime.UtcNow;
         }
     }

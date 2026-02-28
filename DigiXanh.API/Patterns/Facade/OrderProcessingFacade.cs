@@ -132,7 +132,13 @@ public class OrderProcessingFacade
             // Lưu lại order sau khi xử lý thanh toán
             await _dbContext.SaveChangesAsync();
 
-            // 5. Gửi email xác nhận (placeholder - không ảnh hưởng transaction)
+            // 5. GIẢM TỒN KHO (US26) - Chỉ giảm ngay với Cash. VNPay sẽ giảm khi callback thành công
+            if (order.PaymentMethod == PaymentMethod.Cash)
+            {
+                await DeductStockAsync(order.OrderItems);
+            }
+
+            // 6. Gửi email xác nhận (placeholder - không ảnh hưởng transaction)
             try
             {
                 await _emailService.SendOrderConfirmationEmailAsync(
@@ -146,7 +152,7 @@ public class OrderProcessingFacade
                 _logger.LogWarning(ex, "[Order] Failed to send confirmation email for OrderId: {OrderId}", order.Id);
             }
 
-            // 6. Xóa giỏ hàng
+            // 7. Xóa giỏ hàng
             _dbContext.CartItems.RemoveRange(cartItems);
             await _dbContext.SaveChangesAsync();
 
@@ -208,11 +214,20 @@ public class OrderProcessingFacade
         // Validate số lượng sản phẩm trong kho
         foreach (var item in cartItems)
         {
-            // Nếu có trường StockQuantity, kiểm tra ở đây
-            // Hiện tại giả định luôn có hàng
             if (item.Quantity <= 0)
             {
                 return ValidationResult.Failure($"Số lượng sản phẩm '{item.Plant?.Name}' không hợp lệ.");
+            }
+
+            // Kiểm tra tồn kho (US26)
+            if (item.Plant?.StockQuantity.HasValue == true)
+            {
+                if (item.Quantity > item.Plant.StockQuantity.Value)
+                {
+                    return ValidationResult.Failure(
+                        $"Sản phẩm '{item.Plant.Name}' chỉ còn {item.Plant.StockQuantity.Value} trong kho. " +
+                        $"Vui lòng giảm số lượng hoặc chọn sản phẩm khác.");
+                }
             }
         }
 
@@ -262,6 +277,35 @@ public class OrderProcessingFacade
         }
 
         return ValidationResult.Success(cartItems, user);
+    }
+
+    /// <summary>
+    /// Giảm tồn kho sau khi thanh toán thành công (US26)
+    /// </summary>
+    private async Task DeductStockAsync(IEnumerable<OrderItem> orderItems)
+    {
+        var plantIds = orderItems.Select(oi => oi.PlantId).Distinct().ToList();
+        
+        // Load plants với tracking để cập nhật
+        var plants = await _dbContext.Plants
+            .Where(p => plantIds.Contains(p.Id) && p.StockQuantity.HasValue)
+            .ToDictionaryAsync(p => p.Id);
+
+        foreach (var orderItem in orderItems)
+        {
+            if (plants.TryGetValue(orderItem.PlantId, out var plant))
+            {
+                var oldStock = plant.StockQuantity!.Value;
+                var newStock = Math.Max(0, oldStock - orderItem.Quantity);
+                plant.StockQuantity = newStock;
+                
+                _logger.LogInformation(
+                    "[Stock] Deducted {Quantity} from PlantId: {PlantId}. Old: {OldStock}, New: {NewStock}",
+                    orderItem.Quantity, orderItem.PlantId, oldStock, newStock);
+            }
+        }
+
+        await _dbContext.SaveChangesAsync();
     }
 
     /// <summary>
@@ -342,6 +386,16 @@ public class OrderProcessingFacade
                 }
 
                 await _dbContext.SaveChangesAsync();
+
+                // GIẢM TỒN KHO (US26) - Sau khi VNPay thanh toán thành công
+                // Load OrderItems nếu chưa có
+                if (!order.OrderItems.Any())
+                {
+                    await _dbContext.Entry(order)
+                        .Collection(o => o.OrderItems)
+                        .LoadAsync();
+                }
+                await DeductStockAsync(order.OrderItems.ToList());
 
                 // Gửi email thanh toán thành công
                 try
@@ -492,9 +546,21 @@ public class OrderProcessingFacade
             var isSuccess = vnp_ResponseCode == "00" && vnp_TransactionStatus == "00";
             if (isSuccess)
             {
+                // Chỉ giảm stock nếu order đang Pending (tránh giảm 2 lần nếu IPN và Return cùng gọi)
+                var shouldDeductStock = order.Status == OrderStatus.Pending;
+                
                 order.Status = OrderStatus.Paid;
                 order.TransactionId = vnp_TransactionNo;
-                _logger.LogInformation("[VNPay-IPN] Payment success. OrderId={OrderId}, TransactionNo={TransactionNo}", order.Id, vnp_TransactionNo);
+                _logger.LogInformation("[VNPay-IPN] Payment success. OrderId={OrderId}, TransactionNo={TransactionNo}, DeductStock={Deduct}", order.Id, vnp_TransactionNo, shouldDeductStock);
+
+                // GIẢM TỒN KHO (US26) - Chỉ giảm một lần
+                if (shouldDeductStock)
+                {
+                    await _dbContext.Entry(order)
+                        .Collection(o => o.OrderItems)
+                        .LoadAsync();
+                    await DeductStockAsync(order.OrderItems.ToList());
+                }
 
                 // Gửi email thanh toán thành công
                 try

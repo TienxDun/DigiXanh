@@ -184,7 +184,8 @@ export class AddPlantComponent implements OnInit, OnDestroy {
                     description: plant.description ?? '',
                     price: plant.price,
                     categoryId: plant.categoryId,
-                    imageUrl: plant.imageUrl
+                    imageUrl: plant.imageUrl,
+                    stockQuantity: plant.stockQuantity ?? null
                 };
                 this.previewImage = plant.imageUrl || null;
             },
@@ -274,6 +275,17 @@ export class AddPlantComponent implements OnInit, OnDestroy {
                         props: {
                             label: 'URL Ảnh',
                             placeholder: 'https://...'
+                        }
+                    },
+                    {
+                        key: 'stockQuantity',
+                        type: 'input',
+                        className: 'col-md-4',
+                        props: {
+                            label: 'Tồn kho',
+                            type: 'number',
+                            min: 0,
+                            placeholder: 'Số lượng trong kho'
                         }
                     }
                 ]
@@ -485,7 +497,10 @@ export class AddPlantComponent implements OnInit, OnDestroy {
             imageUrl: this.model['imageUrl'] ? String(this.model['imageUrl']) : undefined,
             price: Number(this.model['price'] ?? 0),
             categoryId: this.model['categoryId'] ? Number(this.model['categoryId']) : undefined,
-            trefleId: this.selectedPerenualId ?? undefined
+            trefleId: this.selectedPerenualId ?? undefined,
+            stockQuantity: this.model['stockQuantity'] !== undefined && this.model['stockQuantity'] !== '' 
+                ? Number(this.model['stockQuantity']) 
+                : null
         };
 
         const request$ = this.isEditMode && this.editingPlantId

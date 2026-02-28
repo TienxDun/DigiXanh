@@ -53,6 +53,17 @@ export class CartComponent {
     return this.processingItemIds.has(itemId);
   }
 
+  isMaxQuantityReached(item: CartItemDto): boolean {
+    if (item.stockQuantity === undefined || item.stockQuantity === null) {
+      return false;
+    }
+    return item.quantity >= item.stockQuantity;
+  }
+
+  hasOutOfStockItems(): boolean {
+    return this.cartSummary?.items.some(item => item.stockQuantity === 0) ?? false;
+  }
+
   increaseQuantity(item: CartItemDto): void {
     if (item.quantity >= 99 || this.isItemProcessing(item.id)) {
       return;

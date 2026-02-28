@@ -91,6 +91,7 @@
                             <th class="ps-2" style="min-width: 250px;">Sản phẩm</th>
                             <th>Danh mục</th>
                             <th>Giá (VNĐ)</th>
+                            <th>Tồn kho</th>
                             <th>Ngày cập nhật</th>
                             <th class="text-center pe-4" style="width: 120px;">Hành động</th>
                         </tr>
@@ -129,6 +130,16 @@
                                     <div class="fw-bold text-dark fs-6">{{ plant.price | number:'1.0-2' }}</div>
                                     <div class="text-muted small">VNĐ</div>
                                 </td>
+                                <td class="border-0">
+                                    <span class="badge rounded-pill px-3 py-2 fw-medium"
+                                        [class.bg-success.bg-opacity-10.text-success]="plant.stockQuantity === null || plant.stockQuantity === undefined || (plant.stockQuantity !== null && plant.stockQuantity > 10)"
+                                        [class.bg-warning.bg-opacity-10.text-warning]="plant.stockQuantity !== null && plant.stockQuantity !== undefined && plant.stockQuantity > 0 && plant.stockQuantity <= 10"
+                                        [class.bg-danger.bg-opacity-10.text-danger]="plant.stockQuantity === 0">
+                                        <i class="fa-solid fa-box me-1" *ngIf="plant.stockQuantity !== 0"></i>
+                                        <i class="fa-solid fa-circle-xmark me-1" *ngIf="plant.stockQuantity === 0"></i>
+                                        {{ plant.stockQuantity === null || plant.stockQuantity === undefined ? 'Không giới hạn' : plant.stockQuantity === 0 ? 'Hết hàng' : plant.stockQuantity }}
+                                    </span>
+                                </td>
                                 <td class="border-0 text-muted small fw-medium">
                                     <div class="d-flex align-items-center gap-1">
                                         <i class="fa-regular fa-calendar text-secondary"></i>
@@ -153,7 +164,7 @@
 
                             <!-- Empty State -->
                             <tr *ngIf="plants.length === 0">
-                                <td colspan="6" class="text-center py-5 border-0 bg-white rounded-4 shadow-sm">
+                                <td colspan="7" class="text-center py-5 border-0 bg-white rounded-4 shadow-sm">
                                     <div class="empty-state text-muted d-flex flex-column align-items-center py-4">
                                         <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mb-3 text-success"
                                             style="width: 80px; height: 80px;">

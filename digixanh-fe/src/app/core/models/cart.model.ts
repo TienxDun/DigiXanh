@@ -16,6 +16,7 @@ export interface CartItemDto {
   imageUrl: string;
   quantity: number;
   lineTotal: number;
+  stockQuantity?: number | null;
 }
 
 export interface CartSummaryDto {

@@ -42,6 +42,17 @@
                 <p class="text-muted fst-italic mb-1 small font-monospace" style="font-size: 0.8rem;">{{
                   item.scientificName }}</p>
                 <div class="text-success fw-bold fs-6">{{ item.price | currency:'VND':'symbol' }}</div>
+                @if (item.stockQuantity !== undefined && item.stockQuantity !== null) {
+                  @if (item.stockQuantity === 0) {
+                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill mt-1">
+                      <i class="fa-solid fa-circle-xmark me-1"></i> Hết hàng
+                    </span>
+                  } @else if (item.stockQuantity <= 10) {
+                    <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill mt-1">
+                      <i class="fa-solid fa-triangle-exclamation me-1"></i> Còn {{ item.stockQuantity }} sản phẩm
+                    </span>
+                  }
+                }
               </div>
             </div>
 
@@ -61,7 +72,8 @@
                   (change)="onQuantityInput(item, $any($event.target).value)" />
                 <button class="btn btn-light rounded-circle btn-icon text-secondary" type="button"
                   aria-label="Tăng số lượng" title="Tăng số lượng sản phẩm"
-                  [disabled]="item.quantity >= 99 || isItemProcessing(item.id)" (click)="increaseQuantity(item)">
+                  [disabled]="item.quantity >= 99 || isItemProcessing(item.id) || isMaxQuantityReached(item)" 
+                  (click)="increaseQuantity(item)">
                   <i class="fa-solid fa-plus" style="font-size: 0.7rem;"></i>
                 </button>
               </div>

@@ -82,6 +82,17 @@ export class CheckoutComponent implements OnInit {
     return this.selectedPaymentMethod === PaymentMethod.VNPay;
   }
 
+  get hasOutOfStockItems(): boolean {
+    return this.cartSummary?.items.some(item => item.stockQuantity === 0) ?? false;
+  }
+
+  get outOfStockItemNames(): string {
+    return this.cartSummary?.items
+      .filter(item => item.stockQuantity === 0)
+      .map(item => this.getItemName(item))
+      .join(', ') ?? '';
+  }
+
   private initForm(): void {
     this.checkoutForm = this.fb.group({
       recipientName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
@@ -144,6 +155,11 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
+    if (this.hasOutOfStockItems) {
+      this.errorMessage = `Không thể đặt hàng. Sản phẩm ${this.outOfStockItemNames} đã hết hàng. Vui lòng xóa khỏi giỏ hàng hoặc quay lại sau.`;
+      return;
+    }
+
     this.isSubmitting = true;
     this.errorMessage = '';
     this.successMessage = '';
@@ -193,6 +209,14 @@ export class CheckoutComponent implements OnInit {
 
   resolveImageUrl(imageUrl?: string | null): string {
     return resolvePlantImageUrl(imageUrl);
+  }
+
+  getItemName(item: CartItemDto): string {
+    return item.plantName?.trim() || `Sản phẩm #${item.plantId}`;
+  }
+
+  trackByItemId(_index: number, item: CartItemDto): number {
+    return item.id;
   }
 
   formatPrice(price: number): string {

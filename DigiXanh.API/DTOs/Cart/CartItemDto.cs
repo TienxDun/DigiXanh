@@ -8,7 +8,8 @@ public record CartItemDto(
     decimal Price,
     string ImageUrl,
     int Quantity,
-    decimal LineTotal
+    decimal LineTotal,
+    int? StockQuantity = null
 );
 
 public record CartSummaryDto(

@@ -22,5 +22,8 @@ public record CreatePlantDto(
     [Range(1, int.MaxValue)]
     int CategoryId,
 
-    int? TrefleId
+    int? TrefleId,
+
+    [Range(0, int.MaxValue)]
+    int? StockQuantity = null
 );

@@ -41,6 +41,23 @@
   border-bottom-style: dashed !important;
 }
 
+.checkout-item-img {
+  width: 72px;
+  height: 72px;
+  min-width: 72px;
+  flex-shrink: 0;
+  display: block;
+  object-fit: cover;
+}
+
+@media (max-width: 575.98px) {
+  .checkout-item-img {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+  }
+}
+
 /* Glass Input UI */
 .input-glass {
   .form-control {

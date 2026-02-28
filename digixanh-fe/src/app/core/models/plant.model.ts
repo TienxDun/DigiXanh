@@ -7,6 +7,7 @@ export interface PlantDto {
     categoryName: string;
     imageUrl: string;
     createdAt: Date | string;
+    stockQuantity?: number | null;
 }
 
 export interface PlantDetailDto {
@@ -19,6 +20,7 @@ export interface PlantDetailDto {
     categoryName: string;
     imageUrl: string;
     trefleId?: number | null;  // Giữ tên cũ để tương thích database, đây là external plant ID
+    stockQuantity?: number | null;
 }
 
 // DTO cho danh mục (dropdown)
@@ -67,4 +69,5 @@ export interface CreatePlantRequest {
     price: number;
     categoryId?: number;
     trefleId?: number;  // Giữ tên cũ để tương thích database - đây là external plant ID
+    stockQuantity?: number | null;
 }

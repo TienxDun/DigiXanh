@@ -72,7 +72,8 @@ public class PlantsController : ControllerBase
                 plant.Price,
                 plant.Category != null ? plant.Category.Name : string.Empty,
                 ImageUrlSanitizer.NormalizeOrEmpty(plant.ImageUrl),
-                plant.CreatedAt))
+                plant.CreatedAt,
+                plant.StockQuantity))
             .ToListAsync();
 
         return Ok(new PagedResult<PlantDto>(plants, totalCount, page, pageSize, totalPages));
@@ -98,7 +99,8 @@ public class PlantsController : ControllerBase
                 item.CategoryId ?? 0,
                 item.Category != null ? item.Category.Name : string.Empty,
                 ImageUrlSanitizer.NormalizeOrEmpty(item.ImageUrl),
-                item.TrefleId))
+                item.TrefleId,
+                item.StockQuantity))
             .FirstOrDefaultAsync();
 
         if (plant is null)

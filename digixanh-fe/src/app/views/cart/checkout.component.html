@@ -35,18 +35,18 @@
         </h5>
 
         <div class="checkout-items-wrapper pe-md-2 mt-2">
-          <div *ngFor="let item of cartSummary?.items"
+          <div *ngFor="let item of cartSummary?.items; trackBy: trackByItemId"
             class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between py-2 border-bottom border-dashed border-secondary border-opacity-25 last-no-border">
             <div class="d-flex align-items-center gap-3 w-100 mb-2 mb-sm-0">
-              <img [src]="resolveImageUrl(item.imageUrl)" [alt]="item.plantName || 'Hình ảnh sản phẩm'"
-                [title]="item.plantName"
+              <img [src]="resolveImageUrl(item.imageUrl)" [alt]="getItemName(item)"
+                [title]="getItemName(item)"
                 class="rounded-3 border border-secondary border-opacity-10 object-fit-cover shadow-sm bg-light checkout-item-img" (error)="onImageError($event)">
               <div class="flex-grow-1">
-                <h6 class="mb-1 fw-bold text-dark fs-6">{{ item.plantName }} <span
+                <h6 class="mb-1 fw-bold text-dark fs-6">{{ getItemName(item) }} <span
                     class="badge bg-light text-dark ms-1 d-inline-block d-sm-none">x{{ item.quantity }}</span></h6>
-                <small class="text-muted fst-italic font-monospace d-block" style="font-size: 0.8rem;">{{
+                <small *ngIf="item.scientificName" class="text-muted fst-italic font-monospace d-block" style="font-size: 0.8rem;">{{
                   item.scientificName }}</small>
-                <div class="text-success fw-bold d-block d-sm-none small mt-1">{{ formatPrice(item.price) }}</div>
+                <div class="text-success fw-bold d-block d-sm-none small mt-1">{{ formatPrice(item.lineTotal) }}</div>
               </div>
             </div>
 
@@ -178,14 +178,24 @@
             </div>
           </div>
 
+          <!-- Out of Stock Warning -->
+          <div *ngIf="hasOutOfStockItems" class="alert alert-danger rounded-4 border-0 d-flex align-items-center mt-3">
+            <i class="fa-solid fa-circle-exclamation fs-4 me-3"></i>
+            <div>
+              <strong>Không thể đặt hàng</strong><br>
+              <small>Sản phẩm {{ outOfStockItemNames }} đã hết hàng. Vui lòng xóa khỏi giỏ hàng.</small>
+            </div>
+          </div>
+
           <!-- Submit Button (Mobile) -->
           <div class="d-lg-none mt-4">
             <button type="submit"
               class="btn btn-success btn-lg w-100 text-white rounded-pill shadow-lg submit-btn py-2 fw-bold text-uppercase d-flex justify-content-center align-items-center gap-2"
-              [disabled]="isSubmitting">
+              [disabled]="isSubmitting || hasOutOfStockItems">
               <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status"></span>
-              <i *ngIf="!isSubmitting" class="fa-solid fa-check-circle fs-5"></i>
-              <span>{{ isSubmitting ? 'Đang xử lý...' : 'Xác nhận Đặt hàng' }}</span>
+              <i *ngIf="!isSubmitting && !hasOutOfStockItems" class="fa-solid fa-check-circle fs-5"></i>
+              <i *ngIf="!isSubmitting && hasOutOfStockItems" class="fa-solid fa-circle-xmark fs-5"></i>
+              <span>{{ isSubmitting ? 'Đang xử lý...' : (hasOutOfStockItems ? 'Có sản phẩm hết hàng' : 'Xác nhận Đặt hàng') }}</span>
             </button>
           </div>
         </form>
@@ -228,14 +238,21 @@
           <span class="fw-bolder fs-3 text-success text-end text-nowrap">{{ formatPrice(finalAmount) }}</span>
         </div>
 
+        <!-- Out of Stock Warning (Desktop) -->
+        <div *ngIf="hasOutOfStockItems" class="alert alert-danger rounded-4 border-0 d-flex align-items-center mb-3">
+          <i class="fa-solid fa-circle-exclamation me-2"></i>
+          <small>Có sản phẩm hết hàng trong giỏ</small>
+        </div>
+
         <!-- Submit Button (Desktop) -->
         <div class="d-none d-lg-block mb-3">
           <button type="button"
             class="btn btn-success w-100 text-white rounded-pill shadow-lg submit-btn py-2 fw-bold text-uppercase d-flex justify-content-center align-items-center gap-2"
-            [disabled]="isSubmitting || checkoutForm.invalid" (click)="onSubmit()">
+            [disabled]="isSubmitting || checkoutForm.invalid || hasOutOfStockItems" (click)="onSubmit()">
             <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status"></span>
-            <i *ngIf="!isSubmitting" class="fa-solid fa-check-circle fs-5"></i>
-            <span>Xác nhận Đặt hàng</span>
+            <i *ngIf="!isSubmitting && !hasOutOfStockItems" class="fa-solid fa-check-circle fs-5"></i>
+            <i *ngIf="!isSubmitting && hasOutOfStockItems" class="fa-solid fa-circle-xmark fs-5"></i>
+            <span>{{ hasOutOfStockItems ? 'Có sản phẩm hết hàng' : 'Xác nhận Đặt hàng' }}</span>
           </button>
         </div>
 
