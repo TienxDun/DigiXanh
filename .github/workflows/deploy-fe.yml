@@ -45,7 +45,7 @@ jobs:
       - name: Build
         run: |
           cd digixanh-fe
-          npm run build -- --configuration=production --base-href=/DigiXanh/
+          ./node_modules/.bin/ng build --configuration=production --base-href=/DigiXanh/
 
       - name: Copy index.html to 404.html
         run: cp digixanh-fe/dist/coreui-free-angular-admin-template/browser/index.html digixanh-fe/dist/coreui-free-angular-admin-template/browser/404.html
