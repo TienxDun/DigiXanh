@@ -27,8 +27,8 @@
     "perf:checkout": "k6 run k6/checkout-flow.js",
     "perf:stress": "k6 run k6/stress-test.js",
     "test:all": "npm run test:ci && npm run e2e:ci",
-    "deploy": "ng build --configuration production --base-href '/DigiXanh/' && npx angular-cli-ghpages --dir=dist/digixanh-fe/browser",
-    "postbuild": "cp dist/digixanh-fe/browser/index.html dist/digixanh-fe/browser/404.html"
+    "deploy": "ng build --configuration production --base-href '/DigiXanh/' && npx angular-cli-ghpages --dir=dist/coreui-free-angular-admin-template/browser",
+    "postbuild": "cp dist/coreui-free-angular-admin-template/browser/index.html dist/coreui-free-angular-admin-template/browser/404.html"
   },
   "private": true,
   "dependencies": {

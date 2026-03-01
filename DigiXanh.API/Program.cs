@@ -81,7 +81,10 @@ builder.Services.AddScoped<IOrderEmailService, OrderEmailService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
-        policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
+        policy.WithOrigins(
+                "http://localhost:4200",
+                "https://localhost:4200",
+                "https://tienxdun.github.io")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials());
