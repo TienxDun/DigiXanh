@@ -60,22 +60,20 @@ export class RegisterComponent {
     },
     {
       key: 'password',
-      type: 'input',
+      type: 'password',
       props: {
         label: 'Mật khẩu',
         placeholder: 'Nhập mật khẩu',
-        type: 'password',
         required: true,
         minLength: 6,
       },
     },
     {
       key: 'confirmPassword',
-      type: 'input',
+      type: 'password',
       props: {
         label: 'Xác nhận mật khẩu',
         placeholder: 'Nhập lại mật khẩu',
-        type: 'password',
         required: true,
       },
       validators: {

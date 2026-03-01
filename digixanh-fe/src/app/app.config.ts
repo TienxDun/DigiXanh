@@ -15,6 +15,7 @@ import { FormlyModule } from '@ngx-formly/core';
 import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ToastModule } from '@coreui/angular';
+import { FormlyFieldPasswordComponent } from './core/forms/password-input.type';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -34,6 +35,9 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(
       ReactiveFormsModule,
       FormlyModule.forRoot({
+        types: [
+          { name: 'password', component: FormlyFieldPasswordComponent }
+        ],
         validationMessages: [
           { name: 'required', message: 'Trường này là bắt buộc' },
           { name: 'email', message: 'Email không hợp lệ' },

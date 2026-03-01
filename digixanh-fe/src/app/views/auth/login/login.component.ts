@@ -53,11 +53,10 @@ export class LoginComponent {
     },
     {
       key: 'password',
-      type: 'input',
+      type: 'password',
       props: {
         label: 'Mật khẩu',
         placeholder: 'Nhập mật khẩu',
-        type: 'password',
         required: true,
       },
     },
