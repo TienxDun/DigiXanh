@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'digixanh-fe/**'
+      - '.github/workflows/deploy-fe.yml'
   workflow_dispatch:
 
 permissions:
