@@ -21,20 +21,44 @@ public class VNPayPaymentAdapter : IPaymentAdapter
         order.PaymentMethod = PaymentMethod.VNPay;
         order.Status = OrderStatus.Pending;
 
-        var vnpReturnUrl = paymentInfo.ReturnUrl ?? _config["VNPay:ReturnUrl"] ?? "https://localhost:7262/api/payment/vnpay-return";
-        var vnpUrl = _config["VNPay:Url"] ?? "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        var vnpTmnCode = _config["VNPay:TmnCode"] ?? string.Empty;
-        var vnpHashSecret = _config["VNPay:HashSecret"] ?? string.Empty;
+        var vnpUrl = (_config["VNPay:Url"] ?? "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html").Trim();
+        var vnpTmnCode = (_config["VNPay:TmnCode"] ?? string.Empty).Trim();
+        var vnpHashSecret = (_config["VNPay:HashSecret"] ?? string.Empty).Trim();
+        var configuredReturnUrl = (_config["VNPay:ReturnUrl"] ?? string.Empty).Trim();
+        var configuredIpnUrl = (_config["VNPay:IpnUrl"] ?? string.Empty).Trim();
+        var vnpReturnUrl = ResolveReturnUrl(paymentInfo.ReturnUrl, configuredReturnUrl);
 
-        if (string.IsNullOrWhiteSpace(vnpTmnCode) || string.IsNullOrWhiteSpace(vnpHashSecret))
+        if (IsMissingOrPlaceholder(vnpTmnCode) || IsMissingOrPlaceholder(vnpHashSecret))
         {
-            _logger.LogError("[VNPay-CreateUrl] Missing VNPay configuration. TmnCodeConfigured={HasTmnCode}, HashSecretConfigured={HasHashSecret}",
-                !string.IsNullOrWhiteSpace(vnpTmnCode),
-                !string.IsNullOrWhiteSpace(vnpHashSecret));
+            _logger.LogError("[VNPay-CreateUrl] VNPay credentials are missing or placeholder values. TmnCodeConfigured={HasTmnCode}, HashSecretConfigured={HasHashSecret}",
+                !IsMissingOrPlaceholder(vnpTmnCode),
+                !IsMissingOrPlaceholder(vnpHashSecret));
             return Task.FromResult(new PaymentResult
             {
                 Success = false,
-                Message = "Thiếu cấu hình VNPay: TmnCode hoặc HashSecret."
+                Message = "Cấu hình VNPay chưa hợp lệ. Vui lòng cập nhật TmnCode/HashSecret thật trong cấu hình môi trường."
+            });
+        }
+
+        if (!IsValidAbsoluteHttpUrl(vnpUrl))
+        {
+            _logger.LogError("[VNPay-CreateUrl] Invalid VNPay URL configuration: {VnpUrl}", vnpUrl);
+            return Task.FromResult(new PaymentResult
+            {
+                Success = false,
+                Message = "Cấu hình URL cổng VNPay không hợp lệ."
+            });
+        }
+
+        if (!IsValidAbsoluteHttpUrl(vnpReturnUrl))
+        {
+            _logger.LogError("[VNPay-CreateUrl] Invalid ReturnUrl configuration. ClientReturnUrl={ClientReturnUrl}, ConfiguredReturnUrl={ConfiguredReturnUrl}",
+                paymentInfo.ReturnUrl,
+                configuredReturnUrl);
+            return Task.FromResult(new PaymentResult
+            {
+                Success = false,
+                Message = "Cấu hình ReturnUrl VNPay không hợp lệ. Vui lòng dùng URL tuyệt đối (http/https)."
             });
         }
 
@@ -56,6 +80,10 @@ public class VNPayPaymentAdapter : IPaymentAdapter
         vnpay.AddRequestData("vnp_OrderType", "other");
         vnpay.AddRequestData("vnp_ReturnUrl", vnpReturnUrl);
         vnpay.AddRequestData("vnp_TxnRef", order.Id.ToString());
+        if (IsValidAbsoluteHttpUrl(configuredIpnUrl))
+        {
+            vnpay.AddRequestData("vnp_IpnUrl", configuredIpnUrl);
+        }
 
         _logger.LogInformation(
             "[VNPay-CreateUrl] Generating payment URL. OrderId={OrderId}, Amount={Amount}, ReturnUrl={ReturnUrl}, ClientIp={ClientIp}",
@@ -96,6 +124,37 @@ public class VNPayPaymentAdapter : IPaymentAdapter
         }
         
         return firstIp;
+    }
+
+    private static string ResolveReturnUrl(string? clientReturnUrl, string configuredReturnUrl)
+    {
+        if (IsValidAbsoluteHttpUrl(clientReturnUrl))
+        {
+            return clientReturnUrl!.Trim();
+        }
+
+        return configuredReturnUrl;
+    }
+
+    private static bool IsMissingOrPlaceholder(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return true;
+        }
+
+        var normalized = value.Trim();
+        return normalized.StartsWith("your-", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("your_", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("example", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("changeme", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsValidAbsoluteHttpUrl(string? url)
+    {
+        return Uri.TryCreate(url?.Trim(), UriKind.Absolute, out var uri)
+               && (uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+                   || uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase));
     }
 
     private static string HmacSHA512(string key, string inputData)

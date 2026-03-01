@@ -1,7 +1,7 @@
-import { Component, DestroyRef, HostListener, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, HostListener, NgZone, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, Observable, of } from 'rxjs';
 import { CategoryDto, PlantDto } from '../../../core/models/plant.model';
@@ -27,6 +27,8 @@ interface PublicPlantListVm {
 export class PublicPlantListComponent implements OnInit {
   readonly fallbackImageUrl = 'assets/images/plant-placeholder.svg';
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ngZone = inject(NgZone);
+  private readonly cdr = inject(ChangeDetectorRef);
   private latestRequestId = 0;
 
   private readonly pageSize = 24;
@@ -61,7 +63,8 @@ export class PublicPlantListComponent implements OnInit {
 
   constructor(
     private publicPlantService: PublicPlantService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     this.categories$ = this.publicPlantService.getCategories().pipe(
       catchError(() => of([]))
@@ -91,8 +94,13 @@ export class PublicPlantListComponent implements OnInit {
   }
 
   onCategoryChange(value: string): void {
-    this.currentCategoryId = value ? Number(value) : null;
-    this.resetAndLoadPlants();
+    const normalizedValue = value?.trim() ?? '';
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { category: normalizedValue || null },
+      queryParamsHandling: 'merge'
+    });
   }
 
   onSortChange(value: string): void {
@@ -170,23 +178,26 @@ export class PublicPlantListComponent implements OnInit {
       } as PagedResult<PlantDto>)),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((result: PagedResult<PlantDto>) => {
-      if (requestId !== this.latestRequestId) {
-        return;
-      }
+      this.ngZone.run(() => {
+        if (requestId !== this.latestRequestId) {
+          return;
+        }
 
-      const nextItems = result.items ?? [];
-      const mergedItems = append ? [...this.vm.items, ...nextItems] : nextItems;
+        const nextItems = result.items ?? [];
+        const mergedItems = append ? [...this.vm.items, ...nextItems] : nextItems;
 
-      this.vm = {
-        items: mergedItems,
-        totalCount: result.totalCount ?? 0,
-        page: result.page ?? this.currentPage,
-        pageSize: result.pageSize ?? this.pageSize,
-        totalPages: result.totalPages ?? 0
-      };
+        this.vm = {
+          items: mergedItems,
+          totalCount: result.totalCount ?? 0,
+          page: result.page ?? this.currentPage,
+          pageSize: result.pageSize ?? this.pageSize,
+          totalPages: result.totalPages ?? 0
+        };
 
-      this.isInitialLoading = false;
-      this.isLoadingMore = false;
+        this.isInitialLoading = false;
+        this.isLoadingMore = false;
+        this.cdr.detectChanges();
+      });
     });
   }
 }

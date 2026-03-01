@@ -30,12 +30,12 @@
     <!-- Category Chips (Horizontal Scroll) -->
     <div class="category-scroll-container">
       <div class="category-chips">
-        <button class="category-chip" [class.active]="!selectedCategory" (click)="onCategoryChange('')">
+        <button type="button" class="category-chip" [class.active]="!selectedCategory" (click)="onCategoryChange('')">
           <i class="fa-solid fa-border-all me-1"></i> Tất cả
         </button>
         @if (categories$ | async; as categories) {
         @for (category of categories; track category.id) {
-        <button class="category-chip" [class.active]="selectedCategory == category.id.toString()"
+        <button type="button" class="category-chip" [class.active]="selectedCategory === category.id.toString()"
           (click)="onCategoryChange(category.id.toString())">
           {{ category.name }}
         </button>
