@@ -23,6 +23,7 @@ public class AdminPerenualController : ControllerBase
     [Produces("application/json")]
     [ProducesResponseType(typeof(IReadOnlyCollection<PerenualPlantSearchItemDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(object), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(object), StatusCodes.Status429TooManyRequests)]
     [ProducesResponseType(typeof(object), StatusCodes.Status504GatewayTimeout)]
     public async Task<IActionResult> Search([FromQuery(Name = "q")] string? query, CancellationToken cancellationToken)
@@ -45,12 +46,22 @@ public class AdminPerenualController : ControllerBase
         {
             return StatusCode(StatusCodes.Status429TooManyRequests, new { message = ex.Message });
         }
+        catch (PerenualConfigurationException ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+        }
+        catch (PerenualServiceException ex)
+        {
+            return StatusCode(StatusCodes.Status502BadGateway, new { message = ex.Message });
+        }
     }
 
     [HttpGet("{id:int}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(PerenualPlantDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(object), StatusCodes.Status502BadGateway)]
     [ProducesResponseType(typeof(object), StatusCodes.Status429TooManyRequests)]
     [ProducesResponseType(typeof(object), StatusCodes.Status504GatewayTimeout)]
     public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken)
@@ -72,6 +83,14 @@ public class AdminPerenualController : ControllerBase
         catch (PerenualRateLimitException ex)
         {
             return StatusCode(StatusCodes.Status429TooManyRequests, new { message = ex.Message });
+        }
+        catch (PerenualConfigurationException ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+        }
+        catch (PerenualServiceException ex)
+        {
+            return StatusCode(StatusCodes.Status502BadGateway, new { message = ex.Message });
         }
     }
 }

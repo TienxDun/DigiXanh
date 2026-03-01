@@ -277,6 +277,8 @@ secrets.json
 appsettings.Development.json
 appsettings.Local.json
 appsettings.Production.json
+tmp_check/
+DigiXanh.API/appsettings.Development.json
 
 # Azure
 *.publishsettings
@@ -373,3 +375,9 @@ tmp_check/
 
 # GitHub internal (context, instructions)
 .github/
+
+DEPLOY_STEP_BY_STEP.md
+SECRETS_SETUP.md
+
+submissions/
+

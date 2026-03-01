@@ -704,20 +704,32 @@
 .trust-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem 1rem;
-  padding-top: 0.5rem;
+  justify-content: center; // Center the items
+  gap: 0.6rem 2rem;       // Increase gap for better balance
+  padding: 1rem 0.5rem;    // Increase vertical padding
   border-top: 1px dashed rgba(0, 0, 0, 0.07);
+  background: rgba(var(--dg-brand-primary-rgb), 0.02); // Subtle background
+  border-radius: 12px;
+  margin-top: 0.5rem;
 }
 
 .trust-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  justify-content: center;
+  gap: 0.4rem;
   font-size: var(--dg-text-xs);
+  font-weight: var(--dg-font-semibold);
   color: var(--dg-text-secondary);
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: var(--dg-brand-primary);
+    transform: translateY(-1px);
+  }
 
   i {
-    font-size: 0.65rem;
+    font-size: 0.8rem;
   }
 }
 

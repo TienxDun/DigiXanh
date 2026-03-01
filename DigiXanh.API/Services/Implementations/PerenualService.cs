@@ -68,10 +68,9 @@ public class PerenualService : IPerenualService
             return cached;
         }
 
-        // Nếu đang bị rate limit, trả về mock data
         if (_isRateLimited && DateTime.UtcNow < _rateLimitResetTime)
         {
-            return GetMockSearchResults(normalizedQuery);
+            throw new PerenualRateLimitException($"API đã hết quota (100 requests/ngày). Vui lòng thử lại sau {_rateLimitResetTime:HH:mm} UTC.");
         }
 
         var apiKey = GetApiKey();
@@ -86,8 +85,7 @@ public class PerenualService : IPerenualService
             {
                 _isRateLimited = true;
                 _rateLimitResetTime = DateTime.UtcNow.AddHours(1); // Reset sau 1 giờ
-                // Trả về mock data thay vì throw exception
-                return GetMockSearchResults(normalizedQuery);
+                throw new PerenualRateLimitException($"API đã hết quota (100 requests/ngày). Vui lòng thử lại sau {_rateLimitResetTime:HH:mm} UTC.");
             }
 
             response.EnsureSuccessStatusCode();
@@ -113,15 +111,15 @@ public class PerenualService : IPerenualService
         }
         catch (PerenualRateLimitException)
         {
-            return GetMockSearchResults(normalizedQuery);
+            throw;
         }
         catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
         {
-            return GetMockSearchResults(normalizedQuery);
+            throw new PerenualTimeoutException("Perenual API phản hồi quá chậm. Vui lòng thử lại sau.", ex);
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException ex)
         {
-            return GetMockSearchResults(normalizedQuery);
+            throw new PerenualServiceException("Không thể kết nối đến Perenual API. Vui lòng thử lại sau.", ex);
         }
     }
 
@@ -139,10 +137,9 @@ public class PerenualService : IPerenualService
             return cached;
         }
 
-        // Nếu đang bị rate limit, trả về null
         if (_isRateLimited && DateTime.UtcNow < _rateLimitResetTime)
         {
-            return null;
+            throw new PerenualRateLimitException($"API đã hết quota (100 requests/ngày). Vui lòng thử lại sau {_rateLimitResetTime:HH:mm} UTC.");
         }
 
         var apiKey = GetApiKey();
@@ -157,7 +154,7 @@ public class PerenualService : IPerenualService
             {
                 _isRateLimited = true;
                 _rateLimitResetTime = DateTime.UtcNow.AddHours(1);
-                return null;
+                throw new PerenualRateLimitException($"API đã hết quota (100 requests/ngày). Vui lòng thử lại sau {_rateLimitResetTime:HH:mm} UTC.");
             }
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -191,95 +188,30 @@ public class PerenualService : IPerenualService
             _memoryCache.Set(cacheKey, detail, TimeSpan.FromHours(24));
             return detail;
         }
+        catch (PerenualRateLimitException)
+        {
+            throw;
+        }
+        catch (TaskCanceledException ex) when (!cancellationToken.IsCancellationRequested)
+        {
+            throw new PerenualTimeoutException("Perenual API phản hồi quá chậm. Vui lòng thử lại sau.", ex);
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new PerenualServiceException("Không thể kết nối đến Perenual API. Vui lòng thử lại sau.", ex);
+        }
         catch
         {
-            return null;
+            throw new PerenualServiceException("Perenual API trả về dữ liệu không hợp lệ.");
         }
-    }
-
-    private static IReadOnlyCollection<PerenualPlantSearchItemDto> GetMockSearchResults(string query)
-    {
-        // Mock data cho các từ khóa phổ biến
-        var mockData = new Dictionary<string, List<PerenualPlantSearchItemDto>>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["rose"] = new()
-            {
-                new(1, "Rose", "Rosa", "https://perenual.com/storage/species_image/1_rosa/og/1.jpg"),
-                new(2, "Dog Rose", "Rosa canina", "https://perenual.com/storage/species_image/2_rosa_canina/og/2.jpg"),
-                new(3, "Beach Rose", "Rosa rugosa", "https://perenual.com/storage/species_image/3_rosa_rugosa/og/3.jpg"),
-            },
-            ["bamboo"] = new()
-            {
-                new(4, "Golden Bamboo", "Phyllostachys aurea", "https://perenual.com/storage/species_image/4_phyllostachys_aurea/og/4.jpg"),
-                new(5, "Black Bamboo", "Phyllostachys nigra", "https://perenual.com/storage/species_image/5_phyllostachys_nigra/og/5.jpg"),
-            },
-            ["tree"] = new()
-            {
-                new(6, "Oak Tree", "Quercus", "https://perenual.com/storage/species_image/6_quercus/og/6.jpg"),
-                new(7, "Pine Tree", "Pinus", "https://perenual.com/storage/species_image/7_pinus/og/7.jpg"),
-                new(8, "Maple Tree", "Acer", "https://perenual.com/storage/species_image/8_acer/og/8.jpg"),
-            },
-            ["flower"] = new()
-            {
-                new(9, "Sunflower", "Helianthus annuus", "https://perenual.com/storage/species_image/9_helianthus_annuus/og/9.jpg"),
-                new(10, "Daisy", "Bellis perennis", "https://perenual.com/storage/species_image/10_bellis_perennis/og/10.jpg"),
-            },
-            ["cactus"] = new()
-            {
-                new(11, "Golden Barrel Cactus", "Echinocactus grusonii", "https://perenual.com/storage/species_image/11_echinocactus_grusonii/og/11.jpg"),
-            },
-            ["fern"] = new()
-            {
-                new(12, "Boston Fern", "Nephrolepis exaltata", "https://perenual.com/storage/species_image/12_nephrolepis_exaltata/og/12.jpg"),
-            },
-            ["palm"] = new()
-            {
-                new(13, "Areca Palm", "Dypsis lutescens", "https://perenual.com/storage/species_image/13_dypsis_lutescens/og/13.jpg"),
-                new(14, "Parlor Palm", "Chamaedorea elegans", "https://perenual.com/storage/species_image/14_chamaedorea_elegans/og/14.jpg"),
-            },
-            ["herb"] = new()
-            {
-                new(15, "Basil", "Ocimum basilicum", "https://perenual.com/storage/species_image/15_ocimum_basilicum/og/15.jpg"),
-                new(16, "Mint", "Mentha", "https://perenual.com/storage/species_image/16_mentha/og/16.jpg"),
-                new(17, "Lavender", "Lavandula", "https://perenual.com/storage/species_image/17_lavandula/og/17.jpg"),
-            },
-            ["succulent"] = new()
-            {
-                new(18, "Aloe Vera", "Aloe barbadensis", "https://perenual.com/storage/species_image/18_aloe_barbadensis/og/18.jpg"),
-                new(19, "Jade Plant", "Crassula ovata", "https://perenual.com/storage/species_image/19_crassula_ovata/og/19.jpg"),
-            },
-            ["vine"] = new()
-            {
-                new(20, "Ivy", "Hedera helix", "https://perenual.com/storage/species_image/20_hedera_helix/og/20.jpg"),
-            },
-        };
-
-        // Tìm kiếm theo từ khóa
-        foreach (var key in mockData.Keys)
-        {
-            if (query.Contains(key, StringComparison.OrdinalIgnoreCase) || key.Contains(query, StringComparison.OrdinalIgnoreCase))
-            {
-                return mockData[key];
-            }
-        }
-
-        // Nếu không tìm thấy, trả về danh sách mặc định
-        return new List<PerenualPlantSearchItemDto>
-        {
-            new(1, "Rose", "Rosa", null),
-            new(6, "Oak Tree", "Quercus", null),
-            new(9, "Sunflower", "Helianthus annuus", null),
-            new(15, "Basil", "Ocimum basilicum", null),
-            new(18, "Aloe Vera", "Aloe barbadensis", null),
-        };
     }
 
     private string GetApiKey()
     {
         var apiKey = _configuration["Perenual:ApiKey"];
-        if (string.IsNullOrWhiteSpace(apiKey))
+        if (string.IsNullOrWhiteSpace(apiKey) || IsPlaceholder(apiKey))
         {
-            throw new InvalidOperationException("Missing configuration: Perenual:ApiKey");
+            throw new PerenualConfigurationException("Thiếu cấu hình Perenual:ApiKey hợp lệ. Vui lòng cập nhật key thật trong môi trường chạy.");
         }
 
         return apiKey;
@@ -306,6 +238,15 @@ public class PerenualService : IPerenualService
             ?? ImageUrlSanitizer.NormalizeOrNull(imageData.OriginalUrl)
             ?? ImageUrlSanitizer.NormalizeOrNull(imageData.SmallUrl)
             ?? ImageUrlSanitizer.NormalizeOrNull(imageData.Thumbnail);
+    }
+
+    private static bool IsPlaceholder(string value)
+    {
+        var normalized = value.Trim();
+        return normalized.StartsWith("your-", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("your_", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("example", StringComparison.OrdinalIgnoreCase)
+            || normalized.Equals("changeme", StringComparison.OrdinalIgnoreCase);
     }
 
     private sealed record PerenualListResponse<T>(
@@ -351,6 +292,22 @@ public class PerenualRateLimitException : Exception
 {
     public PerenualRateLimitException(string message)
         : base(message)
+    {
+    }
+}
+
+public class PerenualConfigurationException : Exception
+{
+    public PerenualConfigurationException(string message)
+        : base(message)
+    {
+    }
+}
+
+public class PerenualServiceException : Exception
+{
+    public PerenualServiceException(string message, Exception? innerException = null)
+        : base(message, innerException)
     {
     }
 }

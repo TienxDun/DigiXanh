@@ -362,5 +362,56 @@ public class QuantityDiscountDecoratorTests
         Assert.Equal(100m, finalAmount);
     }
 
+    [Fact]
+    public void TaxDecorator_AddsTaxOnDiscountedAmount_WhenEnabledAtRuntime()
+    {
+        // Arrange
+        var calculator = PriceCalculatorFactory.CreateCalculatorWithDiscounts(
+            includeTax: true,
+            taxPercent: 10,
+            includeShipping: false,
+            shippingFee: 0);
+
+        var items = new List<CartItem>
+        {
+            new() { Id = 1, PlantId = 1, Quantity = 2, Plant = new Plant { Id = 1, Price = 100 } }
+        };
+
+        // Act
+        var (baseAmount, discountAmount, finalAmount) = calculator.CalculatePriceWithDetails(items);
+
+        // Assert
+        // Base: 200, Discount 5%: 10 => discounted total: 190
+        // Tax 10% on 190 => 19 => final 209
+        Assert.Equal(200m, baseAmount);
+        Assert.Equal(10m, discountAmount);
+        Assert.Equal(209m, finalAmount);
+    }
+
+    [Fact]
+    public void ShippingFeeDecorator_AddsFlatFee_AfterDiscountAndTax()
+    {
+        // Arrange
+        var calculator = PriceCalculatorFactory.CreateCalculatorWithDiscounts(
+            includeTax: true,
+            taxPercent: 10,
+            includeShipping: true,
+            shippingFee: 15000m);
+
+        var items = new List<CartItem>
+        {
+            new() { Id = 1, PlantId = 1, Quantity = 2, Plant = new Plant { Id = 1, Price = 100 } }
+        };
+
+        // Act
+        var (_, _, finalAmount) = calculator.CalculatePriceWithDetails(items);
+
+        // Assert
+        // Discounted total: 190
+        // Tax 10% => 209
+        // Shipping fee => 15209
+        Assert.Equal(15209m, finalAmount);
+    }
+
     #endregion
 }

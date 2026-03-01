@@ -64,7 +64,16 @@ public class OrderProcessingFacade
         var user = validationResult.User!;
 
         // ==================== STEP 2: Tính tổng tiền với Decorator Pattern ====================
-        var priceCalculator = PriceCalculatorFactory.CreateCalculatorWithDiscounts();
+        var includeTax = _config.GetValue<bool?>("Pricing:EnableTax") ?? false;
+        var taxPercent = _config.GetValue<decimal?>("Pricing:TaxPercent") ?? 0m;
+        var includeShipping = _config.GetValue<bool?>("Pricing:EnableShipping") ?? false;
+        var shippingFee = _config.GetValue<decimal?>("Pricing:ShippingFee") ?? 0m;
+
+        var priceCalculator = PriceCalculatorFactory.CreateCalculatorWithDiscounts(
+            includeTax: includeTax,
+            taxPercent: taxPercent,
+            includeShipping: includeShipping,
+            shippingFee: shippingFee);
         var (baseAmount, discountAmount, finalAmount) = priceCalculator.CalculatePriceWithDetails(cartItems);
 
         _logger.LogInformation(
