@@ -25,8 +25,9 @@ public class VNPayPaymentAdapter : IPaymentAdapter
         var vnpTmnCode = (_config["VNPay:TmnCode"] ?? string.Empty).Trim();
         var vnpHashSecret = (_config["VNPay:HashSecret"] ?? string.Empty).Trim();
         var configuredReturnUrl = (_config["VNPay:ReturnUrl"] ?? string.Empty).Trim();
+        var configuredFrontendReturnUrl = (_config["VNPay:FrontendReturnUrl"] ?? string.Empty).Trim();
         var configuredIpnUrl = (_config["VNPay:IpnUrl"] ?? string.Empty).Trim();
-        var vnpReturnUrl = ResolveReturnUrl(paymentInfo.ReturnUrl, configuredReturnUrl);
+        var vnpReturnUrl = ResolveReturnUrl(paymentInfo.ReturnUrl, configuredReturnUrl, configuredFrontendReturnUrl);
 
         if (IsMissingOrPlaceholder(vnpTmnCode) || IsMissingOrPlaceholder(vnpHashSecret))
         {
@@ -80,9 +81,13 @@ public class VNPayPaymentAdapter : IPaymentAdapter
         vnpay.AddRequestData("vnp_OrderType", "other");
         vnpay.AddRequestData("vnp_ReturnUrl", vnpReturnUrl);
         vnpay.AddRequestData("vnp_TxnRef", order.Id.ToString());
-        if (IsValidAbsoluteHttpUrl(configuredIpnUrl))
+        if (IsPublicCallbackUrl(configuredIpnUrl))
         {
             vnpay.AddRequestData("vnp_IpnUrl", configuredIpnUrl);
+        }
+        else if (IsValidAbsoluteHttpUrl(configuredIpnUrl))
+        {
+            _logger.LogWarning("[VNPay-CreateUrl] Skipping non-public IpnUrl configuration: {ConfiguredIpnUrl}", configuredIpnUrl);
         }
 
         _logger.LogInformation(
@@ -126,14 +131,38 @@ public class VNPayPaymentAdapter : IPaymentAdapter
         return firstIp;
     }
 
-    private static string ResolveReturnUrl(string? clientReturnUrl, string configuredReturnUrl)
+    private static string ResolveReturnUrl(string? clientReturnUrl, string configuredReturnUrl, string configuredFrontendReturnUrl)
     {
         if (IsValidAbsoluteHttpUrl(clientReturnUrl))
         {
             return clientReturnUrl!.Trim();
         }
 
+        if (IsValidAbsoluteHttpUrl(configuredFrontendReturnUrl))
+        {
+            return configuredFrontendReturnUrl;
+        }
+
         return configuredReturnUrl;
+    }
+
+    private static bool IsPublicCallbackUrl(string? url)
+    {
+        if (!Uri.TryCreate(url?.Trim(), UriKind.Absolute, out var uri))
+        {
+            return false;
+        }
+
+        if (!uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+            && !uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        var host = uri.Host;
+        return !host.Equals("localhost", StringComparison.OrdinalIgnoreCase)
+               && !host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase)
+               && !host.Equals("::1", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool IsMissingOrPlaceholder(string value)
@@ -226,7 +255,8 @@ public class VnPayLibrary
     public static bool ValidateSignature(Dictionary<string, string> vnpayData, string inputHash, string secretKey)
     {
         // Sử dụng case-insensitive comparer để đúng chuẩn VNPay
-        var sortedData = new SortedList<string, string>(StringComparer.OrdinalIgnoreCase);
+        var sortedRawData = new SortedList<string, string>(StringComparer.OrdinalIgnoreCase);
+        var sortedNormalizedData = new SortedList<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (var item in vnpayData)
         {
             if (!item.Key.StartsWith("vnp_", StringComparison.OrdinalIgnoreCase))
@@ -240,17 +270,25 @@ public class VnPayLibrary
                 continue;
             }
 
-            // Giữ nguyên giá trị (đã URL-encoded từ query string)
             if (!string.IsNullOrWhiteSpace(item.Value))
             {
-                sortedData[item.Key] = item.Value;
+                sortedRawData[item.Key] = item.Value;
+                sortedNormalizedData[item.Key] = WebUtility.UrlDecode(item.Value);
             }
         }
 
-        // Build query data với giá trị đã URL-encoded (không encode lại)
-        var signData = BuildQueryDataRaw(sortedData);
-        var myChecksum = HmacSHA512(secretKey, signData);
-        return myChecksum.Equals(inputHash, StringComparison.OrdinalIgnoreCase);
+        // Variant 1: dữ liệu raw từ query string (giữ nguyên value)
+        var rawSignData = BuildQueryDataRaw(sortedRawData);
+        var rawChecksum = HmacSHA512(secretKey, rawSignData);
+        if (rawChecksum.Equals(inputHash, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        // Variant 2: dữ liệu normalize (decode rồi encode lại theo chuẩn)
+        var normalizedSignData = BuildQueryData(sortedNormalizedData);
+        var normalizedChecksum = HmacSHA512(secretKey, normalizedSignData);
+        return normalizedChecksum.Equals(inputHash, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>

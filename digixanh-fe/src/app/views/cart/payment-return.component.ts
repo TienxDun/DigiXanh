@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { OrderService } from '../../core/services/order.service';
 import { OrderDetailDto } from '../../core/models/order.model';
-import { take } from 'rxjs';
+import { timeout } from 'rxjs';
 
 @Component({
   selector: 'app-payment-return',
@@ -179,11 +179,22 @@ export class PaymentReturnComponent implements OnInit {
   transactionId: string | null = null;
   order: OrderDetailDto | null = null;
   vnpResponseCode: string | null = null;
+  private hasProcessedQuery = false;
 
   ngOnInit(): void {
+    const snapshotParams = this.route.snapshot.queryParams as { [key: string]: string };
+    if (Object.keys(snapshotParams).length > 0) {
+      this.handleQueryParams(snapshotParams);
+      return;
+    }
+
     this.route.queryParamMap
-      .pipe(take(1), takeUntilDestroyed(this.destroyRef))
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(params => {
+        if (this.hasProcessedQuery || params.keys.length === 0) {
+          return;
+        }
+
         const queryParams: { [key: string]: string } = {};
         params.keys.forEach(key => {
           const value = params.get(key);
@@ -192,36 +203,68 @@ export class PaymentReturnComponent implements OnInit {
           }
         });
 
-        // Lưu response code để hiển thị
-        this.vnpResponseCode = queryParams['vnp_ResponseCode'] || null;
-
-        // Nếu BE đã xử lý và redirect với paymentStatus
-        const normalizedStatus = queryParams['paymentStatus'];
-        if (normalizedStatus === 'success' || normalizedStatus === 'failed' || normalizedStatus === 'cancelled') {
-          this.paymentStatus = normalizedStatus;
-          this.message = queryParams['message'] || this.getErrorMessage(queryParams['vnp_ResponseCode'], queryParams['vnp_TransactionStatus']);
-          this.orderId = this.toNumber(queryParams['orderId']) ?? this.toNumber(queryParams['vnp_TxnRef']);
-          this.transactionId = queryParams['transactionId'] || queryParams['vnp_TransactionNo'] || null;
-          this.isLoading = false;
-          
-          // Nếu thanh toán thành công, lấy chi tiết đơn hàng
-          if (this.paymentStatus === 'success' && this.orderId) {
-            this.loadOrderDetails(this.orderId);
-          }
-          return;
-        }
-
-        // Nếu không có paymentStatus, kiểm tra VNPay params
-        if (!queryParams['vnp_TxnRef']) {
-          this.paymentStatus = 'failed';
-          this.message = 'Không nhận được tham số giao dịch từ VNPay.';
-          this.isLoading = false;
-          return;
-        }
-
-        // Gọi API để xác thực với backend
-        this.verifyWithBackend(queryParams);
+        this.handleQueryParams(queryParams);
       });
+
+    setTimeout(() => {
+      if (!this.hasProcessedQuery && this.isLoading) {
+        this.paymentStatus = 'failed';
+        this.message = 'Không nhận được dữ liệu phản hồi từ VNPay. Vui lòng thử lại.';
+        this.isLoading = false;
+      }
+    }, 15000);
+  }
+
+  private handleQueryParams(queryParams: { [key: string]: string }): void {
+    this.hasProcessedQuery = true;
+
+    // Lưu response code để hiển thị
+    this.vnpResponseCode = queryParams['vnp_ResponseCode'] || null;
+
+    // Nếu BE đã xử lý và redirect với paymentStatus
+    const normalizedStatus = queryParams['paymentStatus'];
+    if (normalizedStatus === 'success' || normalizedStatus === 'failed' || normalizedStatus === 'cancelled') {
+      this.paymentStatus = normalizedStatus;
+      this.message = queryParams['message'] || this.getErrorMessage(queryParams['vnp_ResponseCode'], queryParams['vnp_TransactionStatus']);
+      this.orderId = this.toNumber(queryParams['orderId']) ?? this.toNumber(queryParams['vnp_TxnRef']);
+      this.transactionId = queryParams['transactionId'] || queryParams['vnp_TransactionNo'] || null;
+      this.isLoading = false;
+
+      // Nếu thanh toán thành công, lấy chi tiết đơn hàng
+      if (this.paymentStatus === 'success' && this.orderId) {
+        this.loadOrderDetails(this.orderId);
+      }
+      return;
+    }
+
+    // Nếu không có paymentStatus, kiểm tra VNPay params
+    if (!queryParams['vnp_TxnRef']) {
+      this.paymentStatus = 'failed';
+      this.message = 'Không nhận được tham số giao dịch từ VNPay.';
+      this.isLoading = false;
+      return;
+    }
+
+    const responseCode = queryParams['vnp_ResponseCode'];
+    const transactionStatus = queryParams['vnp_TransactionStatus'];
+    const hasVnPayStatus = !!responseCode || !!transactionStatus;
+
+    // Hiển thị nhanh trạng thái dựa trên query từ VNPay để tránh cảm giác chờ lâu.
+    if (hasVnPayStatus) {
+      const isSuccess = responseCode === '00' && transactionStatus === '00';
+      this.orderId = this.toNumber(queryParams['vnp_TxnRef']);
+      this.transactionId = queryParams['vnp_TransactionNo'] || null;
+      this.paymentStatus = isSuccess
+        ? 'success'
+        : (responseCode === '24' ? 'cancelled' : 'failed');
+      this.message = isSuccess
+        ? 'Đã nhận kết quả từ VNPay. Đang xác thực giao dịch...'
+        : this.getErrorMessage(responseCode, transactionStatus);
+      this.isLoading = false;
+    }
+
+    // Gọi API để xác thực với backend
+    this.verifyWithBackend(queryParams);
   }
 
   private loadOrderDetails(orderId: number): void {
@@ -256,7 +299,10 @@ export class PaymentReturnComponent implements OnInit {
 
   private verifyWithBackend(vnpayData: { [key: string]: string }): void {
     this.orderService.processVNPayReturn(vnpayData)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      .pipe(
+        timeout(8000),
+        takeUntilDestroyed(this.destroyRef)
+      )
       .subscribe({
         next: (response) => {
           this.order = response.order ?? null;

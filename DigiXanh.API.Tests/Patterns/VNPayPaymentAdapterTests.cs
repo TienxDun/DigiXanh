@@ -69,7 +69,7 @@ public class VNPayPaymentAdapterTests
         var query = QueryHelpers.ParseQuery(uri.Query);
 
         Assert.Equal("https://localhost:5001/api/payment/vnpay-return", query["vnp_ReturnUrl"].ToString());
-        Assert.Equal("https://localhost:5001/api/payment/vnpay-ipn", query["vnp_IpnUrl"].ToString());
+        Assert.False(query.ContainsKey("vnp_IpnUrl"));
         Assert.Equal("127.0.0.1", query["vnp_IpAddr"].ToString());
     }
 

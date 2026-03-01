@@ -129,6 +129,11 @@ public class OrderProcessingFacade
                 order.TransactionId = paymentResult.TransactionId;
             }
 
+            if (!string.IsNullOrWhiteSpace(paymentResult.PaymentUrl))
+            {
+                order.PaymentUrl = paymentResult.PaymentUrl;
+            }
+
             // Lưu lại order sau khi xử lý thanh toán
             await _dbContext.SaveChangesAsync();
 
@@ -270,10 +275,26 @@ public class OrderProcessingFacade
             return ValidationResult.Failure("Phương thức thanh toán không hợp lệ.");
         }
 
-        // Với VNPay, cần có ReturnUrl
-        if (request.PaymentMethod == (int)PaymentMethod.VNPay && string.IsNullOrWhiteSpace(request.ReturnUrl))
+        if (request.PaymentMethod == (int)PaymentMethod.VNPay)
         {
-            _logger.LogWarning("[Order] VNPay payment requested without ReturnUrl for UserId: {UserId}", userId);
+            var configuredReturnUrl = _config["VNPay:ReturnUrl"];
+            var configuredFrontendReturnUrl = _config["VNPay:FrontendReturnUrl"];
+            var hasClientReturnUrl = IsValidAbsoluteHttpUrl(request.ReturnUrl);
+            var hasConfiguredReturnUrl = IsValidAbsoluteHttpUrl(configuredReturnUrl);
+            var hasConfiguredFrontendReturnUrl = IsValidAbsoluteHttpUrl(configuredFrontendReturnUrl);
+
+            if (!hasClientReturnUrl && !hasConfiguredReturnUrl && !hasConfiguredFrontendReturnUrl)
+            {
+                return ValidationResult.Failure("Cấu hình callback VNPay không hợp lệ. Vui lòng cấu hình ReturnUrl/FrontendReturnUrl là URL tuyệt đối (http/https).");
+            }
+
+            if (!hasClientReturnUrl)
+            {
+                _logger.LogWarning("[Order] VNPay payment requested without client ReturnUrl for UserId: {UserId}. Fallback configuredReturnUrl={ConfiguredReturnUrl}, configuredFrontendReturnUrl={ConfiguredFrontendReturnUrl}",
+                    userId,
+                    configuredReturnUrl,
+                    configuredFrontendReturnUrl);
+            }
         }
 
         return ValidationResult.Success(cartItems, user);
@@ -353,6 +374,7 @@ public class OrderProcessingFacade
         var vnp_ResponseCode = vnpayData.GetValueOrDefault("vnp_ResponseCode");
         var vnp_TransactionStatus = vnpayData.GetValueOrDefault("vnp_TransactionStatus");
         var vnp_TransactionNo = vnpayData.GetValueOrDefault("vnp_TransactionNo");
+        var vnp_Amount = vnpayData.GetValueOrDefault("vnp_Amount");
 
         _logger.LogInformation(
             "VNPay return - OrderId: {OrderId}, ResponseCode: {ResponseCode}, TransactionStatus: {TransactionStatus}, TransactionNo: {TransactionNo}",
@@ -371,6 +393,34 @@ public class OrderProcessingFacade
         {
             _logger.LogWarning("[VNPay-Return] Order not found. OrderId={OrderId}", orderId);
             return new VNPayReturnResponse { Success = false, Message = "Không tìm thấy đơn hàng.", Status = "OrderNotFound" };
+        }
+
+        if (!long.TryParse(vnp_Amount, out var amountInVnPayUnit))
+        {
+            _logger.LogWarning("[VNPay-Return] Invalid amount format. OrderId={OrderId}, AmountRaw={AmountRaw}", order.Id, vnp_Amount);
+            return new VNPayReturnResponse
+            {
+                Success = false,
+                OrderId = order.Id,
+                Status = "InvalidAmount",
+                Message = "Số tiền giao dịch không hợp lệ."
+            };
+        }
+
+        var callbackAmount = amountInVnPayUnit / 100m;
+        if (callbackAmount != order.FinalAmount)
+        {
+            _logger.LogWarning("[VNPay-Return] Amount mismatch. OrderId={OrderId}, Expected={Expected}, Received={Received}",
+                order.Id,
+                order.FinalAmount,
+                callbackAmount);
+            return new VNPayReturnResponse
+            {
+                Success = false,
+                OrderId = order.Id,
+                Status = "InvalidAmount",
+                Message = "Số tiền giao dịch không khớp với đơn hàng."
+            };
         }
 
         var isSuccess = vnp_ResponseCode == "00" && vnp_TransactionStatus == "00";
@@ -434,29 +484,17 @@ public class OrderProcessingFacade
         {
             if (order.Status == OrderStatus.Pending)
             {
-                // === XÓA ĐƠN HÀNG và KHÔI PHỤC GIỎ HÀNG khi thanh toán thất bại ===
-                _logger.LogInformation("[VNPay-Return] Payment failed/cancelled. Deleting OrderId={OrderId}, ResponseCode={ResponseCode}", order.Id, vnp_ResponseCode);
-                
-                // 1. Khôi phục giỏ hàng (tạo lại cart items từ order items)
-                foreach (var orderItem in order.OrderItems)
-                {
-                    _dbContext.CartItems.Add(new CartItem
-                    {
-                        UserId = order.UserId,
-                        PlantId = orderItem.PlantId,
-                        Quantity = orderItem.Quantity
-                    });
-                }
-                _logger.LogInformation("[VNPay-Return] Restored {Count} items to cart for UserId={UserId}", order.OrderItems.Count, order.UserId);
-                
-                // 2. Xóa order items
-                _dbContext.OrderItems.RemoveRange(order.OrderItems);
-                
-                // 3. Xóa order
-                _dbContext.Orders.Remove(order);
-                
+                // === GIỮ LẠI ĐƠN HÀNG và KHÔI PHỤC GIỎ HÀNG khi thanh toán thất bại ===
+                _logger.LogInformation("[VNPay-Return] Payment failed/cancelled. Marking OrderId={OrderId} as Cancelled. ResponseCode={ResponseCode}", order.Id, vnp_ResponseCode);
+
+                await RestoreCartFromOrderAsync(order);
+
+                order.Status = OrderStatus.Cancelled;
+                order.UpdatedAt = DateTime.UtcNow;
+                order.UpdatedBy = "VNPay";
+
                 await _dbContext.SaveChangesAsync();
-                _logger.LogInformation("[VNPay-Return] Order deleted successfully. OrderId={OrderId}", order.Id);
+                _logger.LogInformation("[VNPay-Return] Order status updated to Cancelled successfully. OrderId={OrderId}", order.Id);
             }
             else
             {
@@ -480,12 +518,49 @@ public class OrderProcessingFacade
             return new VNPayReturnResponse
             {
                 Success = false,
-                OrderId = 0,  // Order đã bị xóa
+                OrderId = order.Id,
                 Status = status,
                 Message = message,
-                Order = null  // Order không còn tồn tại
+                Order = MapToOrderDetailDto(order)
             };
         }
+    }
+
+    private async Task RestoreCartFromOrderAsync(Order order)
+    {
+        if (!order.OrderItems.Any())
+        {
+            await _dbContext.Entry(order)
+                .Collection(o => o.OrderItems)
+                .LoadAsync();
+        }
+
+        var plantIds = order.OrderItems.Select(oi => oi.PlantId).Distinct().ToList();
+        var existingCartItems = await _dbContext.CartItems
+            .Where(c => c.UserId == order.UserId && plantIds.Contains(c.PlantId))
+            .ToListAsync();
+
+        foreach (var orderItem in order.OrderItems)
+        {
+            var existing = existingCartItems.FirstOrDefault(c => c.PlantId == orderItem.PlantId);
+            if (existing != null)
+            {
+                existing.Quantity += orderItem.Quantity;
+                existing.UpdatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                _dbContext.CartItems.Add(new CartItem
+                {
+                    UserId = order.UserId,
+                    PlantId = orderItem.PlantId,
+                    Quantity = orderItem.Quantity,
+                    UpdatedAt = DateTime.UtcNow
+                });
+            }
+        }
+
+        _logger.LogInformation("[VNPay-Return] Restored {Count} items to cart for UserId={UserId}", order.OrderItems.Count, order.UserId);
     }
 
     /// <summary>
@@ -607,6 +682,13 @@ public class OrderProcessingFacade
             "09" => "Giao dịch hoàn trả bị từ chối.",
             _ => null
         };
+    }
+
+    private static bool IsValidAbsoluteHttpUrl(string? url)
+    {
+        return Uri.TryCreate(url?.Trim(), UriKind.Absolute, out var uri)
+               && (uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+                   || uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase));
     }
 
     private static OrderDetailDto MapToOrderDetailDto(Order order)

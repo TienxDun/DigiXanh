@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, NgZone, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { catchError, filter, map, Observable, of, switchMap, tap } from 'rxjs';
@@ -17,7 +17,7 @@ import { resolvePlantImageUrl } from '../../../core/utils/image-url.util';
   templateUrl: './public-plant-detail.component.html',
   styleUrl: './public-plant-detail.component.scss'
 })
-export class PublicPlantDetailComponent {
+export class PublicPlantDetailComponent implements OnDestroy {
   readonly fallbackImageUrl = 'assets/images/plant-placeholder.svg';
 
   quantity = 1;
@@ -29,6 +29,7 @@ export class PublicPlantDetailComponent {
 
   private currentPlantId: number | null = null;
   currentPlant: PlantDetailDto | null = null;
+  private successResetTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly plant$: Observable<PlantDetailDto | null>;
   readonly relatedPlants$: Observable<PlantDto[]>;
@@ -39,7 +40,9 @@ export class PublicPlantDetailComponent {
     private readonly publicPlantService: PublicPlantService,
     private readonly authService: AuthService,
     private readonly cartService: CartService,
-    private readonly toastService: ToastService
+    private readonly toastService: ToastService,
+    private readonly ngZone: NgZone,
+    private readonly cdr: ChangeDetectorRef
   ) {
     this.plant$ = this.route.paramMap.pipe(
       map(params => Number(params.get('id'))),
@@ -120,6 +123,7 @@ export class PublicPlantDetailComponent {
   addToCart(): void {
     this.errorMessage = '';
     this.successMessage = '';
+    this.clearSuccessTimer();
 
     if (!this.currentPlantId) {
       this.errorMessage = 'Không xác định được cây cần thêm vào giỏ.';
@@ -146,14 +150,24 @@ export class PublicPlantDetailComponent {
       next: () => {
         this.isAdding = false;
         this.isSuccess = true;
+        this.cdr.detectChanges();
         this.toastService.success('Đã thêm sản phẩm vào giỏ hàng', 'Thành công', 2500);
-        setTimeout(() => { this.isSuccess = false; }, 2000);
+        this.successResetTimer = setTimeout(() => {
+          this.ngZone.run(() => {
+            this.isSuccess = false;
+            this.cdr.detectChanges();
+          });
+        }, 2000);
       },
       error: (error) => {
         this.isAdding = false;
         this.toastService.error(error?.error?.message ?? 'Có lỗi xảy ra', 'Thất bại');
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.clearSuccessTimer();
   }
 
   onImageError(event: Event): void {
@@ -176,6 +190,13 @@ export class PublicPlantDetailComponent {
     if (qty === 0) return 'out-of-stock';
     if (qty <= 10) return 'low-stock';
     return 'in-stock';
+  }
+
+  private clearSuccessTimer(): void {
+    if (this.successResetTimer) {
+      clearTimeout(this.successResetTimer);
+      this.successResetTimer = null;
+    }
   }
 }
 

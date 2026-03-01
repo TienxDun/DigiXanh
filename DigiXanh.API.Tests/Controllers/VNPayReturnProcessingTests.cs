@@ -34,7 +34,7 @@ public class VNPayReturnProcessingTests
     }
 
     [Fact]
-    public async Task ProcessVNPayReturnAsync_DeletesOrderAndRestoresCart_WhenResponseIsFailure()
+    public async Task ProcessVNPayReturnAsync_KeepsOrderAndRestoresCart_WhenResponseIsFailure()
     {
         await using var dbContext = CreateDbContext();
         var order = await SeedPendingOrderAsync(dbContext);
@@ -44,14 +44,53 @@ public class VNPayReturnProcessingTests
         var payload = BuildSignedPayload(orderId, "24", "02", "TXN-0002");
         var result = await facade.ProcessVNPayReturnAsync(payload);
 
-        // Order should be deleted and cart items restored
-        var deletedOrder = await dbContext.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+        // Order should be kept (Cancelled) and cart items restored
+        var updatedOrder = await dbContext.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
         var restoredCartItems = await dbContext.CartItems.Where(c => c.UserId == "test-user-id").ToListAsync();
         
         Assert.False(result.Success);
         Assert.Equal("Cancelled", result.Status);
-        Assert.Null(deletedOrder); // Order should be deleted
+        Assert.NotNull(updatedOrder);
+        Assert.Equal(OrderStatus.Cancelled, updatedOrder!.Status);
         Assert.NotEmpty(restoredCartItems); // Cart items should be restored
+        Assert.Equal(orderId, result.OrderId);
+    }
+
+    [Fact]
+    public async Task ProcessVNPayReturnAsync_ValidatesSignature_WhenPayloadContainsUrlEncodedValues()
+    {
+        await using var dbContext = CreateDbContext();
+        var order = await SeedPendingOrderAsync(dbContext);
+        var facade = CreateFacade(dbContext);
+
+        var payloadForSigning = new Dictionary<string, string>
+        {
+            ["vnp_TxnRef"] = order.Id.ToString(),
+            ["vnp_ResponseCode"] = "00",
+            ["vnp_TransactionStatus"] = "00",
+            ["vnp_TransactionNo"] = "TXN-0003",
+            ["vnp_Amount"] = "10000000",
+            ["vnp_OrderInfo"] = $"Thanh toan don hang:{order.Id}"
+        };
+
+        var payload = new Dictionary<string, string>
+        {
+            ["vnp_TxnRef"] = payloadForSigning["vnp_TxnRef"],
+            ["vnp_ResponseCode"] = payloadForSigning["vnp_ResponseCode"],
+            ["vnp_TransactionStatus"] = payloadForSigning["vnp_TransactionStatus"],
+            ["vnp_TransactionNo"] = payloadForSigning["vnp_TransactionNo"],
+            ["vnp_Amount"] = payloadForSigning["vnp_Amount"],
+            ["vnp_OrderInfo"] = "Thanh%20toan%20don%20hang:"
+                                + payloadForSigning["vnp_TxnRef"]
+        };
+
+        payload["vnp_SecureHash"] = ComputeSecureHash(payloadForSigning, HashSecret);
+
+        var result = await facade.ProcessVNPayReturnAsync(payload);
+
+        Assert.True(result.Success);
+        Assert.Equal(order.Id, result.OrderId);
+        Assert.Equal("Paid", result.Status);
     }
 
     private static ApplicationDbContext CreateDbContext()

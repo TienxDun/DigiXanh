@@ -192,6 +192,10 @@ export class CheckoutComponent implements OnInit {
       ...this.checkoutForm.value
     };
 
+    if (this.isVNPayPayment) {
+      request.returnUrl = `${window.location.origin}/payment-return`;
+    }
+
     this.orderService.createOrder(request)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
