@@ -4,7 +4,30 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
 
+const splashShownAt = Date.now();
+const minimumSplashDurationMs = 650;
+
 bootstrapApplication(AppComponent, appConfig)
+  .then(() => {
+    const splashElement = document.getElementById('app-splash');
+
+    if (!splashElement) {
+      return;
+    }
+
+    const elapsedMs = Date.now() - splashShownAt;
+    const delayBeforeHideMs = Math.max(0, minimumSplashDurationMs - elapsedMs);
+
+    window.setTimeout(() => {
+      requestAnimationFrame(() => {
+        splashElement.classList.add('app-splash--hidden');
+      });
+
+      window.setTimeout(() => {
+        splashElement.remove();
+      }, 420);
+    }, delayBeforeHideMs);
+  })
   .catch((err) => {
     // Log error trong môi trường development
     if (typeof window !== 'undefined' && (window as unknown as { ngDevMode: boolean }).ngDevMode) {

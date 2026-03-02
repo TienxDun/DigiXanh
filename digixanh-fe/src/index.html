@@ -16,17 +16,119 @@
   <meta content="DigiXanh" name="author" />
   <meta content="DigiXanh, Admin, Dashboard" name="keyword" />
   <link href="assets/favicon.png" rel="icon" type="image/png">
+  <style>
+    .app-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483647;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      padding: 1.5rem;
+      color: var(--cui-emphasis-color, #212631);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(129, 199, 132, 0.2) 0, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(46, 125, 50, 0.12) 0, transparent 42%),
+        var(--cui-body-bg, #f8faf9);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+    }
+
+    .app-splash--hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .app-splash__card {
+      width: min(100%, 24rem);
+      padding: 1.5rem 1.25rem 1.25rem;
+      border-radius: 1rem;
+      text-align: center;
+      border: 1px solid rgba(46, 125, 50, 0.2);
+      background: var(--cui-body-bg, #ffffff);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .app-splash__title {
+      margin: 0 0 0.3rem;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.015em;
+    }
+
+    .app-splash__progress {
+      position: relative;
+      overflow: hidden;
+      width: min(100%, 16rem);
+      height: 0.28rem;
+      margin: 0.9rem auto 0.7rem;
+      border-radius: 999px;
+      background: rgba(46, 125, 50, 0.2);
+    }
+
+    .app-splash__progress::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 35%;
+      border-radius: 999px;
+      background: var(--cui-primary, #2e7d32);
+      animation: app-splash-progress 1.4s ease-in-out infinite;
+    }
+
+    .app-splash__label {
+      margin: 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      color: var(--cui-secondary-color, #6b7280);
+    }
+
+    .app-splash__error {
+      display: none;
+      margin: 0.45rem auto 0;
+      max-width: min(80vw, 32rem);
+      font-size: 0.88rem;
+      color: var(--cui-danger, #dc3545);
+    }
+
+    @keyframes app-splash-progress {
+      0% {
+        transform: translateX(-120%);
+      }
+
+      100% {
+        transform: translateX(340%);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .app-splash__progress::before {
+        animation: none;
+      }
+
+      .app-splash {
+        transition: none;
+      }
+    }
+  </style>
   <title>DigiXanh</title>
 </head>
 
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
-  <app-root>
-    <div class="fade show" style="text-align: center; padding-top: calc(100vh / 2); height: 100vh">
-      <i class="spinner-grow spinner-grow-sm"></i>
-      <span class="m-1">Loading...</span>
+  <div id="app-splash" class="app-splash" role="status" aria-live="polite" aria-busy="true">
+    <div class="app-splash__card">
+      <h1 class="app-splash__title">DigiXanh</h1>
+      <div class="app-splash__progress" aria-hidden="true"></div>
+      <p class="app-splash__label">Đang chuẩn bị trải nghiệm...</p>
+      <p id="bootstrap-error" class="app-splash__error"></p>
     </div>
-  </app-root>
+  </div>
+  <app-root></app-root>
 </body>
 
 </html>
