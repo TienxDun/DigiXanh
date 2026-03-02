@@ -1,307 +1,183 @@
-<section class="container py-4 py-lg-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
+<section class="order-success-page py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
 
-      <!-- Success State -->
-      <div *ngIf="isPaymentSuccess || isCashPayment" class="card border-0 shadow-lg mb-4">
-        <div class="card-body p-4 p-lg-5">
+        <!-- Success State -->
+        <div *ngIf="isPaymentSuccess || isCashPayment" class="glass-card scale-in mb-4">
+          <div class="card-body p-4 p-lg-5">
 
-          <!-- Header -->
-          <div class="text-center mb-4">
-            <div class="success-icon mx-auto mb-3">
-              <i class="fas fa-check"></i>
-            </div>
-            <h2 class="fw-bold text-success mb-2">{{ pageTitle }}</h2>
-            <p class="text-muted">{{ pageDescription }}</p>
-          </div>
-
-          <!-- Order Timeline -->
-          <div *ngIf="order" class="order-timeline mb-4">
-            <h6 class="fw-bold mb-3">
-              <i class="fas fa-route text-success me-2"></i>
-              Trạng thái đơn hàng
-            </h6>
-            <div class="timeline">
-              <div class="timeline-track">
-                <div class="timeline-progress" [style.width.%]="(currentStepIndex / (timelineSteps.length - 1)) * 100">
-                </div>
-              </div>
-              <div class="timeline-steps">
-                <div *ngFor="let step of timelineSteps; let i = index" class="timeline-step"
-                  [class.completed]="isStepCompleted(i)" [class.active]="isStepActive(i)">
-                  <div class="step-icon">
-                    <i class="fas {{ step.icon }}"></i>
+            <div class="row g-0 align-items-stretch">
+              <!-- Left Column: Status & Primary Actions -->
+              <div
+                class="col-lg-5 p-4 p-xl-5 text-center d-flex flex-column justify-content-center border-end-lg status-side">
+                <div class="status-hero">
+                  <div class="success-icon-wrapper mb-3">
+                    <div class="success-icon mx-auto small-icon">
+                      <svg class="premium-status-svg" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 13L9 17L19 7" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                          stroke-linejoin="round" class="check-path" />
+                      </svg>
+                    </div>
+                    <div class="confetti-placeholder"></div>
                   </div>
-                  <div class="step-label">{{ step.label }}</div>
-                  <div class="step-description" *ngIf="isStepActive(i)">{{ step.description }}</div>
+                  <h2 class="dg-text-xl text-success mb-2">{{ pageTitle }}</h2>
+                  <p class="text-muted mb-4 dg-text-sm">{{ pageDescription }}</p>
+
+                </div>
+
+                <div *ngIf="isPaymentSuccess || isCashPayment" class="cta-box">
+                  <a [routerLink]="['/orders/my-orders']"
+                    class="btn btn-primary btn-lg w-100 text-white shadow-sm py-3 dg-bold mb-3">
+                    <i class="fas fa-box-open me-2"></i> Theo dõi đơn hàng
+                  </a>
+                  <a routerLink="/plants" class="btn btn-outline-success w-100 py-2 dg-semibold mb-3">
+                    <i class="fas fa-leaf me-2"></i> Tiếp tục mua sắm
+                  </a>
+                  <div class="d-flex justify-content-center gap-4 mt-2">
+                    <a routerLink="/" class="dg-text-sm fw-semibold text-secondary text-decoration-none">
+                      <i class="fas fa-home me-1"></i> Trang chủ
+                    </a>
+                    <button class="btn btn-link text-muted dg-text-sm fw-semibold text-decoration-none p-0"
+                      (click)="printOrder()">
+                      <i class="fas fa-print me-1"></i> In hóa đơn
+                    </button>
+                  </div>
+
                 </div>
               </div>
-            </div>
-          </div>
 
-          <!-- Delivery Estimate -->
-          <div *ngIf="order && !isCashPayment"
-            class="delivery-estimate alert alert-info d-flex align-items-center mb-4">
-            <div class="delivery-icon me-3">
-              <i class="fas fa-truck-fast fa-lg"></i>
-            </div>
-            <div>
-              <div class="fw-semibold">ThờI gian giao hàng dự kiến</div>
-              <div class="small">{{ estimatedDeliveryDate }}</div>
-            </div>
-          </div>
+              <!-- Right Column: Process & Order Info -->
+              <div class="col-lg-7 p-4 p-xl-5 detail-side bg-light-subtle">
+                <!-- Mini Timeline -->
+                <div *ngIf="order" class="mb-4">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="fw-bold dg-text-md"><i class="fas fa-route text-success me-2"></i>Tiến độ</span>
+                    <span class="badge bg-success-subtle text-success dg-text-xs p-2">#{{ order.id }}</span>
 
-          <!-- Order Details -->
-          <div *ngIf="order" class="order-details bg-light rounded-3 p-4 mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
-              <h6 class="fw-bold mb-0">
-                <i class="fas fa-receipt text-success me-2"></i>
-                Thông tin đơn hàng
-              </h6>
-              <span class="badge bg-secondary">#{{ order.id }}</span>
-            </div>
+                  </div>
 
-            <div class="row g-2 small mb-3">
-              <div class="col-sm-6">
-                <div class="text-muted">Ngày đặt:</div>
-                <div>{{ formatDate(order.orderDate) }}</div>
-              </div>
-              <div class="col-sm-6">
-                <div class="text-muted">Trạng thái:</div>
-                <div [class]="getStatusClass(order.status)">
-                  <i class="fas fa-circle me-1" style="font-size: 8px;"></i>
-                  {{ getStatusLabel(order.status) }}
-                </div>
-              </div>
-              <div class="col-sm-6">
-                <div class="text-muted">NgườI nhận:</div>
-                <div class="fw-semibold">{{ order.recipientName }}</div>
-              </div>
-              <div class="col-sm-6">
-                <div class="text-muted">Số điện thoại:</div>
-                <div>{{ order.phone }}</div>
-              </div>
-              <div class="col-12">
-                <div class="text-muted">Địa chỉ giao hàng:</div>
-                <div>{{ order.shippingAddress }}</div>
-              </div>
-              <div class="col-sm-6">
-                <div class="text-muted">Phương thức thanh toán:</div>
-                <div>{{ getPaymentMethodLabel(order.paymentMethod) }}</div>
-              </div>
-              <div class="col-sm-6" *ngIf="order.transactionId">
-                <div class="text-muted">Mã giao dịch:</div>
-                <div class="font-monospace text-truncate">{{ order.transactionId }}</div>
-              </div>
-            </div>
-
-            <!-- Order Items -->
-            <div class="order-items border-top pt-3 mb-3">
-              <div *ngFor="let item of order.items"
-                class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                <div class="d-flex align-items-center">
-                  <div class="item-image me-2">
-                    <img *ngIf="item.imageUrl" [src]="item.imageUrl" [alt]="item.plantName" class="rounded">
-                    <div *ngIf="!item.imageUrl" class="placeholder-image rounded">
-                      <i class="fas fa-leaf"></i>
+                  <div class="mini-timeline-container">
+                    <div class="timeline-track">
+                      <div class="timeline-progress"
+                        [style.width.%]="(currentStepIndex / (timelineSteps.length - 1)) * 100"></div>
+                    </div>
+                    <div class="timeline-steps">
+                      <div *ngFor="let step of timelineSteps; let i = index" class="timeline-step"
+                        [class.completed]="isStepCompleted(i)" [class.active]="isStepActive(i)">
+                        <div class="step-icon-mini">
+                          <i class="fas {{ step.icon }}"></i>
+                        </div>
+                        <span class="step-label-mini d-none d-md-block">{{ step.label }}</span>
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <div class="fw-medium">{{ item.plantName }}</div>
-                    <div class="text-muted small">x{{ item.quantity }}</div>
+                </div>
+
+                <!-- Delivery Estimate -->
+                <div *ngIf="order && !isCashPayment" class="alert-delivery-compact mb-4">
+                  <div class="d-flex align-items-center p-2 rounded-3 bg-white shadow-xs border">
+                    <i class="fas fa-truck-fast text-primary mx-3"></i>
+                    <div class="dg-text-xs">
+                      <div class="text-muted">Giao hàng dự kiến:</div>
+                      <div class="fw-bold text-primary">{{ estimatedDeliveryDate }}</div>
+                    </div>
                   </div>
                 </div>
-                <div class="fw-medium">{{ formatPrice(item.lineTotal) }}</div>
+
+                <!-- Order Info Summary -->
+                <div *ngIf="order" class="order-summary-compact">
+                  <div class="row g-2 mb-3 dg-text-xs">
+                    <div class="col-6">
+                      <div class="text-muted dg-text-xs uppercase mb-1">Người nhận</div>
+                      <div class="dg-text-sm fw-bold text-truncate">{{ order.recipientName }}</div>
+                    </div>
+                    <div class="col-6">
+                      <div class="text-muted dg-text-xs uppercase mb-1">Thanh toán</div>
+                      <div class="dg-text-sm fw-semibold">{{ getPaymentMethodLabel(order.paymentMethod) }}</div>
+                    </div>
+
+                  </div>
+
+                  <!-- Product List (Scrollable if > 3 items) -->
+                  <div class="compact-item-list mb-3 border-top border-bottom py-2">
+                    <div *ngFor="let item of order.items"
+                      class="d-flex justify-content-between align-items-center mb-2">
+                      <div class="d-flex align-items-center overflow-hidden">
+                        <span class="badge bg-secondary-subtle text-dark me-2">1x</span>
+                        <span class="dg-text-sm text-truncate text-secondary">{{ item.plantName }}</span>
+                      </div>
+                      <span class="dg-text-sm fw-semibold">{{ formatPrice(item.lineTotal) }}</span>
+
+                    </div>
+                  </div>
+
+                  <!-- Total Price -->
+                  <div class="price-calc">
+                    <div class="d-flex justify-content-between dg-text-sm text-muted mb-1">
+                      <span>Tạm tính</span>
+                      <span>{{ formatPrice(order.totalAmount) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between dg-text-lg border-top pt-2">
+                      <span>Tổng cộng</span>
+                      <span class="text-success">{{ formatPrice(order.finalAmount) }}</span>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- Fallback info -->
+                <div *ngIf="!order && orderId" class="text-center py-4">
+                  <p class="text-muted dg-text-xs mb-1 uppercase">Mã đơn hàng</p>
+                  <h4 class="fw-bold text-success">#{{ orderId }}</h4>
+                </div>
               </div>
             </div>
 
-            <!-- Price Summary -->
-            <div class="price-summary">
-              <div class="d-flex justify-content-between small mb-1">
-                <span class="text-muted">Tạm tính:</span>
-                <span>{{ formatPrice(order.totalAmount) }}</span>
-              </div>
-              <div *ngIf="order.discountAmount > 0" class="d-flex justify-content-between small text-success mb-1">
-                <span>Giảm giá:</span>
-                <span>-{{ formatPrice(order.discountAmount) }}</span>
-              </div>
-              <div class="d-flex justify-content-between align-items-center fw-bold fs-5 mt-2 pt-2 border-top">
-                <span>Tổng cộng:</span>
-                <span class="text-success">{{ formatPrice(order.finalAmount) }}</span>
-              </div>
-            </div>
-          </div>
 
-          <!-- Basic Info when order object is not available -->
-          <div *ngIf="!order && orderId" class="order-details bg-light rounded-3 p-4 mb-4">
-            <h6 class="fw-bold mb-3 border-bottom pb-2">
-              <i class="fas fa-receipt text-success me-2"></i>
-              Thông tin đơn hàng
-            </h6>
-            <div class="row g-2 small">
-              <div class="col-6 text-muted">Mã đơn hàng:</div>
-              <div class="col-6 text-end fw-semibold">#{{ orderId }}</div>
-              <div class="col-6 text-muted">Trạng thái:</div>
-              <div class="col-6 text-end fw-semibold text-success">Đã thanh toán</div>
-            </div>
-            <div *ngIf="transactionId" class="row g-2 small mt-2">
-              <div class="col-6 text-muted">Mã giao dịch:</div>
-              <div class="col-6 text-end font-monospace">{{ transactionId }}</div>
-            </div>
-          </div>
-
-          <!-- Support Info -->
-          <div class="support-info bg-light rounded-3 p-3">
-            <div class="d-flex align-items-center mb-2">
-              <i class="fas fa-headset text-success me-2"></i>
-              <span class="fw-semibold">Cần hỗ trợ?</span>
-            </div>
-            <div class="row g-2 small text-center">
-              <div class="col-4">
-                <a href="tel:19001234" class="text-decoration-none">
-                  <i class="fas fa-phone text-success d-block mb-1"></i>
-                  <span>1900 1234</span>
-                </a>
-              </div>
-              <div class="col-4">
-                <a href="mailto:support@digixanh.com" class="text-decoration-none">
-                  <i class="fas fa-envelope text-success d-block mb-1"></i>
-                  <span>Email</span>
-                </a>
-              </div>
-              <div class="col-4">
-                <a routerLink="/contact" class="text-decoration-none">
-                  <i class="fas fa-comments text-success d-block mb-1"></i>
-                  <span>Chat</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Action Buttons (Always visible on success) -->
-      <div *ngIf="isPaymentSuccess || isCashPayment" class="action-buttons mb-5">
-        <div class="row g-2 mb-3">
-          <div class="col-6">
-            <button class="btn btn-outline-secondary w-100 py-2" (click)="printOrder()">
-              <i class="fas fa-print me-1"></i>
-              In đơn hàng
-            </button>
-          </div>
-          <div class="col-6">
-            <button class="btn btn-outline-secondary w-100 py-2" (click)="downloadOrder()">
-              <i class="fas fa-download me-1"></i>
-              Lưu đơn hàng
-            </button>
           </div>
         </div>
 
-        <div class="d-grid gap-2">
-          <a [routerLink]="['/orders/my-orders']" class="btn btn-primary btn-lg text-white shadow-sm">
-            <i class="fas fa-search-location me-2"></i>
-            Theo dõi đơn hàng
-          </a>
 
-          <div class="row g-2">
-            <div class="col-6">
-              <a routerLink="/" class="btn btn-success w-100 py-2 text-white">
-                <i class="fas fa-home me-2"></i>
-                Trang chủ
+
+        <!-- Failed State -->
+        <div *ngIf="isPaymentFailed" class="glass-card scale-in">
+          <div class="card-body p-5 text-center">
+            <div class="failed-icon mx-auto mb-4">
+              <svg class="premium-status-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18 6L6 18" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                  stroke-linejoin="round" class="cross-path-1" />
+                <path d="M6 6L18 18" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                  stroke-linejoin="round" class="cross-path-2" />
+              </svg>
+            </div>
+            <h2 class="fw-bold text-danger mb-3">{{ pageTitle }}</h2>
+            <p class="text-muted mb-5">{{ pageDescription }}</p>
+
+            <div class="alert alert-soft-warning text-start mb-5 p-4 rounded-4">
+              <div class="d-flex">
+                <i class="fas fa-info-circle mt-1 me-3 fa-lg text-primary"></i>
+                <div>
+                  <h6 class="fw-bold mb-1">Giỏ hàng đã được khôi phục</h6>
+                  <p class="mb-0 dg-text-sm">Đừng lo lắng, các sản phẩm bạn chọn vẫn nằm trong giỏ hàng. Bạn có thể thử
+                    lại với thẻ khác hoặc chọn COD.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-grid gap-3">
+              <a routerLink="/checkout" class="btn btn-success btn-lg py-3 dg-bold shadow">
+                <i class="fas fa-redo me-2"></i> Thử lại ngay
               </a>
-            </div>
-            <div class="col-6">
-              <a routerLink="/plants" class="btn btn-outline-success w-100 py-2">
-                <i class="fas fa-leaf me-2"></i>
-                Mua sắm tiếp
+              <a routerLink="/cart" class="btn btn-outline-secondary border-2 py-3 dg-semibold">
+                Quay lại giỏ hàng
               </a>
             </div>
           </div>
         </div>
+
       </div>
-
-      <!-- Failed State -->
-      <div *ngIf="isPaymentFailed" class="card border-0 shadow-lg">
-        <div class="card-body p-4 p-lg-5 text-center">
-
-          <!-- Failed Header -->
-          <div class="mb-4">
-            <div class="failed-icon mx-auto mb-3">
-              <i class="fas fa-times"></i>
-            </div>
-            <h2 class="fw-bold text-danger mb-2">{{ pageTitle }}</h2>
-            <p class="text-muted">{{ pageDescription }}</p>
-          </div>
-
-          <!-- Cart Restored Alert -->
-          <div class="alert alert-info d-flex align-items-start text-start mb-4">
-            <i class="fas fa-info-circle mt-1 me-2"></i>
-            <div>
-              <strong>Giỏ hàng của bạn đã được khôi phục.</strong><br>
-              <span class="small">Bạn có thể thử thanh toán lại hoặc chọn phương thức thanh toán khác.</span>
-            </div>
-          </div>
-
-          <!-- Failed Order Info -->
-          <div *ngIf="order" class="order-details bg-light rounded-3 p-4 mb-4 text-start">
-            <h6 class="fw-bold mb-3 border-bottom pb-2">
-              <i class="fas fa-receipt text-danger me-2"></i>
-              Thông tin đơn hàng #{{ order.id }}
-            </h6>
-
-            <div class="alert alert-warning">
-              <i class="fas fa-exclamation-triangle me-2"></i>
-              Đơn hàng này đã bị hủy do thanh toán không thành công.
-            </div>
-
-            <div class="row g-2 small mt-3">
-              <div class="col-6 text-muted">Ngày đặt:</div>
-              <div class="col-6 text-end">{{ formatDate(order.orderDate) }}</div>
-
-              <div class="col-6 text-muted">Tổng tiền:</div>
-              <div class="col-6 text-end fw-semibold">{{ formatPrice(order.finalAmount) }}</div>
-
-              <div class="col-6 text-muted">Trạng thái:</div>
-              <div class="col-6 text-end fw-semibold text-danger">
-                <i class="fas fa-circle me-1" style="font-size: 8px;"></i>
-                Đã hủy
-              </div>
-            </div>
-          </div>
-
-          <!-- Support Info -->
-          <div class="support-info bg-light rounded-3 p-3 mb-4">
-            <div class="small text-muted mb-2">Cần hỗ trợ thanh toán?</div>
-            <div class="row g-2 small text-center">
-              <div class="col-6">
-                <a href="tel:19001234" class="text-decoration-none">
-                  <i class="fas fa-phone text-success d-block mb-1"></i>
-                  <span>1900 1234</span>
-                </a>
-              </div>
-              <div class="col-6">
-                <a href="mailto:support@digixanh.com" class="text-decoration-none">
-                  <i class="fas fa-envelope text-success d-block mb-1"></i>
-                  <span>Email hỗ trợ</span>
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="d-grid gap-2">
-            <a routerLink="/checkout" class="btn btn-success btn-lg">
-              <i class="fas fa-redo me-2"></i>
-              Thử thanh toán lại
-            </a>
-            <a routerLink="/cart" class="btn btn-outline-secondary">
-              <i class="fas fa-shopping-cart me-2"></i>
-              Quay lại giỏ hàng
-            </a>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 </section>

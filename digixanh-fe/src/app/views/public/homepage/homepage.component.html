@@ -1,6 +1,7 @@
 <!-- Hero Slider Section -->
 <section class="hero-slider position-relative overflow-hidden">
-  <div class="slider-container">
+  <div class="slider-container" (touchstart)="onTouchStart($event)" (touchmove)="onTouchMove($event)"
+    (touchend)="onTouchEnd()">
     @for (slide of bannerSlides; track slide.id; let i = $index) {
     <div class="slide" [class.active]="i === currentSlide" [style.background]="slide.bgGradient">
       <div class="container h-100">
@@ -60,9 +61,9 @@
 </section>
 
 <!-- Benefits Section -->
-<section class="benefits-section pb-5 position-relative" style="background: #f8f9fa; margin-top: -1px;">
-  <div class="container position-relative" style="z-index: 10; top: -40px;">
-    <div class="row justify-content-center g-4">
+<section class="benefits-section pb-4 pb-lg-5 position-relative" style="background: #f8f9fa; margin-top: -1px;">
+  <div class="container position-relative benefits-container">
+    <div class="row justify-content-center g-2 g-sm-3 g-lg-4">
       @for (benefit of benefits; track benefit.title) {
       <div class="col-6 col-lg-3">
         <div

@@ -69,6 +69,11 @@ export class HomepageComponent {
   currentSlide = 0;
   private slideIntervalSub: Subscription | null = null;
 
+  // Swipe gesture support
+  private touchStartX = 0;
+  private touchEndX = 0;
+  private readonly minSwipeDistance = 50; // pixels
+
   // Featured products - state driven for loadMore support
   private readonly INITIAL_LOAD_COUNT = 8;
   private readonly PAGE_SIZE = 4;
@@ -214,8 +219,36 @@ export class HomepageComponent {
 
   goToSlide(index: number): void {
     this.currentSlide = index;
-    // Reset interval when manually changing slide
+    this.resetSlideTimer();
+  }
+
+  private resetSlideTimer(): void {
     this.stopAutoSlide();
+    this.startAutoSlide();
+  }
+
+  // Swipe Action Handlers
+  onTouchStart(event: TouchEvent): void {
+    this.touchStartX = event.touches[0].clientX;
+    this.touchEndX = this.touchStartX;
+    this.stopAutoSlide();
+  }
+
+  onTouchMove(event: TouchEvent): void {
+    this.touchEndX = event.touches[0].clientX;
+  }
+
+  onTouchEnd(): void {
+    const swipeDistance = this.touchStartX - this.touchEndX;
+
+    if (Math.abs(swipeDistance) > this.minSwipeDistance) {
+      if (swipeDistance > 0) {
+        this.nextSlide();
+      } else {
+        this.prevSlide();
+      }
+    }
+
     this.startAutoSlide();
   }
 

@@ -14,7 +14,7 @@
 
   <!-- CENTER: MEGA LINKS (Trang chủ & Cây cảnh) -->
   <nav
-    class="center-nav d-flex align-items-center justify-content-center flex-grow-1 position-absolute start-50 translate-middle-x">
+    class="center-nav d-none d-lg-flex align-items-center justify-content-center flex-grow-1 position-absolute start-50 translate-middle-x">
     <a class="nav-link pill-item center-item" routerLink="/" routerLinkActive="active-link"
       [routerLinkActiveOptions]="{exact: true}" title="Trang chủ">
       <span class="fw-medium">Trang chủ</span>
@@ -77,8 +77,63 @@
       <span class="d-none d-sm-inline fw-medium">Đăng nhập</span>
     </a>
     }
+
+    <!-- Hamburger Menu Button -->
+    <button class="icon-action-btn d-lg-none" (click)="toggleMobileMenu()"
+      [attr.aria-label]="isMobileMenuOpen ? 'Close menu' : 'Open menu'">
+      <i class="fa-solid" [class.fa-bars]="!isMobileMenuOpen" [class.fa-xmark]="isMobileMenuOpen"></i>
+    </button>
   </nav>
 </header>
+
+<!-- Mobile Menu Drawer -->
+<div class="mobile-menu-drawer" [class.show]="isMobileMenuOpen">
+  <div class="drawer-backdrop" (click)="closeMobileMenu()"></div>
+  <div class="drawer-content p-4 d-flex flex-column shadow-lg">
+    <div class="drawer-header d-flex align-items-center justify-content-between mb-4">
+      <a class="navbar-brand fw-bold fs-5 text-success d-flex align-items-center gap-2" routerLink="/"
+        (click)="closeMobileMenu()">
+        <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm"
+          style="width: 32px; height: 32px;">
+          <i class="fa-solid fa-leaf" style="font-size: 0.8rem;"></i>
+        </div>
+        <span>DigiXanh</span>
+      </a>
+      <button class="btn-close shadow-none" (click)="closeMobileMenu()"></button>
+    </div>
+
+    <nav class="mobile-nav-links d-flex flex-column gap-3 mb-5">
+      <a class="mobile-nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}"
+        (click)="closeMobileMenu()">
+        <i class="fa-solid fa-house-chimney me-3"></i>Trang chủ
+      </a>
+      <a class="mobile-nav-link" routerLink="/plants" routerLinkActive="active" (click)="closeMobileMenu()">
+        <i class="fa-solid fa-seedling me-3"></i>Cây cảnh
+      </a>
+      <a class="mobile-nav-link" routerLink="/cart" routerLinkActive="active" (click)="closeMobileMenu()">
+        <i class="fa-solid fa-bag-shopping me-3"></i>Giỏ hàng
+      </a>
+      @if (authService.isAuthenticated()) {
+      <a class="mobile-nav-link" routerLink="/orders" routerLinkActive="active" (click)="closeMobileMenu()">
+        <i class="fa-solid fa-receipt me-3"></i>Đơn hàng của tôi
+      </a>
+      }
+    </nav>
+
+    <div class="mt-auto pt-4 border-top">
+      @if (!authService.isAuthenticated()) {
+      <a routerLink="/auth/login" class="btn btn-success w-100 rounded-pill py-3 mb-3 fw-bold"
+        (click)="closeMobileMenu()"> Đăng nhập </a>
+      <a routerLink="/auth/register" class="btn btn-outline-success w-100 rounded-pill py-3 fw-bold"
+        (click)="closeMobileMenu()"> Đăng ký </a>
+      } @else {
+      <button class="btn btn-outline-danger w-100 rounded-pill py-3 fw-bold" (click)="logout(); closeMobileMenu()">
+        <i class="fa-solid fa-power-off me-2"></i>Đăng xuất
+      </button>
+      }
+    </div>
+  </div>
+</div>
 
 <main class="main-content">
   <router-outlet />

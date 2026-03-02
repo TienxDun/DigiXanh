@@ -23,6 +23,22 @@ export class PublicLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('topObserver') topObserver!: ElementRef;
   private observer: IntersectionObserver | null = null;
   isScrolled = false;
+  isMobileMenuOpen = false;
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    // Ngăn scroll khi menu mở
+    if (this.isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+
+  closeMobileMenu() {
+    this.isMobileMenuOpen = false;
+    document.body.style.overflow = '';
+  }
 
   ngOnInit() {
   }

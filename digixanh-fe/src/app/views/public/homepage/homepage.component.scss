@@ -60,11 +60,19 @@ $transition-smooth: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 .slider-container {
   position: relative;
   height: 80vh;
-  min-height: 550px;
+  min-height: 600px;
+  overflow: hidden;
+  touch-action: pan-y; // Cho phép cuộn dọc nhưng cho phép JS xử lý vuốt ngang
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
 
   @media (max-width: 991px) {
     height: auto;
-    min-height: 500px;
+    min-height: auto;
+    overflow: visible;
   }
 }
 
@@ -82,6 +90,17 @@ $transition-smooth: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   &.active {
     opacity: 1;
     visibility: visible;
+  }
+
+  @media (max-width: 991px) {
+    position: relative;
+    height: auto;
+    padding: 100px 0 60px;
+    display: none;
+
+    &.active {
+      display: block;
+    }
   }
 }
 
@@ -120,18 +139,8 @@ $transition-smooth: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     right: 30px;
   }
 
-  @media (max-width: 768px) {
-    width: 40px;
-    height: 40px;
-    font-size: var(--dg-text-lg);
-
-    &.prev-btn {
-      left: 15px;
-    }
-
-    &.next-btn {
-      right: 15px;
-    }
+  @media (max-width: 991px) {
+    display: none; // Ẩn nút điều hướng trên Mobile
   }
 }
 
@@ -143,25 +152,27 @@ $transition-smooth: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   transform: translateX(-50%);
   display: flex;
   gap: 10px;
-  z-index: 10;
+  z-index: 20; // Tăng z-index để không bị che bởi phần benefits
 
   .dot {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     border: none;
-    background: rgba(0, 0, 0, 0.15);
+    background: rgba(0, 0, 0, 0.1);
     cursor: pointer;
     transition: all 0.3s ease;
 
     &.active {
       background: $primary-color;
-      transform: scale(1.2);
+      width: 24px; // Hiện hiệu ứng dẹp dài cho dot active
+      border-radius: 10px;
     }
+  }
 
-    &:hover {
-      background: rgba(46, 125, 50, 0.5);
-    }
+  @media (max-width: 991px) {
+    bottom: 45px; // Đưa dot lên cao hơn để không bị che bởi phần benefits card được đẩy lên
+    gap: 8px;
   }
 }
 
@@ -202,13 +213,82 @@ $transition-smooth: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   }
 }
 
+// Mobile Typography & Alignment adjustments
+@media (max-width: 991px) {
+  .hero-slider .container {
+    padding-top: 20px;
+    text-align: center; // Căn giữa toàn bộ text
+  }
+
+  .slide-content,
+  .hero-slider .col-lg-6 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1.display-4 {
+    font-size: 2.4rem !important;
+    font-weight: 800 !important;
+    line-height: 1.1 !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  p.lead {
+    font-size: 1rem !important;
+    max-width: 100% !important;
+    margin-bottom: 2rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .blob-shape {
+    width: 65% !important;
+    max-width: 260px !important;
+    margin: 20px auto 0 !important;
+    display: block;
+  }
+
+  .btn-lg {
+    width: auto !important;
+    min-width: 200px;
+    padding: 0.7rem 1.2rem !important;
+    font-size: 0.95rem !important;
+    justify-content: center;
+  }
+}
+
 // Benefits Section
+.benefits-container {
+  z-index: 10;
+  top: -40px;
+
+  @media (max-width: 991px) {
+    top: -25px; // Giảm khoảng cách chờm lên slider trên mobile
+  }
+}
+
 .glass-card {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+
+  @media (max-width: 991px) {
+    padding: 0.75rem 0.5rem !important;
+
+    h5 {
+      font-size: 0.85rem !important;
+      margin-bottom: 0.15rem !important;
+      letter-spacing: -0.2px;
+    }
+
+    p {
+      font-size: 0.65rem !important;
+      line-height: 1.3;
+      opacity: 0.8;
+    }
+  }
 }
 
 .gradient-icon-box {
@@ -222,6 +302,13 @@ $transition-smooth: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   color: $primary-color;
   font-size: var(--dg-text-3xl);
   transition: $transition-smooth;
+
+  @media (max-width: 991px) {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem !important;
+  }
 }
 
 .glass-card:hover .gradient-icon-box {

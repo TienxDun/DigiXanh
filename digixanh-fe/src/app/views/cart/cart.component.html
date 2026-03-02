@@ -146,8 +146,23 @@
   <!-- Blank State / Empty Cart -->
   <div class="empty-cart-wrapper d-flex flex-column align-items-center justify-content-center py-5">
     <div
-      class="empty-icon-box bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center mb-3">
-      <i class="fa-solid fa-basket-shopping display-1"></i>
+      class="empty-icon-box bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center mb-4 transition-all hover-scale">
+      <!-- Premium DigiXanh Empty Cart SVG Icon -->
+      <svg class="premium-empty-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 8V18C6 19.1046 6.89543 20 8 20H16C17.1046 20 18 19.1046 18 18V8" stroke="currentColor"
+          stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M9 8V6C9 4.34315 10.3431 3 12 3C13.6569 3 15 4.34315 15 6V8" stroke="currentColor" stroke-width="1.5"
+          stroke-linecap="round" />
+        <!-- Mầm cây nhỏ bên trong giỏ -->
+        <path d="M12 11V16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="leaf-stem" />
+        <path d="M12 13C12 13 14 11.8 15.5 11.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+          class="leaf-right" />
+        <path d="M12 15C12 15 10 13.8 8.5 13.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+          class="leaf-left" />
+        <!-- Hiệu ứng lấp lánh nhẹ -->
+        <circle cx="19" cy="5" r="1" fill="currentColor" class="sparkle-1" opacity="0.6" />
+        <circle cx="5" cy="5" r="0.5" fill="currentColor" class="sparkle-2" opacity="0.4" />
+      </svg>
     </div>
     <h3 class="fw-bold text-dark mb-2">Giỏ hàng của bạn đang trống</h3>
     <p class="text-muted mb-4 text-center max-w-md">Lựa chọn những chậu cây xanh tươi nhất để tô điểm cho không

@@ -11,114 +11,141 @@ import { timeout } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <section class="container py-5">
-      <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-          <div class="card border-0 shadow-lg">
-            <div class="card-body p-4 p-lg-5 text-center">
-              
-              <!-- Loading State -->
-              <div *ngIf="isLoading" class="py-4">
-                <div class="spinner-border text-primary mb-3" role="status" style="width: 3.5rem; height: 3.5rem;">
-                  <span class="visually-hidden">Đang xử lý...</span>
+    <section class="payment-return-container py-5 min-vh-100 d-flex align-items-center">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-md-8 col-lg-6">
+            <div class="glass-card fade-in">
+              <div class="card-body p-4 p-lg-5 text-center">
+                
+                <!-- Loading State -->
+                <div *ngIf="isLoading" class="py-5">
+                  <div class="loader-wrapper mb-4">
+                    <div class="spinner-grow text-success" role="status"></div>
+                    <div class="spinner-grow text-success-light mx-2" role="status"></div>
+                    <div class="spinner-grow text-success" role="status"></div>
+                  </div>
+                  <h4 class="fw-bold dg-text-2xl mb-2">Đang xử lý thanh toán</h4>
+                  <p class="text-muted">Vui lòng không đóng trình duyệt hoặc quay lại...</p>
                 </div>
-                <h4 class="fw-bold">Đang xử lý kết quả thanh toán...</h4>
-                <p class="text-muted mb-0">Vui lòng chờ trong giây lát</p>
+
+                <!-- Success State -->
+                <div *ngIf="!isLoading && paymentStatus === 'success'" class="state-animation">
+                  <div class="confetti-container"></div>
+                  <div class="mb-4">
+                    <div class="status-icon success-icon scale-in">
+                      <i class="fas fa-check"></i>
+                    </div>
+                  </div>
+                  <h2 class="fw-bold dg-text-4xl text-success mb-3">Thanh toán thành công!</h2>
+                  <p class="dg-text-md text-muted mb-4 px-lg-4">
+                    Tuyệt vời! Đơn hàng của bạn đã được xác nhận. Một email xác nhận sẽ được gửi đến bạn trong giây lát.
+                  </p>
+
+                  <div class="info-box mb-4 fade-in-up">
+                    <div class="info-row">
+                      <span class="label">Mã đơn hàng</span>
+                      <span class="value">#{{ orderId }}</span>
+                    </div>
+                    <div *ngIf="transactionId" class="info-row">
+                      <span class="label">Mã giao dịch</span>
+                      <span class="value font-monospace">{{ transactionId }}</span>
+                    </div>
+                    <div class="info-divider"></div>
+                    <div class="info-row">
+                      <span class="label">Trạng thái</span>
+                      <span class="badge bg-success-subtle text-success px-3 rounded-pill">Đã thanh toán</span>
+                    </div>
+                  </div>
+
+                  <div class="d-grid gap-3">
+                    <button class="btn btn-primary btn-lg dg-bold shadow-sm" (click)="viewOrderDetails()">
+                      <i class="fas fa-receipt me-2"></i>
+                      Xem chi tiết đơn hàng
+                    </button>
+                    <a routerLink="/plants" class="btn btn-outline-success border-2 dg-semibold">
+                      <i class="fas fa-shopping-bag me-2"></i>
+                      Tiếp tục mua hàng
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Cancelled State -->
+                <div *ngIf="!isLoading && paymentStatus === 'cancelled'" class="state-animation">
+                  <div class="mb-4">
+                    <div class="status-icon warning-icon scale-in">
+                      <i class="fas fa-exclamation"></i>
+                    </div>
+                  </div>
+                  <h2 class="fw-bold dg-text-4xl text-warning mb-3">Đã hủy thanh toán</h2>
+                  <p class="dg-text-md text-muted mb-4 px-lg-4">
+                    Bạn đã dừng quá trình thanh toán. Đừng lo, giỏ hàng của bạn vẫn được giữ nguyên.
+                  </p>
+
+                  <div class="alert alert-soft-warning mb-4 fade-in-up">
+                    <div class="d-flex">
+                      <i class="fas fa-info-circle mt-1 me-3"></i>
+                      <div class="text-start">
+                        <p class="mb-0 dg-text-sm">Bạn có thể thử lại ngay bây giờ hoặc đổi sang phương thức khác như <strong>Thanh toán khi nhận hàng (COD)</strong>.</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="d-grid gap-3">
+                    <a routerLink="/checkout" class="btn btn-warning btn-lg dg-bold text-white shadow-sm">
+                      <i class="fas fa-redo me-2"></i>
+                      Thử thanh toán lại
+                    </a>
+                    <a routerLink="/cart" class="btn btn-link text-secondary text-decoration-none dg-semibold">
+                      <i class="fas fa-arrow-left me-2"></i>
+                      Quay lại giỏ hàng
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Failed State -->
+                <div *ngIf="!isLoading && paymentStatus === 'failed'" class="state-animation">
+                  <div class="mb-4">
+                    <div class="status-icon danger-icon scale-in">
+                      <i class="fas fa-times"></i>
+                    </div>
+                  </div>
+                  <h2 class="fw-bold dg-text-4xl text-danger mb-3">Thanh toán thất bại</h2>
+                  <p class="dg-text-md text-muted mb-4 px-lg-4">
+                    Rất tiếc, đã có lỗi xảy ra trong quá trình giao dịch với ngân hàng.
+                  </p>
+
+                  <div class="error-details mb-4 fade-in-up">
+                    <div class="d-flex align-items-center mb-2">
+                       <span class="badge bg-danger-subtle text-danger me-2">Lỗi: {{ vnpResponseCode || 'Unknown' }}</span>
+                       <span class="dg-text-sm text-secondary">{{ message }}</span>
+                    </div>
+                  </div>
+
+                  <div class="support-contact mb-4 p-3 bg-light rounded-3 fade-in-up">
+                    <p class="dg-text-xs text-muted mb-2 uppercase">Cần hỗ trợ ngay?</p>
+                    <div class="d-flex justify-content-center gap-4">
+                      <a href="tel:19001234" class="text-decoration-none text-dark dg-semibold">
+                        <i class="fas fa-phone-alt text-success me-1"></i> 1900 1234
+                      </a>
+                      <a href="mailto:support@digixanh.vn" class="text-decoration-none text-dark dg-semibold">
+                        <i class="fas fa-envelope text-success me-1"></i> support@digixanh.vn
+                      </a>
+                    </div>
+                  </div>
+
+                  <div class="d-grid gap-3">
+                    <a routerLink="/checkout" class="btn btn-danger btn-lg dg-bold shadow-sm">
+                      <i class="fas fa-sync-alt me-2"></i>
+                      Thử lại lần nữa
+                    </a>
+                    <a routerLink="/cart" class="btn btn-outline-secondary border-2 dg-semibold">
+                      Quay lại giỏ hàng
+                    </a>
+                  </div>
+                </div>
+
               </div>
-
-              <!-- Success State -->
-              <div *ngIf="!isLoading && paymentStatus === 'success'">
-                <div class="mb-4">
-                  <div class="success-icon mx-auto">
-                    <i class="fas fa-check"></i>
-                  </div>
-                </div>
-                <h2 class="fw-bold text-success mb-3">Thanh toán thành công!</h2>
-                <p class="text-muted mb-4">{{ message }}</p>
-
-                <div class="bg-light rounded-3 p-4 text-start mb-4">
-                  <div class="d-flex justify-content-between small mb-2">
-                    <span class="text-muted">Mã đơn hàng</span>
-                    <span class="fw-semibold">#{{ orderId }}</span>
-                  </div>
-                  <div *ngIf="transactionId" class="d-flex justify-content-between small">
-                    <span class="text-muted">Mã giao dịch VNPay</span>
-                    <span class="fw-semibold font-monospace">{{ transactionId }}</span>
-                  </div>
-                </div>
-
-                <div class="d-grid gap-2">
-                  <button class="btn btn-success btn-lg" (click)="viewOrderDetails()">
-                    <i class="fas fa-receipt me-2"></i>
-                    Xem chi tiết đơn hàng
-                  </button>
-                  <a routerLink="/plants" class="btn btn-outline-success">
-                    <i class="fas fa-leaf me-2"></i>
-                    Tiếp tục mua sắm
-                  </a>
-                </div>
-              </div>
-
-              <!-- Cancelled State -->
-              <div *ngIf="!isLoading && paymentStatus === 'cancelled'">
-                <div class="mb-4">
-                  <div class="cancelled-icon mx-auto">
-                    <i class="fas fa-ban"></i>
-                  </div>
-                </div>
-                <h2 class="fw-bold text-warning mb-3">Đã hủy thanh toán</h2>
-                <p class="text-muted mb-4">{{ message }}</p>
-
-                <div class="alert alert-info d-flex align-items-start text-start">
-                  <i class="fas fa-info-circle mt-1 me-2"></i>
-                  <div>
-                    <strong>Giỏ hàng của bạn đã được khôi phục.</strong><br>
-                    Bạn có thể thử thanh toán lại hoặc chọn phương thức thanh toán khác.
-                  </div>
-                </div>
-
-                <div class="d-grid gap-2 mt-4">
-                  <a routerLink="/checkout" class="btn btn-success btn-lg">
-                    <i class="fas fa-redo me-2"></i>
-                    Thử thanh toán lại
-                  </a>
-                  <a routerLink="/cart" class="btn btn-outline-secondary">
-                    <i class="fas fa-shopping-cart me-2"></i>
-                    Quay lại giỏ hàng
-                  </a>
-                </div>
-              </div>
-
-              <!-- Failed State -->
-              <div *ngIf="!isLoading && paymentStatus === 'failed'">
-                <div class="mb-4">
-                  <div class="failed-icon mx-auto">
-                    <i class="fas fa-times"></i>
-                  </div>
-                </div>
-                <h2 class="fw-bold text-danger mb-3">Thanh toán thất bại</h2>
-                <p class="text-muted mb-4">{{ message }}</p>
-
-                <div class="alert alert-warning d-flex align-items-start text-start" *ngIf="vnpResponseCode">
-                  <i class="fas fa-exclamation-triangle mt-1 me-2"></i>
-                  <div>
-                    <strong>Mã lỗi:</strong> {{ vnpResponseCode }}<br>
-                    <span class="small">Vui lòng kiểm tra thông tin thẻ hoặc thử phương thức thanh toán khác.</span>
-                  </div>
-                </div>
-
-                <div class="d-grid gap-2 mt-4">
-                  <a routerLink="/checkout" class="btn btn-success btn-lg">
-                    <i class="fas fa-redo me-2"></i>
-                    Thử lại
-                  </a>
-                  <a routerLink="/cart" class="btn btn-outline-secondary">
-                    <i class="fas fa-shopping-cart me-2"></i>
-                    Quay lại giỏ hàng
-                  </a>
-                </div>
-              </div>
-
             </div>
           </div>
         </div>
@@ -126,43 +153,183 @@ import { timeout } from 'rxjs';
     </section>
   `,
   styles: [`
+    :host {
+      --primary-green: #2e7d32;
+      --light-green: #e8f5e9;
+      --glass-bg: rgba(255, 255, 255, 0.9);
+      --card-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    .payment-return-container {
+      background: linear-gradient(135deg, #f8fcf9 0%, #e0f2f1 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .payment-return-container::before {
+      content: '';
+      position: absolute;
+      top: -10%;
+      right: -10%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(46, 125, 50, 0.05) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 24px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .status-icon {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      margin: 0 auto;
+      position: relative;
+    }
+
     .success-icon {
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
       color: white;
-      font-size: 36px;
-      box-shadow: 0 8px 24px rgba(40, 167, 69, 0.3);
+      box-shadow: 0 10px 25px rgba(76, 175, 80, 0.3);
     }
 
-    .cancelled-icon {
-      width: 80px;
-      height: 80px;
+    .success-icon::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid #4caf50;
+      animation: pulse-ring 2s infinite;
+    }
+
+    .warning-icon {
       background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       color: white;
-      font-size: 36px;
-      box-shadow: 0 8px 24px rgba(255, 193, 7, 0.3);
+      box-shadow: 0 10px 25px rgba(255, 193, 7, 0.3);
     }
 
-    .failed-icon {
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(135deg, #dc3545 0%, #f44336 100%);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .danger-icon {
+      background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%);
       color: white;
-      font-size: 36px;
-      box-shadow: 0 8px 24px rgba(220, 53, 69, 0.3);
+      box-shadow: 0 10px 25px rgba(211, 47, 47, 0.3);
+    }
+
+    .info-box {
+      background: #fdfdfd;
+      border: 1px solid #f0f0f0;
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .info-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-row .label {
+      color: #757575;
+      font-size: 14px;
+    }
+
+    .info-row .value {
+      font-weight: 600;
+      color: #212121;
+    }
+
+    .info-divider {
+      height: 1px;
+      background: #f0f0f0;
+      margin: 15px 0;
+    }
+
+    .alert-soft-warning {
+      background-color: #fff9c4;
+      border: none;
+      color: #5d4037;
+      border-radius: 12px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-green);
+      border-color: var(--primary-green);
+    }
+
+    .btn-primary:hover {
+      background-color: #1b5e20;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 15px rgba(46, 125, 50, 0.2);
+    }
+
+    /* Animations */
+    .fade-in {
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .scale-in {
+      animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .fade-in-up {
+      animation: fadeInUp 0.6s ease-out both;
+      animation-delay: 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.8); opacity: 1; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    .loader-wrapper {
+      display: flex;
+      justify-content: center;
+    }
+
+    .text-success-light {
+      color: #81c784;
+    }
+
+    .uppercase {
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
   `]
 })
@@ -275,7 +442,7 @@ export class PaymentReturnComponent implements OnInit {
   viewOrderDetails(): void {
     if (this.order) {
       this.router.navigate(['/order-success'], {
-        state: { 
+        state: {
           order: this.order,
           fromPaymentReturn: true,
           paymentStatus: 'success'
@@ -284,7 +451,7 @@ export class PaymentReturnComponent implements OnInit {
     } else if (this.orderId) {
       // Nếu chưa có order details, redirect với orderId
       this.router.navigate(['/order-success'], {
-        state: { 
+        state: {
           orderId: this.orderId,
           fromPaymentReturn: true,
           paymentStatus: 'success',
