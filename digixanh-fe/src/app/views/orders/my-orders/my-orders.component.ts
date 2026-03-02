@@ -1,8 +1,8 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { OrderService } from '../../../core/services/order.service';
-import { OrderDto } from '../../../core/models/order.model';
+import { OrderDto, OrderItemDto } from '../../../core/models/order.model';
 import { PagedResult } from '../../../core/models/pagination.model';
 
 interface StatusTab {
@@ -16,7 +16,8 @@ interface StatusTab {
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './my-orders.component.html',
-  styleUrls: ['./my-orders.component.scss']
+  styleUrls: ['./my-orders.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MyOrdersComponent implements OnInit {
   private readonly orderService = inject(OrderService);
@@ -35,6 +36,7 @@ export class MyOrdersComponent implements OnInit {
   errorMessage = '';
   activeStatus = '';                // '' = tất cả
   expandedOrders = new Set<number>();
+  pageNumbers: number[] = [];
 
   // ---- Tab definitions ----
   readonly statusTabs: StatusTab[] = [
@@ -67,12 +69,14 @@ export class MyOrdersComponent implements OnInit {
       next: (result) => {
         this.pagedResult = result;
         this.allOrders = result.items;
+        this.pageNumbers = Array.from({ length: result.totalPages ?? 0 }, (_, i) => i + 1);
         this.applyFilter();
         this.isLoading = false;
         this.cdr.markForCheck();
       },
       error: (error) => {
         this.errorMessage = 'Không thể tải danh sách đơn hàng. Vui lòng thử lại sau.';
+        this.pageNumbers = [];
         this.isLoading = false;
         console.error('Error loading orders:', error);
         this.cdr.markForCheck();
@@ -225,5 +229,25 @@ export class MyOrdersComponent implements OnInit {
   onImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.src = 'assets/images/plant-placeholder.svg';
+  }
+
+  trackByStatusTab(_: number, tab: StatusTab): string {
+    return tab.key;
+  }
+
+  trackByOrder(_: number, order: OrderDto): number {
+    return order.id;
+  }
+
+  trackByStatusStep(_: number, step: string): string {
+    return step;
+  }
+
+  trackByOrderItem(_: number, item: OrderItemDto): number {
+    return item.id;
+  }
+
+  trackByPage(_: number, page: number): number {
+    return page;
   }
 }

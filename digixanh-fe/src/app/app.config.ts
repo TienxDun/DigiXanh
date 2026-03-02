@@ -4,9 +4,11 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import {
+  PreloadAllModules,
   provideRouter,
   withEnabledBlockingInitialNavigation,
   withInMemoryScrolling,
+  withPreloading,
   withRouterConfig
 } from '@angular/router';
 import { IconSetService } from '@coreui/icons-angular';
@@ -27,6 +29,7 @@ export const appConfig: ApplicationConfig = {
         scrollPositionRestoration: 'top',
         anchorScrolling: 'enabled'
       }),
+      withPreloading(PreloadAllModules),
       withEnabledBlockingInitialNavigation()
       // Note: withViewTransitions() removed - causing InvalidStateError
       // Note: withHashLocation() removed - using standard HTML5 history API

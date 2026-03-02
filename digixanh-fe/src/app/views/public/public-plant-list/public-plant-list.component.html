@@ -76,7 +76,7 @@
         <a [routerLink]="['/plants', plant.id]" class="card-link text-decoration-none d-flex flex-column h-100">
           <div class="card-img-wrapper position-relative">
             <img [src]="resolveImageUrl(plant.imageUrl)" [alt]="plant.name" class="card-img-top" loading="lazy"
-              (error)="onImageError($event)" />
+              decoding="async" fetchpriority="low" (error)="onImageError($event)" />
             @if (plant.stockQuantity === 0) {
             <div
               class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50">

@@ -1,9 +1,9 @@
-import { ChangeDetectorRef, Component, DestroyRef, HostListener, NgZone, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, NgZone, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, Observable, of } from 'rxjs';
+import { asyncScheduler, catchError, fromEvent, Observable, of, throttleTime } from 'rxjs';
 import { CategoryDto, PlantDto } from '../../../core/models/plant.model';
 import { PagedResult } from '../../../core/models/pagination.model';
 import { PublicPlantService } from '../../../core/services/public-plant.service';
@@ -22,7 +22,8 @@ interface PublicPlantListVm {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './public-plant-list.component.html',
-  styleUrl: './public-plant-list.component.scss'
+  styleUrl: './public-plant-list.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PublicPlantListComponent implements OnInit {
   readonly fallbackImageUrl = 'assets/images/plant-placeholder.svg';
@@ -72,6 +73,8 @@ export class PublicPlantListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.setupInfiniteScroll();
+
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: any) => {
       const category = params['category'];
       const parsedCategory = Number(category);
@@ -85,6 +88,7 @@ export class PublicPlantListComponent implements OnInit {
       }
 
       this.resetAndLoadPlants();
+      this.cdr.markForCheck();
     });
   }
 
@@ -106,20 +110,6 @@ export class PublicPlantListComponent implements OnInit {
   onSortChange(value: string): void {
     this.currentSortBy = value;
     this.resetAndLoadPlants();
-  }
-
-  @HostListener('window:scroll')
-  onWindowScroll(): void {
-    if (this.isInitialLoading || this.isLoadingMore || this.vm.page >= this.vm.totalPages) {
-      return;
-    }
-
-    const scrollPosition = window.innerHeight + window.scrollY;
-    const threshold = document.body.offsetHeight - 300;
-
-    if (scrollPosition >= threshold) {
-      this.loadMorePlants();
-    }
   }
 
   onImageError(event: Event): void {
@@ -162,6 +152,8 @@ export class PublicPlantListComponent implements OnInit {
       this.isInitialLoading = true;
     }
 
+    this.cdr.markForCheck();
+
     this.publicPlantService.getPlants({
       page: this.currentPage,
       pageSize: this.pageSize,
@@ -178,25 +170,43 @@ export class PublicPlantListComponent implements OnInit {
       } as PagedResult<PlantDto>)),
       takeUntilDestroyed(this.destroyRef)
     ).subscribe((result: PagedResult<PlantDto>) => {
-      this.ngZone.run(() => {
-        if (requestId !== this.latestRequestId) {
+      if (requestId !== this.latestRequestId) {
+        return;
+      }
+
+      const nextItems = result.items ?? [];
+      const mergedItems = append ? [...this.vm.items, ...nextItems] : nextItems;
+
+      this.vm = {
+        items: mergedItems,
+        totalCount: result.totalCount ?? 0,
+        page: result.page ?? this.currentPage,
+        pageSize: result.pageSize ?? this.pageSize,
+        totalPages: result.totalPages ?? 0
+      };
+
+      this.isInitialLoading = false;
+      this.isLoadingMore = false;
+      this.cdr.markForCheck();
+    });
+  }
+
+  private setupInfiniteScroll(): void {
+    this.ngZone.runOutsideAngular(() => {
+      fromEvent(window, 'scroll', { passive: true }).pipe(
+        throttleTime(150, asyncScheduler, { leading: true, trailing: true }),
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe(() => {
+        if (this.isInitialLoading || this.isLoadingMore || this.vm.page >= this.vm.totalPages) {
           return;
         }
 
-        const nextItems = result.items ?? [];
-        const mergedItems = append ? [...this.vm.items, ...nextItems] : nextItems;
+        const scrollPosition = window.innerHeight + window.scrollY;
+        const threshold = document.body.offsetHeight - 300;
 
-        this.vm = {
-          items: mergedItems,
-          totalCount: result.totalCount ?? 0,
-          page: result.page ?? this.currentPage,
-          pageSize: result.pageSize ?? this.pageSize,
-          totalPages: result.totalPages ?? 0
-        };
-
-        this.isInitialLoading = false;
-        this.isLoadingMore = false;
-        this.cdr.detectChanges();
+        if (scrollPosition >= threshold) {
+          this.ngZone.run(() => this.loadMorePlants());
+        }
       });
     });
   }

@@ -11,7 +11,7 @@
 
   <!-- ── STATUS TAB FILTER ── -->
   <div class="order-tabs mb-4 animation-fade-up delay-1" role="tablist" aria-label="Lọc đơn hàng theo trạng thái">
-    <button *ngFor="let tab of statusTabs" class="order-tab" [class.active]="activeStatus === tab.key"
+    <button *ngFor="let tab of statusTabs; trackBy: trackByStatusTab" class="order-tab" [class.active]="activeStatus === tab.key"
       (click)="selectTab(tab.key)" role="tab" [attr.aria-selected]="activeStatus === tab.key">
       <i [class]="tab.icon"></i>
       <span>{{ tab.label }}</span>
@@ -64,7 +64,7 @@
   <!-- ── ORDER LIST ── -->
   <div *ngIf="!isLoading && !errorMessage && orders.length > 0" class="order-list animation-fade-up delay-1">
     <!-- ─ ORDER CARD ─ -->
-    <div class="order-card" *ngFor="let order of orders; let i = index" [style.animation-delay]="(i * 60) + 'ms'">
+    <div class="order-card" *ngFor="let order of orders; let i = index; trackBy: trackByOrder" [style.animation-delay]="(i * 60) + 'ms'">
       <!-- Card Header -->
       <div class="order-card__header">
         <div class="order-card__meta">
@@ -83,7 +83,7 @@
 
       <!-- Progress Stepper (chỉ hiện khi không bị huỷ) -->
       <div class="order-stepper" *ngIf="!isCancelled(order.status)">
-        <ng-container *ngFor="let step of statusSteps; let si = index">
+        <ng-container *ngFor="let step of statusSteps; let si = index; trackBy: trackByStatusStep">
           <div class="order-stepper__step" [class.done]="getStepIndex(order.status) > si"
             [class.active]="getStepIndex(order.status) === si">
             <div class="order-stepper__dot">
@@ -107,7 +107,7 @@
         <!-- Item avatars stack (thu gọn) -->
         <div class="item-stack" *ngIf="!isExpanded(order.id)">
           <a [routerLink]="['/plants', item.plantId]" (click)="$event.stopPropagation()" class="item-avatar"
-            *ngFor="let item of order.items.slice(0, 4); let ai = index" [style.z-index]="10 - ai"
+            *ngFor="let item of order.items.slice(0, 4); let ai = index; trackBy: trackByOrderItem" [style.z-index]="10 - ai"
             [style.margin-left]="ai > 0 ? '-10px' : '0'" [title]="item.plantName">
             <img [src]="item.imageUrl || 'assets/images/plant-placeholder.svg'" [alt]="item.plantName"
               (error)="onImageError($event)">
@@ -121,7 +121,7 @@
 
         <!-- Expanded list -->
         <div class="item-list-expanded" *ngIf="isExpanded(order.id)">
-          <div class="item-row" *ngFor="let item of order.items">
+          <div class="item-row" *ngFor="let item of order.items; trackBy: trackByOrderItem">
             <a [routerLink]="['/plants', item.plantId]" (click)="$event.stopPropagation()" class="item-row__link">
               <div class="item-row__img-wrap">
                 <img [src]="item.imageUrl || 'assets/images/plant-placeholder.svg'" [alt]="item.plantName"
@@ -186,9 +186,9 @@
               <i class="fa-solid fa-chevron-left"></i>
             </button>
           </li>
-          <li *ngFor="let p of [].constructor(pagedResult.totalPages); let i = index"
-            [class.active]="currentPage === i + 1">
-            <button class="page-btn" (click)="goToPage(i + 1)">{{ i + 1 }}</button>
+          <li *ngFor="let p of pageNumbers; trackBy: trackByPage"
+            [class.active]="currentPage === p">
+            <button class="page-btn" (click)="goToPage(p)">{{ p }}</button>
           </li>
           <li [class.disabled]="currentPage === pagedResult.totalPages">
             <button class="page-btn page-btn--nav" (click)="goToPage(currentPage + 1)"

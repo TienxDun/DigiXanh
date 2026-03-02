@@ -21,7 +21,8 @@
             <div class="blob-shape shadow-lg overflow-hidden position-relative"
               style="width: 85%; max-width: 480px; aspect-ratio: 1/1; background: rgba(255,255,255,0.2);">
               <img [src]="slide.imageUrl" [alt]="slide.title" class="w-100 h-100 object-fit-cover"
-                [attr.loading]="i === 0 ? 'eager' : 'lazy'">
+                [attr.loading]="i === 0 ? 'eager' : 'lazy'" [attr.fetchpriority]="i === 0 ? 'high' : 'low'"
+                decoding="async">
             </div>
           </div>
         </div>
@@ -114,7 +115,7 @@
             <div class="position-relative overflow-hidden group-hover-zoom" style="aspect-ratio: 4/5;">
               <img [src]="resolveImageUrl(plant.imageUrl)" [alt]="plant.name"
                 class="w-100 h-100 object-fit-cover transition-transform plant-img" loading="lazy"
-                (error)="onImageError($event)">
+                decoding="async" fetchpriority="low" (error)="onImageError($event)">
 
               <div class="position-absolute top-0 start-0 p-2 z-2">
                 <span class="badge bg-success bg-opacity-90 rounded-pill px-3 py-2 fw-medium shadow-sm">Hot</span>
@@ -211,7 +212,8 @@
         <a [routerLink]="['/plants']" [queryParams]="{ category: category.id }"
           class="category-card rounded-5 p-3 p-md-4 text-center text-decoration-none">
           <div class="category-image-wrapper mx-auto mb-3 shadow-sm">
-            <img [src]="getCategoryImage(category.name)" [alt]="category.name" class="category-image" loading="lazy">
+            <img [src]="getCategoryImage(category.name)" [alt]="category.name" class="category-image" loading="lazy"
+              decoding="async" fetchpriority="low">
           </div>
           <h5 class="category-name fw-bold mb-0 text-dark">{{ category.name }}</h5>
         </a>
@@ -281,7 +283,7 @@
 
           <img src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600" alt="About DigiXanh"
             class="rounded-5 position-relative z-1 shadow-lg w-100 object-fit-cover hover-lift"
-            style="aspect-ratio: 4/5;" loading="eager">
+            style="aspect-ratio: 4/5;" loading="lazy" decoding="async" fetchpriority="low">
 
           <div class="position-absolute z-2 glass-card rounded-4 p-4 shadow-lg"
             style="bottom: 5%; right: 0; min-width: 240px;">
