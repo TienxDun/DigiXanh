@@ -16,102 +16,244 @@
   <meta content="DigiXanh" name="author" />
   <meta content="DigiXanh, Admin, Dashboard" name="keyword" />
   <link href="assets/favicon.png" rel="icon" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        var theme = localStorage.getItem('coreui-free-angular-admin-template-theme-default');
+        if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.setAttribute('data-coreui-theme', 'dark');
+        } else {
+          document.documentElement.setAttribute('data-coreui-theme', 'light');
+        }
+      } catch (e) { }
+    })();
+  </script>
   <style>
+    :root {
+      --dx-primary: #2e7d32;
+      --dx-secondary: #81c784;
+      --dx-accent: #c8e6c9;
+      --dx-bg: #f7f9f8;
+      --dx-card-bg: rgba(255, 255, 255, 0.7);
+      --dx-text: #1a1a1a;
+      --dx-subtext: #555555;
+    }
+
+    [data-coreui-theme="dark"] {
+      --dx-bg: #0d1117;
+      --dx-card-bg: rgba(22, 27, 34, 0.7);
+      --dx-text: #f0f6fc;
+      --dx-subtext: #8b949e;
+      --dx-primary: #4caf50;
+      --dx-secondary: #2e7d32;
+    }
+
     .app-splash {
       position: fixed;
       inset: 0;
-      z-index: 2147483647;
+      z-index: 99999;
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100dvh;
-      padding: 1.5rem;
-      color: var(--cui-emphasis-color, #212631);
-      background:
-        radial-gradient(circle at 20% 20%, rgba(129, 199, 132, 0.2) 0, transparent 40%),
-        radial-gradient(circle at 80% 80%, rgba(46, 125, 50, 0.12) 0, transparent 42%),
-        var(--cui-body-bg, #f8faf9);
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
-      opacity: 1;
-      visibility: visible;
-      transition: opacity 0.35s ease, visibility 0.35s ease;
+      background: var(--dx-bg);
+      font-family: 'Outfit', sans-serif;
+      overflow: hidden;
+      transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.4s;
+    }
+
+    /* Mesh Gradient Background */
+    .app-splash::before,
+    .app-splash::after {
+      content: "";
+      position: absolute;
+      width: 60vw;
+      height: 60vw;
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: -1;
+      opacity: 0.5;
+      animation: mesh-float 10s infinite alternate ease-in-out;
+    }
+
+    .app-splash::before {
+      top: -10%;
+      left: -10%;
+      background: radial-gradient(circle, var(--dx-secondary) 0%, transparent 70%);
+    }
+
+    .app-splash::after {
+      bottom: -10%;
+      right: -10%;
+      background: radial-gradient(circle, var(--dx-primary) 0%, transparent 70%);
+      animation-delay: -5s;
+    }
+
+    @keyframes mesh-float {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      100% {
+        transform: translate(10%, 10%) scale(1.1);
+      }
     }
 
     .app-splash--hidden {
       opacity: 0;
       visibility: hidden;
+      pointer-events: none;
     }
 
-    .app-splash__card {
-      width: min(100%, 24rem);
-      padding: 1.5rem 1.25rem 1.25rem;
-      border-radius: 1rem;
+    /* Glassmorphism Card */
+    .app-splash__content {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem;
+      background: var(--dx-card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 2.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      width: min(90%, 320px);
       text-align: center;
-      border: 1px solid rgba(46, 125, 50, 0.2);
-      background: var(--cui-body-bg, #ffffff);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      animation: content-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes content-reveal {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* SVG Loader Styles */
+    .app-splash__logo {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 1.5rem;
+      color: var(--dx-primary);
+    }
+
+    .leaf-path {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+      animation: draw-leaf 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    @keyframes draw-leaf {
+      0% {
+        stroke-dashoffset: 100;
+        opacity: 0;
+      }
+
+      20% {
+        opacity: 1;
+      }
+
+      50% {
+        stroke-dashoffset: 0;
+      }
+
+      80% {
+        opacity: 1;
+      }
+
+      100% {
+        stroke-dashoffset: -100;
+        opacity: 0;
+      }
     }
 
     .app-splash__title {
-      margin: 0 0 0.3rem;
-      font-size: 1.15rem;
+      font-size: 1.75rem;
       font-weight: 700;
-      letter-spacing: 0.015em;
-    }
-
-    .app-splash__progress {
-      position: relative;
-      overflow: hidden;
-      width: min(100%, 16rem);
-      height: 0.28rem;
-      margin: 0.9rem auto 0.7rem;
-      border-radius: 999px;
-      background: rgba(46, 125, 50, 0.2);
-    }
-
-    .app-splash__progress::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      width: 35%;
-      border-radius: 999px;
-      background: var(--cui-primary, #2e7d32);
-      animation: app-splash-progress 1.4s ease-in-out infinite;
-    }
-
-    .app-splash__label {
+      color: #1a1a1a;
       margin: 0;
-      font-size: 0.9rem;
-      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .app-splash__subtitle {
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: #555;
+      margin: 0.5rem 0 1.5rem;
       letter-spacing: 0.01em;
-      color: var(--cui-secondary-color, #6b7280);
+    }
+
+    /* Minimal Loader */
+    .app-splash__indicator {
+      display: flex;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--dx-primary);
+      border-radius: 50%;
+      opacity: 0.3;
+      animation: dot-pulse 1.4s infinite ease-in-out;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes dot-pulse {
+
+      0%,
+      100% {
+        transform: scale(0.8);
+        opacity: 0.3;
+      }
+
+      50% {
+        transform: scale(1.2);
+        opacity: 1;
+      }
     }
 
     .app-splash__error {
       display: none;
-      margin: 0.45rem auto 0;
-      max-width: min(80vw, 32rem);
-      font-size: 0.88rem;
-      color: var(--cui-danger, #dc3545);
-    }
-
-    @keyframes app-splash-progress {
-      0% {
-        transform: translateX(-120%);
-      }
-
-      100% {
-        transform: translateX(340%);
-      }
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: #d32f2f;
+      padding: 0.5rem;
+      background: rgba(211, 47, 47, 0.05);
+      border-radius: 0.5rem;
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .app-splash__progress::before {
-        animation: none;
-      }
 
-      .app-splash {
-        transition: none;
+      .app-splash,
+      .app-splash__content,
+      .leaf-path,
+      .dot,
+      .app-splash::before,
+      .app-splash::after {
+        animation: none !important;
+        transition: none !important;
       }
     }
   </style>
@@ -121,10 +263,19 @@
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="app-splash" class="app-splash" role="status" aria-live="polite" aria-busy="true">
-    <div class="app-splash__card">
+    <div class="app-splash__content">
+      <svg class="app-splash__logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path class="leaf-path"
+          d="M12 2L12 22M12 2C12 2 19 6 19 12C19 18 12 22 12 22M12 2C12 2 5 6 5 12C5 18 12 22 12 22M12 8C12 8 16 10 16 12M12 14C12 14 8 16 8 18" />
+        <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+      </svg>
       <h1 class="app-splash__title">DigiXanh</h1>
-      <div class="app-splash__progress" aria-hidden="true"></div>
-      <p class="app-splash__label">Đang chuẩn bị trải nghiệm...</p>
+      <p class="app-splash__subtitle">Đang chuẩn bị trải nghiệm...</p>
+      <div class="app-splash__indicator">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
       <p id="bootstrap-error" class="app-splash__error"></p>
     </div>
   </div>
