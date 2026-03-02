@@ -277,13 +277,21 @@
   flex: 1;
   min-height: 100vh;
   padding-top: 100px;
-  /* Đảm bảo nội dung luôn đủ cao để đẩy footer xuống dưới màn hình */
+
+  @media (max-width: 768px) {
+    padding-top: 80px;
+    padding-bottom: 80px; // Thêm không gian ở dưới cho Mobile Bottom Nav
+  }
 }
 
 // Footer Styles
 .footer-main {
   background: white;
   border-top: 1px solid #eee;
+
+  @media (max-width: 768px) {
+    padding-bottom: 65px; // Clear Mobile Bottom Nav
+  }
 }
 
 .footer-content {
@@ -300,6 +308,11 @@
 .social-links {
   display: flex;
   gap: 12px;
+
+  @media (max-width: 768px) {
+    justify-content: center;
+    margin-top: 1rem;
+  }
 
   .social-link {
     width: 40px;
@@ -332,6 +345,35 @@
   font-weight: var(--dg-font-bold);
   color: #2c3e50;
   margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 0;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    font-size: 1rem;
+  }
+}
+
+.accordion-content {
+  @media (max-width: 768px) {
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    margin-bottom: 0;
+
+    &.show {
+      max-height: 500px;
+      opacity: 1;
+      padding: 1rem 0.5rem;
+      margin-bottom: 1rem;
+    }
+  }
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
 }
 
 .footer-links {
@@ -434,10 +476,6 @@
 }
 
 @media (max-width: 576px) {
-  .logo-text {
-    display: none !important; // Ẩn chữ hoàn toàn trên mobile rất nhỏ
-  }
-
   .right-nav {
     gap: 0.5rem !important; // Giảm gap icon
   }
@@ -454,7 +492,7 @@
 .mobile-menu-drawer {
   position: fixed;
   inset: 0;
-  z-index: 2000;
+  z-index: 2500; // Đưa lên trên cùng, cao hơn Bottom Nav (2000)
   visibility: hidden;
   transition: visibility 0.4s;
 
@@ -515,5 +553,119 @@
     background: rgba(46, 125, 50, 0.1);
     color: #2e7d32;
     font-weight: 700;
+  }
+}
+
+/* Mobile Bottom Navigation (Floating Glass Pill - Direction 1) */
+.mobile-bottom-nav {
+  display: none; // Ẩn mặc định trên Desktop
+
+  @media (max-width: 991.98px) {
+    display: flex !important;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%;
+    max-width: 480px;
+    height: 68px;
+    background: rgba(255, 255, 255, 0.9);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    border-radius: 100px;
+    z-index: 2000;
+    align-items: center;
+    padding: 0 6px;
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .bottom-nav-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+  }
+
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #4b5563;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: calc(100% - 12px);
+    flex: 1;
+    position: relative;
+    border-radius: 40px;
+    margin: 0 2px;
+
+    .nav-icon-box {
+      font-size: 1.25rem;
+      margin-bottom: 3px;
+      position: relative;
+      transition: transform 0.3s ease;
+    }
+
+    .nav-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    &.active {
+      color: #065f46;
+      background: #ecfdf5;
+      box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.1);
+
+      .nav-label {
+        color: #047857;
+      }
+
+      .nav-icon-box {
+        transform: scale(1.05);
+      }
+    }
+
+    &:active {
+      transform: scale(0.95);
+      background: rgba(236, 253, 245, 0.6);
+    }
+  }
+
+  .bottom-nav-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    background: #ef4444;
+    color: white;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    font-size: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    font-weight: 900;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+  }
+}
+
+// Đảm bảo các icon trên Header hiển thị cân đối trên Mobile
+@media (max-width: 768px) {
+  .floating-glass-header {
+    .user-dropdown-container {
+      display: none !important; // Ẩn User dropdown vì đã có ở Bottom Nav
+    }
+
+    .cart-wrapper {
+      display: inline-flex !important;
+    }
   }
 }

@@ -476,11 +476,112 @@ $transition-smooth: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 
 
 
-// CTA Button Custom Fix
-.btn-outline-light.hover-lift {
-  &:hover {
-    background-color: white !important;
-    color: $primary-color !important;
-    border-color: white !important;
+// Call to Action (CTA) Section Styles
+.cta-card {
+  background: linear-gradient(135deg, darken($primary-color, 5%) 0%, $primary-color 100%);
+  box-shadow: 0 25px 50px -12px rgba(46, 125, 50, 0.5);
+
+  .glass-mesh {
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+
+    &.mesh-1 {
+      width: 300px;
+      height: 300px;
+      top: -100px;
+      left: -100px;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    &.mesh-2 {
+      width: 400px;
+      height: 400px;
+      bottom: -150px;
+      right: -100px;
+      background: rgba(251, 191, 36, 0.3); // Sunflower/Warning accent
+    }
   }
 }
+
+.glass-badge {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 100px;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.cta-title {
+  font-size: 2.8rem;
+  line-height: 1.1;
+
+  @media (max-width: 768px) {
+    font-size: 1.8rem;
+  }
+}
+
+.cta-desc {
+  font-size: 1.1rem;
+  line-height: 1.6;
+
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+    padding: 0 10px;
+  }
+}
+
+.cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2.5rem;
+  border-radius: 100px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-size: 1rem;
+
+  @media (max-width: 576px) {
+    width: 100%;
+    padding: 0.85rem 1.5rem;
+  }
+
+  &.btn-primary-glass {
+    background: white;
+    color: $primary-color;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+
+  &.btn-outline-glass {
+    border: 2.5px solid rgba(255, 255, 255, 0.8);
+    color: white;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-5px);
+      border-color: white;
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+}
+
+// CTA Button Custom Fix - REMOVED OLD CLASSES

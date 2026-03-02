@@ -111,21 +111,36 @@ textarea.form-control {
 .profile-avatar-wrapper {
   position: relative;
   display: inline-block;
-  padding: 4px;
-  background: #fff;
+  padding: 6px;
+  background: white;
   border-radius: 50%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 
   .avatar-icon {
-    width: 80px;
-    height: 80px;
-    background: rgba(46, 125, 50, 0.1);
+    width: 90px;
+    height: 90px;
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
     color: #2E7D32;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
+    font-size: 2.5rem;
+  }
+
+  .role-indicator {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    border: 2px solid white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -179,14 +194,86 @@ textarea.form-control {
   }
 }
 
-// Invalid feedback
-.invalid-feedback {
-  font-size: var(--dg-text-sm);
-  margin-top: 0.4rem;
-}
+// Mobile Specific Styling
+@media (max-width: 768px) {
+  .profile-container {
+    padding-bottom: 100px !important; // Clear Bottom Nav
+  }
 
-// Spinner
-.spinner-border {
-  width: 1.2rem;
-  height: 1.2rem;
+  .profile-hero-card {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  }
+
+  .profile-cover {
+    height: 80px;
+  }
+
+  .profile-avatar-wrapper .avatar-icon {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+  }
+
+  .input-group {
+    background-color: white;
+    border: 1px solid #eee;
+
+    .form-control {
+      font-size: 1rem;
+      padding: 0.8rem 1rem 0.8rem 0;
+    }
+
+    .input-group-text {
+      padding-left: 1rem;
+    }
+  }
+
+  .btn {
+    padding-top: 0.8rem !important;
+    padding-bottom: 0.8rem !important;
+    font-size: 0.95rem;
+  }
+
+  .profile-action-tile {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    padding: 1.25rem 1rem !important;
+
+    .tile-content {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    i {
+      display: block;
+      line-height: 1;
+      font-size: 1.75rem !important;
+    }
+
+    .tile-label {
+      font-size: 0.85rem;
+      color: #333;
+      font-weight: 700 !important;
+    }
+
+    &:active {
+      transform: scale(0.96);
+      background-color: #f8f9fa;
+      border-color: #dee2e6;
+      box-shadow: none !important;
+    }
+  }
+
+  .card-header h5 {
+    font-size: 1.15rem !important;
+  }
 }

@@ -225,12 +225,165 @@
 }
 
 @media (max-width: 768px) {
-  .cart-item {
-    align-items: flex-start !important;
+  .cart-page {
+    padding-bottom: 90px !important; // Chừa chỗ cho Sticky Bottom Bar
   }
 
-  .cart-image {
-    width: 48px;
-    height: 48px;
+  .cart-card {
+    border-radius: 1.5rem !important;
+    padding: 1rem !important;
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+
+    h5 {
+      font-size: 1.1rem !important;
+      margin-bottom: 1rem !important;
+      padding-left: 0 !important;
+    }
+  }
+
+  .cart-items-wrapper {
+    padding-right: 0 !important;
+  }
+
+  .cart-item {
+    background-color: white !important;
+    border-radius: 1.25rem !important;
+    padding: 1rem !important;
+    margin-bottom: 1rem !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 0.75rem !important;
+    border: 1px solid rgba(0, 0, 0, 0.04) !important;
+    position: relative;
+
+    .product-link {
+      width: 100% !important;
+      margin-bottom: 0.25rem !important;
+      gap: 1.25rem !important;
+
+      .cart-image {
+        width: 85px !important; // Ảnh lớn hơn một chút
+        height: 85px !important;
+        border-radius: 1.25rem !important;
+        object-fit: cover;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .plant-name {
+        font-size: 1rem !important; // Chữ đậm và to hơn chút
+        font-weight: 700 !important;
+        margin-bottom: 0.2rem !important;
+        color: #1a1a1a;
+      }
+    }
+
+    .quantity-actions-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 0.5rem;
+      padding-top: 1rem;
+      border-top: 1px dashed rgba(0, 0, 0, 0.08);
+    }
+  }
+
+  .quantity-controller {
+    background-color: #f8f9fa !important;
+    padding: 0.25rem 0.5rem !important;
+    min-width: 90px !important;
+
+    .btn-icon {
+      width: 32px !important; // Kích thước phím bấm lớn hơn (Touch Target)
+      height: 32px !important;
+      font-size: 0.8rem !important;
+    }
+
+    .quantity-input {
+      font-size: 0.9rem !important;
+      width: 30px !important;
+    }
+  }
+
+  .btn-delete {
+    width: 36px !important;
+    height: 36px !important;
+    background-color: #fff1f0 !important;
+    border-color: #ffa39e !important;
+    color: #f5222d !important;
+
+    &:active {
+      background-color: #f5222d !important;
+      color: white !important;
+    }
+  }
+
+  .summary-card {
+    border-radius: 1.5rem !important;
+    margin-top: 1rem !important;
+    border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  }
+}
+
+// Sticky Bottom Bar cho Mobile (Chuẩn UX E-commerce)
+.mobile-sticky-footer {
+  display: none;
+
+  @media (max-width: 768px) {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(25px) saturate(200%);
+    -webkit-backdrop-filter: blur(25px) saturate(200%);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1rem 1.25rem;
+    z-index: 2100; // Phải cực cao để trên cùng
+    box-shadow: 0 -15px 35px rgba(0, 0, 0, 0.1);
+    border-radius: 2rem 2rem 0 0; // Bo tròn hơn
+
+    .footer-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .total-info {
+      .label {
+        font-size: 0.7rem;
+        color: #8c8c8c;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+        margin-bottom: 2px;
+      }
+
+      .amount {
+        font-size: 1.25rem;
+        font-weight: 900;
+        color: #198754;
+        line-height: 1;
+      }
+    }
+
+    .checkout-btn-mobile {
+      flex: 1.5;
+      border-radius: 100px;
+      padding: 0.85rem 1.25rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-size: 0.9rem;
+      box-shadow: 0 10px 25px rgba(25, 135, 84, 0.2);
+    }
   }
 }

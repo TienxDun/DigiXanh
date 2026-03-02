@@ -283,6 +283,22 @@
         </div>
       </div>
     </div>
+
+    <!-- Mobile Sticky Footer for Checkout -->
+    <div class="mobile-sticky-footer">
+      <div class="footer-content">
+        <div class="total-info">
+          <span class="label">Tổng thanh toán</span>
+          <div class="amount">{{ formatPrice(finalAmount) }}</div>
+        </div>
+        <button type="button"
+          class="btn btn-success checkout-btn-mobile d-flex align-items-center justify-content-center gap-2 shadow-lg"
+          [disabled]="isSubmitting || checkoutForm.invalid || hasOutOfStockItems" (click)="onSubmit()">
+          <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status"></span>
+          <span>Xác nhận Đặt hàng</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Empty Cart State -->

@@ -3,13 +3,13 @@
 </div>
 <header class="floating-glass-header d-flex align-items-center px-1 px-sm-3" [class.nav-scrolled]="isScrolled">
   <!-- LEFT: LOGO -->
-  <a class="navbar-brand fw-bold fs-5 text-success d-flex align-items-center gap-2" routerLink="/"
+  <a class="navbar-brand fw-bold fs-5 text-success d-flex align-items-center gap-1 gap-sm-2" routerLink="/"
     style="text-decoration: none;">
     <div
       class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm logo-circle">
       <i class="fa-solid fa-leaf"></i>
     </div>
-    <span class="logo-text d-none d-sm-inline">DigiXanh</span>
+    <span class="logo-text">DigiXanh</span>
   </a>
 
   <!-- CENTER: MEGA LINKS (Trang chủ & Cây cảnh) -->
@@ -25,9 +25,13 @@
   </nav>
 
   <!-- RIGHT: ICONS & DROPDOWN -->
-  <nav class="right-nav ms-auto d-flex align-items-center gap-2 gap-sm-3">
+  <nav class="right-nav ms-auto d-flex align-items-center gap-1 gap-sm-3">
+    <!-- Nút Tìm kiếm Minimal (Mobile/Desktop) -->
+    <button class="icon-action-btn" title="Tìm kiếm">
+      <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+
     <!-- Giỏ hàng Minimal -->
-    @if (authService.isAuthenticated()) {
     <div class="cart-wrapper position-relative d-inline-flex align-items-center">
       <a routerLink="/cart" class="icon-action-btn" title="Giỏ hàng">
         <i class="fa-solid fa-bag-shopping"></i>
@@ -39,8 +43,9 @@
       }
     </div>
 
-    <!-- Avatar Hover Dropdown -->
-    <div class="user-dropdown-container">
+    <!-- Avatar Hover Dropdown (Desktop Only) -->
+    <div class="user-dropdown-container d-none d-md-block">
+      @if (authService.isAuthenticated()) {
       <button class="user-avatar-btn outline-none shadow-sm" type="button" title="Tài khoản">
         <i class="fa-solid fa-user-astronaut"></i>
       </button>
@@ -69,14 +74,14 @@
           <i class="fa-solid fa-power-off me-2"></i>Đăng xuất
         </button>
       </div>
+      } @else {
+      <a class="auth-btn login-btn d-flex align-items-center gap-2 text-decoration-none shadow-sm"
+        routerLink="/auth/login">
+        <i class="fa-regular fa-circle-user fs-5"></i>
+        <span class="d-none d-sm-inline fw-medium">Đăng nhập</span>
+      </a>
+      }
     </div>
-    } @else {
-    <a class="auth-btn login-btn d-flex align-items-center gap-2 text-decoration-none shadow-sm"
-      routerLink="/auth/login">
-      <i class="fa-regular fa-circle-user fs-5"></i>
-      <span class="d-none d-sm-inline fw-medium">Đăng nhập</span>
-    </a>
-    }
 
     <!-- Hamburger Menu Button -->
     <button class="icon-action-btn d-lg-none" (click)="toggleMobileMenu()"
@@ -138,6 +143,56 @@
 <main class="main-content">
   <router-outlet />
 </main>
+
+<!-- Mobile Bottom Navigation (Thumb-Zone Optimization) -->
+@if (!isCheckoutFlow) {
+<nav class="mobile-bottom-nav d-lg-none shadow-lg">
+  <div class="bottom-nav-container d-flex justify-content-around align-items-center h-100">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+      <div class="nav-icon-box">
+        <i class="fa-solid fa-house-chimney"></i>
+      </div>
+      <span class="nav-label">Trang chủ</span>
+    </a>
+
+    <a routerLink="/plants" routerLinkActive="active" class="nav-item">
+      <div class="nav-icon-box">
+        <i class="fa-solid fa-leaf"></i>
+      </div>
+      <span class="nav-label">Cây cảnh</span>
+    </a>
+
+    <a routerLink="/cart" routerLinkActive="active" class="nav-item position-relative">
+      <div class="nav-icon-box">
+        <i class="fa-solid fa-bag-shopping"></i>
+        @if ((cartCount$ | async); as cartCount) {
+        @if (cartCount > 0) {
+        <span class="bottom-nav-badge">{{ cartCount }}</span>
+        }
+        }
+      </div>
+      <span class="nav-label">Giỏ hàng</span>
+    </a>
+
+    @if (authService.isAuthenticated()) {
+    <a routerLink="/profile" routerLinkActive="active" class="nav-item">
+      <div class="nav-icon-box">
+        <i class="fa-solid fa-user-astronaut"></i>
+      </div>
+      <span class="nav-label">Tôi</span>
+    </a>
+    } @else {
+    <a routerLink="/auth/login" routerLinkActive="active" class="nav-item">
+      <div class="nav-icon-box">
+        <i class="fa-regular fa-circle-user"></i>
+      </div>
+      <span class="nav-label">Đăng nhập</span>
+    </a>
+    }
+  </div>
+</nav>
+}
+
 <app-toast-container />
 
 <footer class="footer-main mt-auto">
@@ -146,8 +201,8 @@
     <div class="container">
       <div class="row g-4">
         <!-- Company Info -->
-        <div class="col-lg-4 col-md-6">
-          <div class="footer-brand mb-3">
+        <div class="col-lg-4 col-md-6 order-0 text-center text-lg-start">
+          <div class="footer-brand mb-3 d-flex justify-content-center justify-content-lg-start">
             <a class="navbar-brand fw-bold fs-5 text-success d-flex align-items-center gap-2" routerLink="/"
               style="text-decoration: none;">
               <div
@@ -158,11 +213,11 @@
               <span style="letter-spacing: -0.5px; font-weight: 800;">DigiXanh</span>
             </a>
           </div>
-          <p class="footer-description">
+          <p class="footer-description mx-auto mx-lg-0">
             Mang những tác phẩm nghệ thuật từ thiên nhiên về với không gian của bạn.
             Chúng tôi cam kết mang đến những cây cảnh chất lượng nhất.
           </p>
-          <div class="social-links">
+          <div class="social-links justify-content-center justify-content-lg-start mb-4">
             <a href="#" class="social-link" aria-label="Facebook">
               <i class="fa-brands fa-facebook-f"></i>
             </a>
@@ -179,9 +234,14 @@
         </div>
 
         <!-- Quick Links -->
-        <div class="col-lg-2 col-md-6">
-          <h5 class="footer-title">Liên Kết</h5>
-          <ul class="footer-links">
+        <div class="col-lg-2 col-md-6 order-1">
+          <h5 class="footer-title d-flex align-items-center justify-content-between"
+            (click)="toggleFooterSection('links')">
+            <span>Liên Kết</span>
+            <i class="fa-solid fa-chevron-down d-lg-none transition-all"
+              [class.rotate-180]="isFooterSectionOpen('links')"></i>
+          </h5>
+          <ul class="footer-links accordion-content" [class.show]="isFooterSectionOpen('links')">
             <li><a routerLink="/">Trang chủ</a></li>
             <li><a routerLink="/plants">Cây cảnh</a></li>
             <li><a routerLink="/cart">Giỏ hàng</a></li>
@@ -190,9 +250,14 @@
         </div>
 
         <!-- Customer Support -->
-        <div class="col-lg-3 col-md-6">
-          <h5 class="footer-title">Hỗ Trợ</h5>
-          <ul class="footer-links">
+        <div class="col-lg-3 col-md-6 order-2">
+          <h5 class="footer-title d-flex align-items-center justify-content-between"
+            (click)="toggleFooterSection('support')">
+            <span>Hỗ Trợ</span>
+            <i class="fa-solid fa-chevron-down d-lg-none transition-all"
+              [class.rotate-180]="isFooterSectionOpen('support')"></i>
+          </h5>
+          <ul class="footer-links accordion-content" [class.show]="isFooterSectionOpen('support')">
             <li><a href="#">Hướng dẫn mua hàng</a></li>
             <li><a href="#">Chính sách vận chuyển</a></li>
             <li><a href="#">Chính sách đổi trả</a></li>
@@ -201,9 +266,14 @@
         </div>
 
         <!-- Contact Info -->
-        <div class="col-lg-3 col-md-6">
-          <h5 class="footer-title">Liên Hệ</h5>
-          <ul class="contact-info">
+        <div class="col-lg-3 col-md-6 order-3">
+          <h5 class="footer-title d-flex align-items-center justify-content-between"
+            (click)="toggleFooterSection('contact')">
+            <span>Liên Hệ</span>
+            <i class="fa-solid fa-chevron-down d-lg-none transition-all"
+              [class.rotate-180]="isFooterSectionOpen('contact')"></i>
+          </h5>
+          <ul class="contact-info accordion-content" [class.show]="isFooterSectionOpen('contact')">
             <li>
               <i class="fa-solid fa-location-dot"></i>
               <span>123 Đường Cây Xanh, Quận 1<br>TP. Hồ Chí Minh</span>

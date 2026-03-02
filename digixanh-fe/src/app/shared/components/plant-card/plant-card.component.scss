@@ -56,8 +56,8 @@ $premium-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
         flex-direction: column;
         justify-content: space-between;
 
-        @media (max-width: 576px) {
-            padding: 0.85rem;
+        @media (max-width: 768px) {
+            padding: 0.75rem !important; // Giảm padding để dành chỗ cho nội dung
         }
     }
 
@@ -67,9 +67,17 @@ $premium-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
         font-weight: 700;
         letter-spacing: -0.01em;
         margin-bottom: 0.25rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; // Giới hạn 2 dòng để tránh vỡ layout
+        line-clamp: 2; // Fixed lint warning
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        white-space: normal;
 
-        @media (max-width: 576px) {
-            font-size: 0.9rem;
+        @media (max-width: 768px) {
+            font-size: 0.85rem !important;
+            margin-bottom: 0.15rem !important;
+            line-clamp: 2;
         }
     }
 
@@ -77,10 +85,11 @@ $premium-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
         font-size: 0.8rem;
         color: #6c757d;
         margin-bottom: 1rem;
+        font-style: italic;
 
-        @media (max-width: 576px) {
-            font-size: 0.7rem;
-            margin-bottom: 0.5rem;
+        @media (max-width: 768px) {
+            font-size: 0.65rem !important;
+            margin-bottom: 0.5rem !important;
         }
     }
 
@@ -90,9 +99,8 @@ $premium-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
         transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         box-shadow: 0 8px 25px rgba($primary-color, 0.3);
 
-        @media (max-width: 576px) {
-            padding: 0.4rem 1rem !important;
-            font-size: 0.75rem !important;
+        @media (max-width: 768px) {
+            display: none !important; // Ẩn nút "Xem" trên mobile vì click vào card đã chuyển trang rồi
         }
     }
 
@@ -117,9 +125,10 @@ $premium-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
         font-size: 0.75rem;
         display: inline-block;
 
-        @media (max-width: 576px) {
-            font-size: 0.65rem;
-            padding: 0.2rem 0.6rem !important;
+        @media (max-width: 768px) {
+            font-size: 0.6rem !important;
+            padding: 0.15rem 0.5rem !important;
+            margin-bottom: 0.25rem !important;
         }
     }
 
@@ -133,8 +142,15 @@ $premium-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
         font-size: 1.15rem;
         font-weight: 800;
 
-        @media (max-width: 576px) {
-            font-size: 1rem;
+        @media (max-width: 768px) {
+            font-size: 0.9rem !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        &:hover {
+            transform: translateY(-5px) !important; // Giảm độ di chuyển trên mobile
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
         }
     }
 

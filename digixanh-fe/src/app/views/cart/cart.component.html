@@ -57,7 +57,8 @@
               </div>
             </a>
 
-            <div class="d-flex align-items-center justify-content-between w-100 w-md-auto ms-md-4 gap-3">
+            <div
+              class="quantity-actions-row d-flex align-items-center justify-content-between w-100 w-md-auto ms-md-4 gap-3">
               <!-- Inline Quantity Controller -->
               <div
                 class="quantity-controller d-flex align-items-center bg-white rounded-pill p-1 shadow-sm border border-secondary border-opacity-10 flex-shrink-0">
@@ -139,6 +140,22 @@
             <i class="fa-solid fa-arrow-left me-1"></i> Tiếp tục mua sắm
           </a>
         </div>
+      </div>
+    </div>
+
+    <!-- Sticky Bottom Bar for Mobile -->
+    <div class="mobile-sticky-footer">
+      <div class="footer-content">
+        <div class="total-info">
+          <span class="label">Tổng cộng</span>
+          <div class="amount">{{ summary.finalAmount | currency:'VND':'symbol' }}</div>
+        </div>
+        <button class="btn btn-success checkout-btn-mobile d-flex align-items-center justify-content-center gap-2"
+          [disabled]="isCheckingOut" (click)="proceedToCheckout()">
+          <span *ngIf="isCheckingOut" class="spinner-border spinner-border-sm" role="status"></span>
+          <span>Thanh toán</span>
+          <i *ngIf="!isCheckingOut" class="fa-solid fa-chevron-right small"></i>
+        </button>
       </div>
     </div>
   </div>
