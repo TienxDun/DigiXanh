@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, finalize, map, of, shareReplay, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AddCartItemRequest, CartSummaryDto, UpdateCartItemQuantityRequest } from '../models/cart.model';
 
@@ -10,6 +10,9 @@ import { AddCartItemRequest, CartSummaryDto, UpdateCartItemQuantityRequest } fro
 export class CartService {
   private readonly apiUrl = `${environment.apiUrl}/cart`;
   private readonly cartCountSubject = new BehaviorSubject<number>(0);
+  private readonly refreshTtlMs = 30_000;
+  private lastRefreshAt = 0;
+  private refreshInFlight$: Observable<number> | null = null;
 
   readonly cartCount$ = this.cartCountSubject.asObservable();
 
@@ -39,17 +42,40 @@ export class CartService {
     );
   }
 
-  refreshCartCount(): Observable<number> {
-    return this.getCart().pipe(
+  refreshCartCount(force = false): Observable<number> {
+    const now = Date.now();
+    const cachedCount = this.cartCountSubject.getValue();
+
+    if (!force && this.lastRefreshAt > 0 && now - this.lastRefreshAt < this.refreshTtlMs) {
+      return of(cachedCount);
+    }
+
+    if (this.refreshInFlight$) {
+      return this.refreshInFlight$;
+    }
+
+    const request$ = this.getCart().pipe(
       map((summary) => summary.totalQuantity ?? 0),
+      tap(() => {
+        this.lastRefreshAt = Date.now();
+      }),
       catchError(() => {
         this.cartCountSubject.next(0);
         return of(0);
-      })
+      }),
+      finalize(() => {
+        this.refreshInFlight$ = null;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
+
+    this.refreshInFlight$ = request$;
+    return request$;
   }
 
   resetCartCount(): void {
     this.cartCountSubject.next(0);
+    this.lastRefreshAt = 0;
+    this.refreshInFlight$ = null;
   }
 }

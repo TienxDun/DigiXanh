@@ -22,11 +22,13 @@ export class PublicPlantService {
   private readonly plantsCache = new Map<string, Observable<PagedResult<PlantDto>>>();
   private readonly detailCache = new Map<number, Observable<PlantDetailDto>>();
   private readonly relatedCache = new Map<string, Observable<PagedResult<PlantDto>>>();
-  private readonly categories$ = this.http.get<CategoryDto[]>(this.categoriesUrl).pipe(
-    shareReplay({ bufferSize: 1, refCount: false })
-  );
+  private readonly categories$: Observable<CategoryDto[]>;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    this.categories$ = this.http.get<CategoryDto[]>(this.categoriesUrl).pipe(
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+  }
 
   getPlants(query: PublicPlantQuery): Observable<PagedResult<PlantDto>> {
     const cacheKey = this.getQueryCacheKey(query);

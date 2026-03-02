@@ -4,7 +4,6 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import {
-  PreloadAllModules,
   provideRouter,
   withEnabledBlockingInitialNavigation,
   withInMemoryScrolling,
@@ -18,6 +17,7 @@ import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ToastModule } from '@coreui/angular';
 import { FormlyFieldPasswordComponent } from './core/forms/password-input.type';
+import { SelectivePreloadingStrategy } from './core/routing/selective-preloading.strategy';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -29,7 +29,7 @@ export const appConfig: ApplicationConfig = {
         scrollPositionRestoration: 'top',
         anchorScrolling: 'enabled'
       }),
-      withPreloading(PreloadAllModules),
+      withPreloading(SelectivePreloadingStrategy),
       withEnabledBlockingInitialNavigation()
       // Note: withViewTransitions() removed - causing InvalidStateError
       // Note: withHashLocation() removed - using standard HTML5 history API

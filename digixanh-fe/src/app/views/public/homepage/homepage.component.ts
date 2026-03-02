@@ -1,7 +1,7 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, NgZone, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { Observable, catchError, map, of } from 'rxjs';
+import { Observable, Subscription, catchError, interval, map, of } from 'rxjs';
 import { PlantDto, CategoryDto } from '../../../core/models/plant.model';
 import { PublicPlantService } from '../../../core/services/public-plant.service';
 import { resolvePlantImageUrl } from '../../../core/utils/image-url.util';
@@ -22,10 +22,12 @@ interface BannerSlide {
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './homepage.component.html',
-  styleUrl: './homepage.component.scss'
+  styleUrl: './homepage.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomepageComponent {
   private readonly plantService = inject(PublicPlantService);
+  private readonly ngZone = inject(NgZone);
   readonly fallbackImageUrl = 'assets/images/plant-placeholder.svg';
 
   // Hero slider data
@@ -63,13 +65,15 @@ export class HomepageComponent {
   ];
 
   currentSlide = 0;
-  private slideInterval: any;
+  private slideIntervalSub: Subscription | null = null;
 
   // Featured products - state driven for loadMore support
+  private readonly INITIAL_LOAD_COUNT = 8;
   private readonly PAGE_SIZE = 4;
   private allFeaturedPlants = signal<PlantDto[]>([]);
-  private currentDisplayCount = signal<number>(8);
+  private currentDisplayCount = signal<number>(this.INITIAL_LOAD_COUNT);
   private totalAvailable = signal<number>(0);
+  private nextServerPage = signal<number>(2);
   readonly isLoadingMore = signal<boolean>(false);
   readonly isInitialLoading = signal<boolean>(true);
 
@@ -118,12 +122,13 @@ export class HomepageComponent {
   }
 
   private loadInitialPlants(): void {
-    // Load 12 plants upfront to support multiple "load more" cycles
-    this.plantService.getPlants({ page: 1, pageSize: 12, sortBy: '' }).pipe(
-      catchError(() => of({ items: [], totalCount: 0, page: 1, pageSize: 12, totalPages: 0 }))
+    this.plantService.getPlants({ page: 1, pageSize: this.INITIAL_LOAD_COUNT, sortBy: '' }).pipe(
+      catchError(() => of({ items: [], totalCount: 0, page: 1, pageSize: this.INITIAL_LOAD_COUNT, totalPages: 0 }))
     ).subscribe(result => {
-      this.allFeaturedPlants.set(result.items);
+      this.allFeaturedPlants.set(this.mergeUniquePlants([], result.items ?? []));
       this.totalAvailable.set(result.totalCount);
+      const loadedCount = result.items?.length ?? 0;
+      this.nextServerPage.set(Math.floor(loadedCount / this.PAGE_SIZE) + 1);
       this.isInitialLoading.set(false);
     });
   }
@@ -131,25 +136,52 @@ export class HomepageComponent {
   loadMorePlants(): void {
     if (this.isLoadingMore()) return;
 
-    const next = this.currentDisplayCount() + this.PAGE_SIZE;
+    const nextDisplayCount = this.currentDisplayCount() + this.PAGE_SIZE;
 
     // If we already have enough loaded items, just show more
-    if (next <= this.allFeaturedPlants().length) {
-      this.currentDisplayCount.set(next);
+    if (nextDisplayCount <= this.allFeaturedPlants().length) {
+      this.currentDisplayCount.set(nextDisplayCount);
+      return;
+    }
+
+    if (this.allFeaturedPlants().length >= this.totalAvailable()) {
       return;
     }
 
     // Otherwise fetch another page from the server
     this.isLoadingMore.set(true);
-    const nextPage = Math.floor(this.allFeaturedPlants().length / this.PAGE_SIZE) + 1;
+    const nextPage = this.nextServerPage();
     this.plantService.getPlants({ page: nextPage, pageSize: this.PAGE_SIZE, sortBy: '' }).pipe(
       map(result => result.items ?? []),
       catchError(() => of([]))
     ).subscribe(newItems => {
-      this.allFeaturedPlants.update(current => [...current, ...newItems]);
-      this.currentDisplayCount.set(this.allFeaturedPlants().length);
+      this.allFeaturedPlants.update(current => this.mergeUniquePlants(current, newItems));
+      if (newItems.length > 0) {
+        this.nextServerPage.update((page) => page + 1);
+      }
+      this.currentDisplayCount.set(Math.min(nextDisplayCount, this.allFeaturedPlants().length));
       this.isLoadingMore.set(false);
     });
+  }
+
+  private mergeUniquePlants(current: PlantDto[], incoming: PlantDto[]): PlantDto[] {
+    if (!incoming.length) {
+      return current;
+    }
+
+    const seenIds = new Set(current.map((plant) => plant.id));
+    const merged = [...current];
+
+    for (const plant of incoming) {
+      if (seenIds.has(plant.id)) {
+        continue;
+      }
+
+      seenIds.add(plant.id);
+      merged.push(plant);
+    }
+
+    return merged;
   }
 
   ngOnDestroy(): void {
@@ -157,15 +189,17 @@ export class HomepageComponent {
   }
 
   private startAutoSlide(): void {
-    this.slideInterval = setInterval(() => {
-      this.nextSlide();
-    }, 5000);
+    this.stopAutoSlide();
+    this.ngZone.runOutsideAngular(() => {
+      this.slideIntervalSub = interval(5000).subscribe(() => {
+        this.ngZone.run(() => this.nextSlide());
+      });
+    });
   }
 
   private stopAutoSlide(): void {
-    if (this.slideInterval) {
-      clearInterval(this.slideInterval);
-    }
+    this.slideIntervalSub?.unsubscribe();
+    this.slideIntervalSub = null;
   }
 
   nextSlide(): void {
