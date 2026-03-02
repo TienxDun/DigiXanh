@@ -23,7 +23,7 @@
     (function () {
       try {
         var theme = localStorage.getItem('coreui-free-angular-admin-template-theme-default');
-        if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        if (theme === 'dark') {
           document.documentElement.setAttribute('data-coreui-theme', 'dark');
         } else {
           document.documentElement.setAttribute('data-coreui-theme', 'light');

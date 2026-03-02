@@ -15,6 +15,7 @@ import { iconSubset } from './icons/icon-subset';
 })
 export class AppComponent implements OnInit {
   title = 'CoreUI Angular Admin Template';
+  private readonly colorModeStorageKey = 'coreui-free-angular-admin-template-theme-default';
 
   readonly #destroyRef: DestroyRef = inject(DestroyRef);
   readonly #activatedRoute: ActivatedRoute = inject(ActivatedRoute);
@@ -28,8 +29,12 @@ export class AppComponent implements OnInit {
     this.#titleService.setTitle(this.title);
     // iconSet singleton
     this.#iconSetService.icons = { ...iconSubset };
-    this.#colorModeService.localStorageItemName.set('coreui-free-angular-admin-template-theme-default');
+    this.#colorModeService.localStorageItemName.set(this.colorModeStorageKey);
     this.#colorModeService.eventName.set('ColorSchemeChange');
+
+    if (typeof window !== 'undefined' && !localStorage.getItem(this.colorModeStorageKey)) {
+      this.#colorModeService.colorMode.set('light');
+    }
   }
 
   ngOnInit(): void {
