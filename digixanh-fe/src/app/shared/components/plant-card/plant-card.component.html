@@ -1,0 +1,51 @@
+<article class="plant-card border-0 rounded-4 shadow-sm overflow-hidden h-100">
+    <a [routerLink]="['/plants', plant.id]" class="card-link text-decoration-none d-flex flex-column h-100">
+        <!-- Image Section -->
+        <div class="position-relative overflow-hidden group-hover-zoom image-container" style="aspect-ratio: 4/5;">
+            <img [src]="resolveImageUrl(plant.imageUrl)" [alt]="plant.name"
+                class="w-100 h-100 object-fit-cover transition-transform plant-img" loading="lazy" decoding="async"
+                fetchpriority="low" (error)="onImageError($event)">
+
+            <!-- Badges -->
+            <div class="position-absolute top-0 start-0 p-2 z-2 d-flex flex-column gap-2" *ngIf="showBadge">
+                <span class="badge glass-badge rounded-pill px-2 py-2 fw-medium shadow-sm" *ngIf="plant.id < 10">
+                    <i class="fa-solid fa-fire text-warning"></i>
+                </span>
+            </div>
+
+            <!-- Out of Stock Overlay -->
+            <div *ngIf="plant.stockQuantity === 0"
+                class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center z-2 backdrop-blur-sm">
+                <span class="badge bg-danger rounded-pill px-3 py-2 fs-6 shadow-lg">
+                    <i class="fa-solid fa-box-open me-1"></i>Hết
+                </span>
+            </div>
+
+            <!-- Hover Overlay -->
+            <div
+                class="card-overlay position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-10 transition-fade z-1 d-flex align-items-center justify-content-center opacity-0 scale-up">
+                <span class="btn btn-light rounded-pill px-3 py-2 shadow-lg fw-bold detail-btn border-0">
+                    <i class="fa-solid fa-eye me-1 text-success"></i>Xem
+                </span>
+            </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="card-content text-center">
+            <div class="mb-2">
+                <span class="badge glass-category text-success rounded-pill px-2 py-1 mb-2">
+                    {{ plant.categoryName }}
+                </span>
+                <h6 class="card-title text-dark text-truncate" [title]="plant.name">{{ plant.name }}</h6>
+                <p class="scientific-name text-truncate mb-0" [title]="plant.scientificName">{{ plant.scientificName }}
+                </p>
+            </div>
+
+            <div class="price-container">
+                <span class="price-tag">
+                    {{ plant.price | currency:'VND':'symbol':'1.0-0' }}
+                </span>
+            </div>
+        </div>
+    </a>
+</article>

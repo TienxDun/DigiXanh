@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, NgZone, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { asyncScheduler, catchError, fromEvent, Observable, of, throttleTime } from 'rxjs';
 import { CategoryDto, PlantDto } from '../../../core/models/plant.model';
 import { PagedResult } from '../../../core/models/pagination.model';
 import { PublicPlantService } from '../../../core/services/public-plant.service';
 import { resolvePlantImageUrl } from '../../../core/utils/image-url.util';
+import { PlantCardComponent } from '../../../shared/components/plant-card/plant-card.component';
 
 interface PublicPlantListVm {
   items: PlantDto[];
@@ -20,7 +21,7 @@ interface PublicPlantListVm {
 @Component({
   selector: 'app-public-plant-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, PlantCardComponent],
   templateUrl: './public-plant-list.component.html',
   styleUrl: './public-plant-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -92,7 +92,7 @@
       </a>
     </div>
 
-    <div class="row g-3">
+    <div class="row g-3 g-lg-4">
       @if (isInitialLoading()) {
       @for (i of [1,2,3,4,5,6,7,8]; track i) {
       <div class="col-6 col-md-4 col-lg-3">
@@ -110,44 +110,7 @@
       } @else {
       @for (plant of featuredPlants(); track plant.id) {
       <div class="col-6 col-md-4 col-lg-3">
-        <article class="plant-card h-100 border-0 rounded-4 shadow-sm bg-white overflow-hidden d-flex flex-column">
-          <a [routerLink]="['/plants', plant.id]" class="card-link text-decoration-none d-flex flex-column h-100">
-            <div class="position-relative overflow-hidden group-hover-zoom" style="aspect-ratio: 4/5;">
-              <img [src]="resolveImageUrl(plant.imageUrl)" [alt]="plant.name"
-                class="w-100 h-100 object-fit-cover transition-transform plant-img" loading="lazy"
-                decoding="async" fetchpriority="low" (error)="onImageError($event)">
-
-              <div class="position-absolute top-0 start-0 p-2 z-2">
-                <span class="badge bg-success bg-opacity-90 rounded-pill px-3 py-2 fw-medium shadow-sm">Hot</span>
-              </div>
-
-              @if (plant.stockQuantity === 0) {
-              <div
-                class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center z-2">
-                <span class="badge bg-danger rounded-pill px-3 py-2 fs-6">Hết hàng</span>
-              </div>
-              }
-
-              <div
-                class="card-overlay position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-10 transition-fade z-1 d-flex align-items-center justify-content-center opacity-0">
-                <span class="btn btn-light rounded-pill px-4 shadow-sm fw-medium detail-btn">
-                  <i class="fa-solid fa-eye me-2 text-success"></i>Xem chi tiết
-                </span>
-              </div>
-            </div>
-            <div class="p-3 text-center mt-auto flex-grow-1 d-flex flex-column justify-content-between">
-              <div>
-                <span class="badge bg-success bg-opacity-10 text-success rounded-pill mb-2 px-3 py-1 category-tag">{{
-                  plant.categoryName }}</span>
-                <h5 class="fw-bold text-dark mb-1 text-truncate card-title">{{ plant.name }}</h5>
-                <p class="text-muted small fst-italic mb-3 text-truncate">{{ plant.scientificName }}</p>
-              </div>
-              <div class="fw-bolder text-success fs-5 price-tag">
-                {{ plant.price | currency:'VND':'symbol' }}
-              </div>
-            </div>
-          </a>
-        </article>
+        <app-plant-card [plant]="plant"></app-plant-card>
       </div>
       }
 

@@ -17,10 +17,12 @@ interface BannerSlide {
   bgGradient: string;
 }
 
+import { PlantCardComponent } from '../../../shared/components/plant-card/plant-card.component';
+
 @Component({
   selector: 'app-homepage',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, PlantCardComponent],
   templateUrl: './homepage.component.html',
   styleUrl: './homepage.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
