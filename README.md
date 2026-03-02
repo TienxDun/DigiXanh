@@ -113,7 +113,7 @@
 
 | Resource | Link |
 |----------|------|
-| 🌐 Live Demo | *Đang deploy* |
+| 🌐 Live Demo | 'tienxdun.github.io/DigiXanh/' |
 | 📚 API Docs | `https://localhost:5001/swagger` |
 | 💻 Source Code | `https://github.com/TienxDun/DigiXanh` |
 
