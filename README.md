@@ -1,7 +1,7 @@
 # 🌱 DigiXanh - Website Thương Mại Điện Tử Bán Cây Xanh
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Access_Now-2ea44f?style=for-the-badge)](https://tienxdun.github.io/DigiXanh/)
-[![API Docs](https://img.shields.io/badge/API_Docs-Swagger-000000?style=for-the-badge)](https://localhost:5001/swagger)
+[![API Docs](https://img.shields.io/badge/API_Docs-Swagger-000000?style=for-the-badge)](https://digixanh.onrender.com/swagger)
 [![Frontend](https://img.shields.io/badge/Angular-21+-DD0031?style=for-the-badge&logo=angular)](#)
 [![Backend](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=dotnet)](#)
 [![CI/CD](https://img.shields.io/badge/GitHub_Actions-Passed-2088FF?style=for-the-badge&logo=githubactions)](#)
@@ -19,6 +19,10 @@
 ### Trang Quản Trị Hệ Thống (Admin Dashboard)
 *Giao diện quản lý trực quan với biểu đồ Analytics:*
 ![Trang Quản trị](./docs/images/admin.jpeg)
+
+### Tài Liệu API (Swagger Documentation)
+*Hệ thống API được chuẩn hóa và tài liệu hóa bằng Swagger UI:*
+![Swagger Documentation](./docs/images/Swagger.png)
 
 ---
 
