@@ -102,12 +102,14 @@ export class AuthService {
     );
   }
 
-  logout(): void {
+  logout(navigate: boolean = true): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.userSubject.next(null);
     this.isAuthenticatedSubject.next(false);
-    this.router.navigate(['/']);
+    if (navigate) {
+      this.router.navigate(['/']);
+    }
   }
 
   private getStoredUser(): StoredUser | null {

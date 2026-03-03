@@ -12,11 +12,29 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
         // Token hết hạn hoặc không hợp lệ
-        console.error('401 Unauthorized - Redirecting to login');
-        authService.logout();
-        router.navigate(['/auth/login'], {
-          queryParams: { returnUrl: router.routerState.snapshot.url }
-        });
+        console.error('401 Unauthorized - Checking context before redirect');
+
+        const currentUrl = router.url;
+        // Kiểm tra xem trang hiện tại có cần bảo vệ (admin, profile, orders, cart, checkout) hay không
+        const isProtectedRoute =
+          currentUrl.startsWith('/admin') ||
+          currentUrl.startsWith('/profile') ||
+          currentUrl.startsWith('/orders') ||
+          currentUrl.startsWith('/cart') ||
+          currentUrl.startsWith('/checkout');
+
+        if (isProtectedRoute) {
+          // Chỉ logout và về login nếu đang ở trang cần bảo mật
+          authService.logout(false); // logout nhưng ko navigate đi đâu để interceptor tự xử lý
+          router.navigate(['/auth/login'], {
+            queryParams: { returnUrl: currentUrl }
+          });
+        } else {
+          // Nếu ở trang công cộng (Home, Plants...), chỉ logout âm thầm để xóa trạng thái cũ
+          // và cập nhật UI (vd: giỏ hàng về 0, hiện nút login)
+          authService.logout(false);
+          // Không navigate đi đâu cả
+        }
       }
 
       if (error.status === 403) {

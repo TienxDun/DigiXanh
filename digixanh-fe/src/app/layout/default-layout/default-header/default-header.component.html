@@ -3,76 +3,25 @@
   <div class="header-row">
     <!-- Left: Toggle + Breadcrumb -->
     <div class="header-left">
-      <button [cSidebarToggle]="sidebarId()" 
-              cHeaderToggler 
-              class="btn-menu"
-              toggle="visible"
-              aria-label="Toggle sidebar">
+      <button [cSidebarToggle]="sidebarId()" cHeaderToggler class="btn-menu" toggle="visible"
+        aria-label="Toggle sidebar">
         <svg cIcon name="cilMenu" size="lg"></svg>
       </button>
-      
+
       <c-breadcrumb-router class="breadcrumb-custom"></c-breadcrumb-router>
     </div>
 
     <!-- Right: Actions -->
     <div class="header-right">
-      <!-- Notifications -->
-      <c-dropdown alignment="end" variant="nav-item">
-        <button cDropdownToggle class="btn-action" [caret]="false" aria-label="Notifications">
-          <svg cIcon name="cilBell" size="lg"></svg>
-          <span class="badge-red">3</span>
-        </button>
-        <ul cDropdownMenu class="dropdown-menu-custom dropdown-lg">
-          <li class="dropdown-header">
-            <span>Thông báo</span>
-            <button class="btn-mark">Đánh dấu đã đọc</button>
-          </li>
-          <li><hr class="dropdown-divider"></li>
-          <li>
-            <a routerLink="/admin/orders" class="dropdown-item notification-item">
-              <div class="noti-icon bg-success">
-                <svg cIcon name="cilCart"></svg>
-              </div>
-              <div class="noti-content">
-                <strong>Đơn hàng mới #1234</strong>
-                <small>Khách hàng vừa đặt đơn hàng mới</small>
-                <span class="noti-time">2 phút trước</span>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a routerLink="/admin/plants" class="dropdown-item notification-item">
-              <div class="noti-icon bg-warning">
-                <svg cIcon name="cilWarning"></svg>
-              </div>
-              <div class="noti-content">
-                <strong>Cảnh báo tồn kho</strong>
-                <small>Cây "Trầu Bà" sắp hết hàng</small>
-                <span class="noti-time">15 phút trước</span>
-              </div>
-            </a>
-          </li>
-          <li>
-            <a routerLink="/admin/users" class="dropdown-item notification-item">
-              <div class="noti-icon bg-info">
-                <svg cIcon name="cilUserPlus"></svg>
-              </div>
-              <div class="noti-content">
-                <strong>NgườI dùng mới</strong>
-                <small>Nguyễn Văn A vừa đăng ký</small>
-                <span class="noti-time">1 giờ trước</span>
-              </div>
-            </a>
-          </li>
-          <li><hr class="dropdown-divider"></li>
-          <li><a routerLink="/admin/notifications" class="dropdown-item text-center text-primary">Xem tất cả thông báo</a></li>
-        </ul>
-      </c-dropdown>
-
       <!-- Theme -->
       <button class="btn-action" (click)="toggleTheme()" [attr.aria-label]="isDark ? 'Light mode' : 'Dark mode'">
         <svg cIcon [name]="isDark ? 'cilSun' : 'cilMoon'" size="lg"></svg>
       </button>
+
+      <!-- View Store -->
+      <a routerLink="/" target="_blank" class="btn-action text-decoration-none" title="Xem cửa hàng">
+        <svg cIcon name="cilExternalLink" size="lg"></svg>
+      </a>
 
       <!-- User -->
       <c-dropdown alignment="end" variant="nav-item">
@@ -83,36 +32,16 @@
         </button>
         <ul cDropdownMenu class="dropdown-menu-custom">
           <li class="dropdown-header-user">
-            <div class="user-avatar-lg">{{ ((currentUser?.fullName || currentUser?.email || 'A') + '') | slice:0:1 | uppercase }}</div>
+            <div class="user-avatar-lg">{{ ((currentUser?.fullName || currentUser?.email || 'A') + '') | slice:0:1 |
+              uppercase }}</div>
             <div class="user-info">
               <div class="user-name">{{ currentUser?.fullName || currentUser?.email || 'Admin' }}</div>
               <div class="user-role">Quản trị viên</div>
-              <div class="user-status">
-                <span class="status-dot"></span>
-                Đang online
-              </div>
             </div>
           </li>
-          <li><hr class="dropdown-divider"></li>
           <li>
-            <a routerLink="/profile" class="dropdown-item">
-              <svg cIcon name="cilUser" class="item-icon"></svg>
-              <span>Hồ sơ cá nhân</span>
-            </a>
+            <hr class="dropdown-divider">
           </li>
-          <li>
-            <a routerLink="/settings" class="dropdown-item">
-              <svg cIcon name="cilSettings" class="item-icon"></svg>
-              <span>Cài đặt</span>
-            </a>
-          </li>
-          <li>
-            <a routerLink="/" target="_blank" class="dropdown-item">
-              <svg cIcon name="cilExternalLink" class="item-icon"></svg>
-              <span>Xem cửa hàng</span>
-            </a>
-          </li>
-          <li><hr class="dropdown-divider"></li>
           <li>
             <button class="dropdown-item logout-item" (click)="logout()">
               <svg cIcon name="cilAccountLogout" class="item-icon"></svg>

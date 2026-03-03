@@ -2,7 +2,8 @@
 <c-sidebar #sidebar1="cSidebar" class="d-print-none sidebar sidebar-fixed border-end" colorScheme="dark" id="sidebar1"
   visible>
   <c-sidebar-header class="border-bottom pb-2 pt-3">
-    <c-sidebar-brand [routerLink]="[]" class="text-decoration-none d-flex align-items-center justify-content-center">
+    <c-sidebar-brand routerLink="/admin/dashboard"
+      class="text-decoration-none d-flex align-items-center justify-content-center" style="cursor: pointer;">
       <div class="sidebar-brand-full d-flex align-items-center fw-bold fs-4">
         <svg cIcon name="cilLeaf" size="xl" class="text-success me-2"></svg>
         <span class="brand-text">Digi<span class="text-success">Xanh</span></span>
