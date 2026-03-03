@@ -20,6 +20,7 @@ export interface PlantDetailDto {
     categoryName: string;
     imageUrl: string;
     stockQuantity?: number | null;
+    isDeleted?: boolean;
 }
 
 // DTO cho danh mục (dropdown)

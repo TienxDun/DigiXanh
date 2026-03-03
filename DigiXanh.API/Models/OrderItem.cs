@@ -7,6 +7,12 @@ public class OrderItem
     public Order? Order { get; set; }
     public int PlantId { get; set; }
     public Plant? Plant { get; set; }
+    
+    // Snapshot fields (US27: Historical data)
+    public string PlantName { get; set; } = string.Empty;
+    public string? ScientificName { get; set; }
+    public string? ImageUrl { get; set; }
+
     public int Quantity { get; set; }
     public decimal UnitPrice { get; set; }
     public decimal LineTotal => Quantity * UnitPrice;

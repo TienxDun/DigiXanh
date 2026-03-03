@@ -1,6 +1,7 @@
 using DigiXanh.API.Data;
 using DigiXanh.API.DTOs.Orders;
 using DigiXanh.API.Models;
+using DigiXanh.API.Helpers;
 using DigiXanh.API.Patterns.Adapter;
 using DigiXanh.API.Patterns.Decorator;
 using DigiXanh.API.Services.Interfaces;
@@ -101,7 +102,11 @@ public class OrderProcessingFacade
                 {
                     PlantId = ci.PlantId,
                     Quantity = ci.Quantity,
-                    UnitPrice = ci.Plant?.Price ?? 0
+                    UnitPrice = ci.Plant?.Price ?? 0,
+                    // Snapshot data (US27)
+                    PlantName = ci.Plant?.Name ?? "Sản phẩm không xác định",
+                    ScientificName = ci.Plant?.ScientificName,
+                    ImageUrl = ci.Plant?.ImageUrl
                 }).ToList()
             };
 
@@ -719,9 +724,9 @@ public class OrderProcessingFacade
             {
                 Id = oi.Id,
                 PlantId = oi.PlantId,
-                PlantName = oi.Plant?.Name ?? $"Sản phẩm #{oi.PlantId}",
-                ScientificName = oi.Plant?.ScientificName,
-                ImageUrl = oi.Plant?.ImageUrl,
+                PlantName = oi.PlantName,
+                ScientificName = oi.ScientificName,
+                ImageUrl = ImageUrlSanitizer.NormalizeOrEmpty(oi.ImageUrl),
                 Quantity = oi.Quantity,
                 UnitPrice = oi.UnitPrice,
                 LineTotal = oi.LineTotal

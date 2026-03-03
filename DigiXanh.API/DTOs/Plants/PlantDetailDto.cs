@@ -9,5 +9,6 @@ public record PlantDetailDto(
     int CategoryId,
     string CategoryName,
     string ImageUrl,
-    int? StockQuantity = null
+    int? StockQuantity = null,
+    bool IsDeleted = false
 );

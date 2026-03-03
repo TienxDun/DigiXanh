@@ -89,7 +89,7 @@ public class PlantsController : ControllerBase
         var plant = await _dbContext.Plants
             .AsNoTracking()
             .Include(item => item.Category)
-            .Where(item => !item.IsDeleted && item.Id == id)
+            .Where(item => item.Id == id)
             .Select(item => new PlantDetailDto(
                 item.Id,
                 item.Name,
@@ -99,7 +99,8 @@ public class PlantsController : ControllerBase
                 item.CategoryId ?? 0,
                 item.Category != null ? item.Category.Name : string.Empty,
                 ImageUrlSanitizer.NormalizeOrEmpty(item.ImageUrl),
-                item.StockQuantity))
+                item.StockQuantity,
+                item.IsDeleted))
             .FirstOrDefaultAsync();
 
         if (plant is null)

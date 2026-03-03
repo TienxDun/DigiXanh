@@ -69,6 +69,13 @@
 
     <!-- ── RIGHT: Info ── -->
     <div class="info-zone">
+      <!-- Thông báo ngừng kinh doanh (US27) -->
+      @if (!!plant.isDeleted) {
+      <div class="alert-glass alert-discontinued d-flex align-items-center gap-2 rounded-3 p-2 mb-3 animation-fade-up">
+        <i class="fa-solid fa-circle-exclamation text-danger fs-5"></i>
+        <span class="fw-bold text-danger">Sản phẩm này hiện đã ngừng kinh doanh</span>
+      </div>
+      }
 
       <!-- Title -->
       <div>
@@ -186,27 +193,29 @@
       </div>
 
       <!-- Action row -->
-      <div class="action-row">
+      <div class="action-row" [class.discontinued]="!!plant.isDeleted">
         <div class="qty-controller">
           <button class="qty-btn" type="button" (click)="decreaseQuantity()"
-            [disabled]="quantity <= 1 || isOutOfStock()" aria-label="Giảm số lượng">
+            [disabled]="quantity <= 1 || isOutOfStock() || !!plant.isDeleted" aria-label="Giảm số lượng">
             <i class="fa-solid fa-minus"></i>
           </button>
           <input id="plant-quantity" type="number" class="qty-input" [ngModel]="quantity"
-            (ngModelChange)="onQuantityInput($event)" [disabled]="isOutOfStock()" min="1" [max]="getMaxQuantity()"
-            aria-label="Số lượng" />
+            (ngModelChange)="onQuantityInput($event)" [disabled]="isOutOfStock() || !!plant.isDeleted" min="1"
+            [max]="getMaxQuantity()" aria-label="Số lượng" />
           <button class="qty-btn" type="button" (click)="increaseQuantity()"
-            [disabled]="quantity >= getMaxQuantity() || isOutOfStock()" aria-label="Tăng số lượng">
+            [disabled]="quantity >= getMaxQuantity() || isOutOfStock() || !!plant.isDeleted" aria-label="Tăng số lượng">
             <i class="fa-solid fa-plus"></i>
           </button>
         </div>
 
         <button id="add-to-cart-btn" class="add-cart-btn" [class.success]="isSuccess"
-          [disabled]="isAdding || isOutOfStock() || isSuccess" type="button" (click)="addToCart()">
+          [disabled]="isAdding || isOutOfStock() || isSuccess || !!plant.isDeleted" type="button" (click)="addToCart()">
           @if (isAdding) {
           <span class="spinner-border spinner-border-sm" role="status"></span>Đang thêm...
           } @else if (isSuccess) {
           <i class="fa-solid fa-circle-check"></i>Đã thêm vào giỏ!
+          } @else if (!!plant.isDeleted) {
+          <i class="fa-solid fa-ban"></i>Ngừng kinh doanh
           } @else if (isOutOfStock()) {
           <i class="fa-solid fa-ban"></i>Hết hàng
           } @else {

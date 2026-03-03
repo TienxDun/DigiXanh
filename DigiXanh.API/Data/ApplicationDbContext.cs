@@ -273,7 +273,19 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasIndex(oi => oi.PlantId)
             .HasDatabaseName("IX_OrderItems_PlantId");
 
-        // Check constraints
+        builder.Entity<OrderItem>()
+            .Property(oi => oi.PlantName)
+            .HasMaxLength(200)
+            .IsRequired();
+
+        builder.Entity<OrderItem>()
+            .Property(oi => oi.ScientificName)
+            .HasMaxLength(200);
+
+        builder.Entity<OrderItem>()
+            .Property(oi => oi.ImageUrl)
+            .HasMaxLength(500);
+
         builder.Entity<OrderItem>()
             .ToTable("OrderItems", b => b.HasCheckConstraint("CK_OrderItems_Quantity", "[Quantity] > 0"));
 

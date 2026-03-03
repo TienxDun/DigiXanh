@@ -136,7 +136,8 @@ public class AdminPlantsController : ControllerBase
                 item.CategoryId ?? 0,
                 item.Category != null ? item.Category.Name : string.Empty,
                 ImageUrlSanitizer.NormalizeOrEmpty(item.ImageUrl),
-                item.StockQuantity
+                item.StockQuantity,
+                item.IsDeleted
             ))
             .FirstOrDefaultAsync();
 

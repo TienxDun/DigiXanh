@@ -705,8 +705,8 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center; // Center the items
-  gap: 0.6rem 2rem;       // Increase gap for better balance
-  padding: 1rem 0.5rem;    // Increase vertical padding
+  gap: 0.6rem 2rem; // Increase gap for better balance
+  padding: 1rem 0.5rem; // Increase vertical padding
   border-top: 1px dashed rgba(0, 0, 0, 0.07);
   background: rgba(var(--dg-brand-primary-rgb), 0.02); // Subtle background
   border-radius: 12px;
@@ -855,4 +855,21 @@
   color: var(--dg-brand-primary);
   margin-top: auto;
   padding-top: 0.4rem;
+}
+
+// Discontinued styling (US27)
+.alert-discontinued {
+  background: rgba(220, 53, 69, 0.08);
+  border: 1px dashed rgba(220, 53, 69, 0.3);
+  backdrop-filter: blur(8px);
+}
+
+.action-row.discontinued {
+
+  .qty-controller,
+  .add-cart-btn {
+    opacity: 0.5;
+    pointer-events: none;
+    filter: grayscale(0.5);
+  }
 }

@@ -77,9 +77,9 @@ public class OrdersController : BaseController
                 {
                     Id = oi.Id,
                     PlantId = oi.PlantId,
-                    PlantName = oi.Plant != null ? oi.Plant.Name : "Không xác định",
-                    ScientificName = oi.Plant != null ? oi.Plant.ScientificName : null,
-                    ImageUrl = oi.Plant != null ? ImageUrlSanitizer.NormalizeOrEmpty(oi.Plant.ImageUrl) : null,
+                    PlantName = oi.PlantName,
+                    ScientificName = oi.ScientificName,
+                    ImageUrl = ImageUrlSanitizer.NormalizeOrEmpty(oi.ImageUrl),
                     Quantity = oi.Quantity,
                     UnitPrice = oi.UnitPrice,
                     LineTotal = oi.LineTotal
@@ -135,9 +135,9 @@ public class OrdersController : BaseController
             {
                 Id = oi.Id,
                 PlantId = oi.PlantId,
-                PlantName = oi.Plant?.Name ?? "Không xác định",
-                ScientificName = oi.Plant?.ScientificName,
-                ImageUrl = oi.Plant != null ? ImageUrlSanitizer.NormalizeOrEmpty(oi.Plant.ImageUrl) : null,
+                PlantName = oi.PlantName,
+                ScientificName = oi.ScientificName,
+                ImageUrl = ImageUrlSanitizer.NormalizeOrEmpty(oi.ImageUrl),
                 Quantity = oi.Quantity,
                 UnitPrice = oi.UnitPrice,
                 LineTotal = oi.LineTotal
