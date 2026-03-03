@@ -44,49 +44,22 @@ timeout /t 2 /nobreak >nul
 echo     OK - Da don dep
 echo.
 
-echo [2/4] Khoi dong Backend...
+echo [2/3] Khoi dong Backend...
 start "DigiXanh BE" /d "%ROOT%" cmd /k "powershell -ExecutionPolicy Bypass -File ""%BE_RUN_SCRIPT%"""
 
-echo [3/4] Doi BE san sang (toi da %MAX_WAIT_SECONDS%s)...
-echo.
-set /a "elapsed=0"
-
-:CHECK_LOOP
-if !elapsed! geq %MAX_WAIT_SECONDS% goto BE_TIMEOUT
-
-curl.exe -k -s -o nul -w "%%{http_code}" "%BE_HEALTH_URL%" > "%TEMP%\be_status.txt" 2>nul
-set "STATUS="
-if exist "%TEMP%\be_status.txt" set /p STATUS=<"%TEMP%\be_status.txt"
-
-if "!STATUS!"=="200" goto BE_READY
-
-set /a "elapsed+=2"
-<nul set /p="."
-timeout /t 2 /nobreak >nul
-goto CHECK_LOOP
-
-:BE_TIMEOUT
-echo.
-echo [WARN] BE chua san sang sau %MAX_WAIT_SECONDS%s.
-echo        Ban co the xem cua so "DigiXanh BE" de debug.
-echo.
-echo [A] Van khoi dong FE
-echo [B] Quay lai menu
-choice /C AB /N /M "Chon [A-B]: "
-if errorlevel 2 goto MENU
-
-:BE_READY
-echo.
-echo [4/4] Khoi dong Frontend...
+echo [3/3] Khoi dong Frontend...
 start "DigiXanh FE" /d "%FE_DIR%" cmd /k "npm start"
 timeout /t 1 /nobreak >nul
 
 echo.
 echo ================================================
-echo    MO TRUONG DEV SAN SANG
+echo    DANG KHOI DONG HE THONG (SONG SONG)
 echo ================================================
 echo    BE: https://localhost:5001
 echo    FE: http://localhost:4200
+echo.
+echo    Luu y: Ban co the can doi vai giay de BE/FE 
+echo    san sang hoan toan.
 echo.
 goto MENU
 
