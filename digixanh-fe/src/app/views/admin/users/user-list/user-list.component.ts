@@ -32,7 +32,7 @@ export class UserListComponent implements OnInit {
   // Role display names
   readonly roleDisplayNames: { [key: string]: string } = {
     'Admin': 'Quản trị viên',
-    'User': 'NgườI dùng'
+    'User': 'Người dùng'
   };
 
   constructor(

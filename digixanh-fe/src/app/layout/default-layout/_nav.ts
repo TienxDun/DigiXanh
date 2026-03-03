@@ -67,7 +67,7 @@ export const navItems: INavData[] = [
     class: 'mt-2'
   },
   {
-    name: 'NgườI dùng',
+    name: 'Người dùng',
     url: '/admin/users',
     iconComponent: { name: 'cil-people' }
   },

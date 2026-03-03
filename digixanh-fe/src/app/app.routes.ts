@@ -100,7 +100,7 @@ export const routes: Routes = [
         path: 'users',
         loadComponent: () => import('./views/admin/users/user-list/user-list.component').then(m => m.UserListComponent),
         data: {
-          title: 'Quản lý NgườI dùng'
+          title: 'Quản lý Người dùng'
         }
       }
     ]

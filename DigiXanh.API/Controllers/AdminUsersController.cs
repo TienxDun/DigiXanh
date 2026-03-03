@@ -258,7 +258,7 @@ public class AdminUsersController : ControllerBase
         // Nếu đã có role này rồi thì báo lỗi
         if (currentRoles.Contains(normalizedRole))
         {
-            return BadRequest(new { message = $"NgườI dùng đã có role '{normalizedRole}'" });
+            return BadRequest(new { message = $"Người dùng đã có role '{normalizedRole}'" });
         }
 
         // Xóa tất cả roles cũ và thêm role mới
@@ -300,7 +300,7 @@ public class AdminUsersController : ControllerBase
             .Select(r => new RoleDto
             {
                 Name = r.Name ?? string.Empty,
-                DisplayName = r.Name == DefaultRoles.Admin ? "Quản trị viên" : "NgườI dùng"
+                DisplayName = r.Name == DefaultRoles.Admin ? "Quản trị viên" : "Người dùng"
             })
             .ToListAsync();
 
@@ -311,7 +311,7 @@ public class AdminUsersController : ControllerBase
         }
         if (roles.All(r => r.Name != DefaultRoles.User))
         {
-            roles.Add(new RoleDto { Name = DefaultRoles.User, DisplayName = "NgườI dùng" });
+            roles.Add(new RoleDto { Name = DefaultRoles.User, DisplayName = "Người dùng" });
         }
 
         return Ok(roles);
