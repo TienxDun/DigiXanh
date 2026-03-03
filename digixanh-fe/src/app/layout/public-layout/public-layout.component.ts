@@ -1,16 +1,17 @@
-import { Component, DestroyRef, OnInit, OnDestroy, inject, ChangeDetectorRef, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, DestroyRef, OnInit, OnDestroy, inject, ChangeDetectorRef, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
+import { FormsModule } from '@angular/forms';
 import { ToastContainerComponent } from '../../shared/components/toast/toast.component';
 
 @Component({
   selector: 'app-public-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, AsyncPipe, ToastContainerComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, AsyncPipe, ToastContainerComponent, FormsModule],
   templateUrl: './public-layout.component.html',
   styleUrl: './public-layout.component.scss'
 })
@@ -27,6 +28,61 @@ export class PublicLayoutComponent implements OnInit, OnDestroy, AfterViewInit {
   private observer: IntersectionObserver | null = null;
   isScrolled = false;
   isMobileMenuOpen = false;
+
+  // Search state
+  isSearchVisible = false;
+  searchQuery = '';
+
+  @HostListener('document:keydown.escape')
+  onEscKeydown() {
+    if (this.isSearchVisible) {
+      this.closeSearch();
+    }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    if (!this.isSearchVisible) return;
+
+    const searchWrapper = document.querySelector('.search-wrapper');
+    if (searchWrapper && !searchWrapper.contains(event.target as Node)) {
+      this.closeSearch();
+    }
+  }
+
+  toggleSearch() {
+    if (this.isSearchVisible) {
+      if (this.searchQuery.trim()) {
+        this.onSearchSubmit();
+      } else {
+        this.closeSearch();
+      }
+    } else {
+      this.openSearch();
+    }
+  }
+
+  openSearch() {
+    this.isSearchVisible = true;
+    setTimeout(() => {
+      const searchInput = document.getElementById('headerSearchInput');
+      searchInput?.focus();
+    }, 300);
+  }
+
+  closeSearch() {
+    this.isSearchVisible = false;
+    this.searchQuery = '';
+  }
+
+  onSearchSubmit() {
+    if (this.searchQuery.trim()) {
+      this.router.navigate(['/plants'], {
+        queryParams: { search: this.searchQuery.trim() }
+      });
+      this.closeSearch();
+    }
+  }
 
   // Footer mobile states
   activeFooterSection: string | null = null;

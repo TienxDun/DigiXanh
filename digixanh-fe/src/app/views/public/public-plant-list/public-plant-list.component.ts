@@ -77,6 +77,7 @@ export class PublicPlantListComponent implements OnInit {
     this.setupInfiniteScroll();
 
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params: any) => {
+      // Handle Category
       const category = params['category'];
       const parsedCategory = Number(category);
 
@@ -86,6 +87,18 @@ export class PublicPlantListComponent implements OnInit {
       } else {
         this.selectedCategory = '';
         this.currentCategoryId = null;
+      }
+
+      // Handle Search from URL (e.g., from Header)
+      const search = params['search'];
+      if (search) {
+        this.currentSearch = search.trim();
+        this.searchInput = this.currentSearch; // Sync UI input if exists
+      } else {
+        // Only clear if not already set by internal search to avoid loop
+        // but since we resetAndLoadPlants anyway, it's safer to sync with URL
+        this.currentSearch = '';
+        this.searchInput = '';
       }
 
       this.resetAndLoadPlants();

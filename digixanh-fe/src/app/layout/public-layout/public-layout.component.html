@@ -1,7 +1,8 @@
-<div #topObserver
-  style="position: absolute; top: 20px; left: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; z-index: -1;">
-</div>
-<header class="floating-glass-header d-flex align-items-center px-1 px-sm-3" [class.nav-scrolled]="isScrolled">
+<!-- Search Overlay Backdrop -->
+<div class="search-overlay" [class.visible]="isSearchVisible" (click)="closeSearch()"></div>
+
+<header class="floating-glass-header d-flex align-items-center px-1 px-sm-3" [class.nav-scrolled]="isScrolled"
+  [class.search-mode]="isSearchVisible">
   <!-- LEFT: LOGO -->
   <a class="navbar-brand fw-bold fs-5 text-success d-flex align-items-center gap-1 gap-sm-2" routerLink="/"
     style="text-decoration: none;">
@@ -14,7 +15,8 @@
 
   <!-- CENTER: MEGA LINKS (Trang chủ & Cây cảnh) -->
   <nav
-    class="center-nav d-none d-lg-flex align-items-center justify-content-center flex-grow-1 position-absolute start-50 translate-middle-x">
+    class="center-nav d-none d-lg-flex align-items-center justify-content-center flex-grow-1 position-absolute start-50 translate-middle-x"
+    [class.search-active]="isSearchVisible">
     <a class="nav-link pill-item center-item" routerLink="/" routerLinkActive="active-link"
       [routerLinkActiveOptions]="{exact: true}" title="Trang chủ">
       <span class="fw-medium">Trang chủ</span>
@@ -27,9 +29,33 @@
   <!-- RIGHT: ICONS & DROPDOWN -->
   <nav class="right-nav ms-auto d-flex align-items-center gap-1 gap-sm-3">
     <!-- Nút Tìm kiếm Minimal (Mobile/Desktop) -->
-    <button class="icon-action-btn" title="Tìm kiếm">
-      <i class="fa-solid fa-magnifying-glass"></i>
-    </button>
+    <div class="search-wrapper d-flex align-items-center position-relative">
+      <div class="search-bar-expandable" [class.visible]="isSearchVisible">
+        <input type="text" id="headerSearchInput" class="search-input" placeholder="Bạn tìm cây gì?..."
+          [(ngModel)]="searchQuery" (keyup.enter)="onSearchSubmit()" />
+
+        @if (isSearchVisible && !searchQuery) {
+        <div class="quick-hints">
+          <span class="hint-tag" (click)="searchQuery = 'Sen đá'; onSearchSubmit()">Sen đá</span>
+          <span class="hint-tag" (click)="searchQuery = 'Trầu bà'; onSearchSubmit()">Trầu bà</span>
+          <span class="hint-tag" (click)="searchQuery = 'Cây để bàn'; onSearchSubmit()">Cây để bàn</span>
+        </div>
+        }
+
+        @if (isSearchVisible) {
+        <button class="search-close-btn" (click)="closeSearch()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        }
+      </div>
+
+      <button class="icon-action-btn" [title]="isSearchVisible ? 'Gửi' : 'Tìm kiếm'" (click)="toggleSearch()"
+        [class.active]="isSearchVisible">
+        <i class="fa-solid" [class.fa-magnifying-glass]="!isSearchVisible"
+          [class.fa-paper-plane]="isSearchVisible && searchQuery"
+          [class.fa-arrow-left]="isSearchVisible && !searchQuery"></i>
+      </button>
+    </div>
 
     <!-- Giỏ hàng Minimal -->
     <div class="cart-wrapper position-relative d-inline-flex align-items-center">
