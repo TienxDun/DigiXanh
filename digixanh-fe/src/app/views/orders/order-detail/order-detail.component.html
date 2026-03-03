@@ -1,290 +1,245 @@
 <div class="container py-4 order-detail-container animation-fade-up">
-  <!-- Back Button (Minimalist) -->
+
+  <!-- Back Button -->
   <div class="mb-4">
-    <a href="javascript:void(0)"
-      class="text-decoration-none text-secondary hover-primary d-inline-flex align-items-center fw-medium"
-      (click)="goBack()" style="font-size: 0.95rem;">
-      <i class="fa-solid fa-arrow-left-long me-2"></i> Trở về danh sách đơn hàng
+    <a href="javascript:void(0)" class="od-back-link" (click)="goBack()">
+      <i class="fa-solid fa-arrow-left-long"></i> Trở về danh sách đơn hàng
     </a>
   </div>
 
-  <!-- Loading & Error States -->
-  <div *ngIf="isLoading" class="text-center py-5 bg-white rounded-5 shadow-sm border border-light">
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="od-state-center">
     <div class="spinner-border text-success" role="status">
       <span class="visually-hidden">Loading...</span>
     </div>
     <p class="mt-3 text-muted fw-medium">Đang tải thông tin đơn hàng...</p>
   </div>
 
-  <div *ngIf="errorMessage && !isLoading"
-    class="alert alert-danger rounded-4 border-0 shadow-sm d-flex align-items-center p-4">
-    <i class="fa-solid fa-circle-exclamation fs-3 me-3"></i>
+  <!-- Error -->
+  <div *ngIf="errorMessage && !isLoading" class="od-error-banner">
+    <i class="fa-solid fa-circle-exclamation od-error-banner__icon"></i>
     <div class="flex-grow-1 fw-medium">{{ errorMessage }}</div>
-    <button class="btn btn-outline-danger rounded-pill px-4" (click)="loadOrderDetail()">Thử lại</button>
+    <button class="od-error-banner__retry" (click)="loadOrderDetail()">Thử lại</button>
   </div>
 
   <!-- Main Content -->
   <div *ngIf="!isLoading && !errorMessage && order as o">
 
-    <!-- Order Header (Minimal text) -->
-    <div
-      class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-end mb-4 gap-3 border-bottom pb-4">
-      <div>
-        <h3 class="mb-1 fw-bold text-dark d-flex align-items-center flex-wrap gap-2 fs-4">
+    <!-- ── ORDER HEADER ── -->
+    <div class="od-header mb-4">
+      <div class="od-header__left">
+        <h3 class="od-header__title">
           Chi tiết đơn hàng <span class="text-success">#{{ o.id }}</span>
-          <span class="badge rounded-pill px-3 py-1 fw-medium fs-6 d-inline-flex align-items-center ms-md-2"
-            [ngClass]="getBootstrapStatusBadgeClass(o.status)" style="font-size: 0.85rem !important;">
-            <i class="fa-solid fa-circle me-1" style="font-size: 0.4rem;"></i> {{ getStatusDisplayName(o.status) }}
+          <span class="od-status-badge ms-2" [ngClass]="getBootstrapStatusBadgeClass(o.status)">
+            <i class="fa-solid fa-circle" style="font-size: 0.4rem;"></i>
+            {{ getStatusDisplayName(o.status) }}
           </span>
         </h3>
-        <p class="text-muted mb-0 small fw-medium mt-2 d-flex align-items-center">
-          <i class="fa-regular fa-calendar-alt me-2 text-primary"></i> Đặt lúc: <span class="text-dark ms-1">{{
-            formatDate(o.orderDate) }}</span>
+        <p class="od-header__date">
+          <i class="fa-regular fa-calendar-alt me-2 text-primary"></i>
+          Đặt lúc: <span class="text-dark ms-1">{{ formatDate(o.orderDate) }}</span>
         </p>
       </div>
     </div>
 
-    <!-- Gợi ý 1: Horizontal Stepper (Tiến trình đơn hàng) -->
-    <div class="card border-0 shadow-sm rounded-4 mb-4" *ngIf="o.statusHistory && o.statusHistory.length > 0">
-      <div class="card-body p-4">
-        <h6 class="mb-4 fw-bold fs-6 text-dark"><i class="fa-solid fa-route text-primary me-2"></i>Tiến trình đơn hàng
-        </h6>
-        <!-- We reverse the array to show Oldest to Newest left-to-right -->
-        <div
-          class="d-flex justify-content-between align-items-start position-relative flex-nowrap overflow-auto pb-2 px-md-4">
-          <!-- Background Line -->
-          <div class="position-absolute bg-light d-none d-md-block"
-            style="top: 20px; left: 10%; right: 10%; height: 4px; z-index: 1; border-radius: 2px;"></div>
-
-          <div *ngFor="let history of o.statusHistory.slice().reverse(); let isLastItem = last; let isFirstItem = first"
-            class="d-flex flex-column align-items-center position-relative mb-3 mb-md-0"
-            style="z-index: 2; min-width: 140px; flex: 1;">
-
-            <div
-              class="rounded-circle border border-4 border-white shadow-sm d-flex align-items-center justify-content-center mb-2 transition-all"
-              [ngClass]="isLastItem ? 'bg-success bg-gradient' : 'bg-secondary bg-opacity-25'"
-              style="width: 44px; height: 44px;">
-              <i class="fa-solid"
-                [ngClass]="isLastItem ? 'fa-check text-white fs-5' : 'fa-check text-secondary opacity-50'"></i>
-            </div>
-
-            <span class="badge rounded-pill px-3 py-1 fw-bold mb-1 shadow-sm"
-              [ngClass]="isLastItem ? getBootstrapStatusBadgeClass(history.newStatus) : 'bg-white text-muted border'">
-              {{ getStatusDisplayName(history.newStatus) }}
-            </span>
-            <small class="text-muted text-center fw-medium mt-1" style="font-size: 0.8rem;">{{
-              formatDate(history.changedAt) }}</small>
-            <div *ngIf="history.reason" class="text-center mt-1 w-100 px-2">
-              <span class="badge bg-light text-muted fw-normal text-wrap lh-sm"
-                style="font-size: 0.7rem; max-width: 130px;">
-                {{ history.reason }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    <!-- ── TWO-COLUMN LAYOUT ── -->
     <div class="row g-4 animation-fade-up delay-1">
 
-      <!-- Left Column: Products & Timeline -->
+      <!-- ════ LEFT COL: Sản phẩm + Tiến trình ════ -->
       <div class="col-lg-8 d-flex flex-column gap-4">
 
-        <!-- Products List -->
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-          <div
-            class="card-header bg-white border-bottom border-light py-3 px-4 d-flex justify-content-between align-items-center">
-            <h6 class="mb-0 fw-bold fs-6 text-dark"><i class="fa-solid fa-basket-shopping text-primary me-2"></i>Sản
-              phẩm đã mua</h6>
-            <span class="badge bg-light text-dark border px-2 py-1 rounded-pill">{{ o.items.length }} món</span>
+        <!-- 1. Sản phẩm đã mua (Card List) -->
+        <div class="od-card">
+          <div class="od-card__header">
+            <h6 class="od-card__title">
+              <i class="fa-solid fa-basket-shopping text-success"></i>
+              Sản phẩm đã mua
+            </h6>
+            <span class="od-pill">{{ o.items.length }} món</span>
           </div>
-          <div class="card-body p-0">
-            <div class="table-responsive">
-              <table class="table table-borderless align-middle mb-0">
-                <thead class="bg-light bg-opacity-25 text-muted small uppercase-tracking">
-                  <tr>
-                    <th class="ps-4 py-3 fw-semibold rounded-top-start-4">Sản Phẩm</th>
-                    <th class="py-3 fw-semibold text-center">Đơn Giá</th>
-                    <th class="py-3 fw-semibold text-center">SL</th>
-                    <th class="pe-4 py-3 fw-semibold text-end rounded-top-end-4">Tạm Tính</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let item of o.items; let last = last" [class.border-bottom]="!last" class="border-light">
-                    <td class="ps-4 py-3">
-                      <a [routerLink]="['/plants', item.plantId]"
-                        class="product-item-link d-flex align-items-center gap-3">
-                        <img [src]="item.imageUrl || 'assets/images/plant-placeholder.svg'" [alt]="item.plantName"
-                          class="product-item-img rounded-3 shadow-sm object-fit-cover border border-light"
-                          style="width: 60px; height: 60px;" (error)="onImageError($event)">
-                        <div style="min-width: 0;">
-                          <h6 class="fw-bold mb-1 text-dark text-truncate fs-6 item-name" style="max-width: 200px;"
-                            [title]="item.plantName">{{ item.plantName }}</h6>
-                          <p class="text-muted small fst-italic mb-0 text-truncate" style="max-width: 200px;">{{
-                            item.scientificName }}</p>
-                        </div>
-                      </a>
-                    </td>
-                    <td class="py-3 text-center text-secondary fw-medium small">{{ formatCurrency(item.unitPrice) }}
-                    </td>
-                    <td class="py-3 text-center">
-                      <span class="badge bg-light text-dark border px-2 py-1">{{ item.quantity }}</span>
-                    </td>
-                    <td class="pe-4 py-3 text-end fw-bold text-dark">{{ formatCurrency(item.lineTotal) }}</td>
-                  </tr>
-                </tbody>
-              </table>
+          <div class="od-card__body">
+            <div class="od-product-list">
+              <div class="od-product-item" *ngFor="let item of o.items; let last = last"
+                [class.od-product-item--last]="last">
+                <a [routerLink]="['/plants', item.plantId]" (click)="$event.stopPropagation()"
+                  class="od-product-item__link">
+                  <div class="od-product-item__img-wrap">
+                    <img [src]="item.imageUrl || 'assets/images/plant-placeholder.svg'" [alt]="item.plantName"
+                      class="od-product-item__img" (error)="onImageError($event)">
+                  </div>
+                  <div class="od-product-item__info">
+                    <span class="od-product-item__name" [title]="item.plantName">
+                      {{ item.plantName }}
+                    </span>
+                    <span class="od-product-item__sci">{{ item.scientificName }}</span>
+                  </div>
+                </a>
+                <div class="od-product-item__meta">
+                  <span class="od-product-item__unit">{{ formatCurrency(item.unitPrice) }}</span>
+                  <span class="od-product-item__qty">× {{ item.quantity }}</span>
+                  <span class="od-product-item__total">{{ formatCurrency(item.lineTotal) }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Order Summary -->
-        <div class="card border-0 shadow-sm rounded-4 mt-1">
-          <div class="card-body p-4">
+        <!-- 2. Tiến trình đơn hàng (moved inside row) -->
+        <div class="od-card" *ngIf="o.statusHistory && o.statusHistory.length > 0">
+          <div class="od-card__header">
+            <h6 class="od-card__title">
+              <i class="fa-solid fa-route text-primary"></i>
+              Tiến trình đơn hàng
+            </h6>
+          </div>
+          <div class="od-card__body">
+            <div class="od-timeline">
+              <div class="od-timeline__item"
+                *ngFor="let history of o.statusHistory.slice(); let isFirst = first; let isLast = last">
+                <!-- Trục dọc: dot + connector -->
+                <div class="od-timeline__side">
+                  <div class="od-timeline__dot" [class.od-timeline__dot--active]="isFirst">
+                    <i class="fa-solid" [class.fa-check]="isFirst" [class.fa-circle-dot]="!isFirst"
+                      style="font-size: 0.6rem;"></i>
+                  </div>
+                  <div class="od-timeline__connector" *ngIf="!isLast"></div>
+                </div>
+                <!-- Nội dung -->
+                <div class="od-timeline__content">
+                  <span class="od-timeline__status"
+                    [ngClass]="isFirst ? getBootstrapStatusBadgeClass(history.newStatus) : 'od-timeline__status--muted'">
+                    {{ getStatusDisplayName(history.newStatus) }}
+                  </span>
+                  <span class="od-timeline__date">{{ formatDate(history.changedAt) }}</span>
+                  <span class="od-timeline__reason" *ngIf="history.reason">{{ history.reason }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-            <!-- Header -->
-            <h6 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2 fs-6">
+      </div>
+
+      <!-- ════ RIGHT COL: Tổng chi phí (sticky) + Thông tin + Hỗ trợ ════ -->
+      <div class="col-lg-4 d-flex flex-column gap-4">
+
+        <!-- 1. Tổng kết chi phí — STICKY, moved to top -->
+        <div class="od-card od-card--sticky">
+          <div class="od-card__header">
+            <h6 class="od-card__title">
               <i class="fa-solid fa-receipt text-success"></i>
               Tổng kết chi phí
             </h6>
-
-            <!-- Line items -->
-            <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
-
-              <!-- Tiền hàng -->
-              <li class="d-flex justify-content-between align-items-center py-1">
-                <span class="text-muted small fw-medium">Tiền hàng</span>
-                <span class="text-dark fw-semibold">{{ formatCurrency(o.totalAmount) }}</span>
+          </div>
+          <div class="od-card__body">
+            <ul class="od-summary-list">
+              <li class="od-summary-list__row">
+                <span class="od-summary-list__label">Tiền hàng</span>
+                <span class="od-summary-list__value">{{ formatCurrency(o.totalAmount) }}</span>
               </li>
-
-              <!-- Voucher (nếu có) -->
-              <li class="d-flex justify-content-between align-items-center py-1" *ngIf="o.discountAmount > 0">
-                <span class="d-inline-flex align-items-center gap-1 small fw-medium
-                           bg-info bg-opacity-10 text-info px-2 py-1 rounded-2">
+              <li class="od-summary-list__row" *ngIf="o.discountAmount > 0">
+                <span class="od-summary-list__label od-summary-list__label--voucher">
                   <i class="fa-solid fa-tag" style="font-size: 0.7rem;"></i> Voucher
                 </span>
-                <span class="fw-bold text-info">-{{ formatCurrency(o.discountAmount) }}</span>
+                <span class="od-summary-list__value od-summary-list__value--discount">
+                  -{{ formatCurrency(o.discountAmount) }}
+                </span>
               </li>
-
-              <!-- Phí vận chuyển -->
-              <li class="d-flex justify-content-between align-items-center py-1">
-                <span class="text-muted small fw-medium">Phí vận chuyển</span>
-                <span class="d-inline-flex align-items-center gap-1 text-success fw-bold small">
+              <li class="od-summary-list__row">
+                <span class="od-summary-list__label">Phí vận chuyển</span>
+                <span class="od-summary-list__value od-summary-list__value--free">
                   <i class="fa-solid fa-circle-check" style="font-size: 0.75rem;"></i> Miễn phí
                 </span>
               </li>
-
-              <!-- Separator -->
-              <li>
-                <hr class="my-1 border-secondary-subtle">
+              <li class="od-summary-list__divider">
+                <hr>
               </li>
-
-              <!-- Tổng tiền — highlight block -->
               <li>
-                <div class="d-flex justify-content-between align-items-center
-                          bg-success bg-opacity-10 border border-success border-opacity-15
-                          rounded-3 px-3 py-3 mt-1">
+                <div class="od-summary-total">
                   <div>
-                    <div class="fw-bold text-dark" style="font-size: 0.95rem;">Thành tiền</div>
-                    <div class="text-muted fst-italic" style="font-size: 0.72rem;">(Đã bao gồm VAT 10%)</div>
+                    <div class="od-summary-total__label">Thành tiền</div>
+                    <div class="od-summary-total__vat">Đã bao gồm VAT 10%</div>
                   </div>
-                  <span class="fw-bold text-success" style="font-size: 1.65rem; letter-spacing: -0.5px;">
-                    {{ formatCurrency(o.finalAmount) }}
-                  </span>
+                  <span class="od-summary-total__value">{{ formatCurrency(o.finalAmount) }}</span>
                 </div>
               </li>
-
             </ul>
           </div>
         </div>
 
-      </div>
-
-      <!-- Right Column: Customer Info, Payment & Summary -->
-      <div class="col-lg-4 d-flex flex-column gap-4">
-
-        <!-- Combined Order Info Card -->
-        <div class="card border-0 shadow-sm rounded-4">
-          <div class="card-body p-4">
-            <h6 class="text-dark mb-4 fw-bold fs-6 d-flex align-items-center">
-              <i class="fa-solid fa-circle-info text-info me-2 fs-5"></i> Thông tin đơn hàng
+        <!-- 2. Thông tin đơn hàng -->
+        <div class="od-card">
+          <div class="od-card__header">
+            <h6 class="od-card__title">
+              <i class="fa-solid fa-circle-info text-info"></i>
+              Thông tin đơn hàng
             </h6>
-
-            <!-- Customer info -->
-            <div class="mb-4 ps-2 border-start border-3 border-info border-opacity-25 rounded-end-2 py-1">
-              <h6 class="fw-bold text-dark mb-1 fs-6">{{ o.recipientName }}</h6>
-              <span class="text-muted small fw-medium d-flex align-items-center"><i
-                  class="fa-solid fa-phone me-2 opacity-50" style="font-size: 0.8rem;"></i>{{ o.phone }}</span>
+          </div>
+          <div class="od-card__body">
+            <!-- Người nhận -->
+            <div class="od-info-row od-info-row--recipient">
+              <h6 class="od-info-row__name">{{ o.recipientName }}</h6>
+              <span class="od-info-row__phone">
+                <i class="fa-solid fa-phone"></i>{{ o.phone }}
+              </span>
             </div>
 
-            <!-- Address -->
-            <div class="d-flex align-items-start mb-4 bg-light bg-opacity-50 p-3 rounded-4 border border-light">
-              <div
-                class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm flex-shrink-0"
-                style="width: 32px; height: 32px;">
-                <i class="fa-solid fa-location-dot" style="font-size: 0.85rem;"></i>
+            <!-- Địa chỉ -->
+            <div class="od-address">
+              <div class="od-address__icon">
+                <i class="fa-solid fa-location-dot"></i>
               </div>
-              <p class="text-dark small lh-base mb-0 fw-medium mt-1">{{ o.shippingAddress }}</p>
+              <p class="od-address__text">{{ o.shippingAddress }}</p>
             </div>
 
-            <hr class="border-secondary-subtle border-dashed my-3">
+            <hr class="od-divider">
 
-            <!-- Payment Details -->
-            <div class="d-flex justify-content-between align-items-center mb-0 mt-3">
-              <div class="d-flex align-items-center gap-2">
-                <i class="fa-solid fa-wallet text-secondary opacity-50"></i>
-                <span class="text-muted small fw-medium">Thanh toán:</span>
+            <!-- Thanh toán -->
+            <div class="od-payment-row">
+              <div class="od-payment-row__label">
+                <i class="fa-solid fa-wallet"></i>
+                <span>Thanh toán</span>
               </div>
-              <div class="text-end">
+              <div class="od-payment-row__value">
                 <span class="badge rounded-pill fw-medium" [ngClass]="getPaymentBadgeClass(o.paymentMethod)"
                   style="font-size: 0.70rem; padding: 0.35rem 0.6rem;">
                   {{ getPaymentMethodDisplay(o.paymentMethod) | uppercase }}
                 </span>
-                <div *ngIf="o.transactionId" class="mt-1">
-                  <code class="text-dark bg-light border rounded px-1 small fw-bold text-muted"
-                    style="font-size: 0.65rem;">#{{ o.transactionId }}</code>
-                </div>
+                <code *ngIf="o.transactionId" class="od-payment-row__txn">
+                  #{{ o.transactionId }}
+                </code>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Action Buttons Card (Replaces Summary Location) -->
-        <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top: 85px;">
-          <div class="card-body p-4 text-center">
-
-            <div
-              class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
-              style="width: 48px; height: 48px;">
-              <i class="fa-solid fa-headset fs-5"></i>
+        <!-- 3. Card hỗ trợ / Hủy đơn -->
+        <div class="od-card">
+          <div class="od-card__body od-support-card">
+            <div class="od-support-card__icon-wrap">
+              <i class="fa-solid fa-headset"></i>
             </div>
-            <h6 class="fw-bold fs-6 mb-2">Bạn cần hỗ trợ?</h6>
-            <p class="text-muted small mb-4">Mọi thắc mắc về đơn hàng xin vui lòng liên hệ chúng tôi để được giải đáp.
+            <h6 class="od-support-card__title">Bạn cần hỗ trợ?</h6>
+            <p class="od-support-card__desc">
+              Mọi thắc mắc về đơn hàng xin vui lòng liên hệ chúng tôi để được giải đáp.
             </p>
 
-            <button
-              class="btn btn-outline-success rounded-pill fw-bold w-100 py-2 shadow-sm d-inline-flex align-items-center justify-content-center mb-3 transition-all">
-              <i class="fa-brands fa-whatsapp me-2 fs-5"></i> Chat với tư vấn viên
+            <button class="od-btn od-btn--outline w-100 mb-3">
+              <i class="fa-brands fa-whatsapp fs-5"></i> Chat với tư vấn viên
             </button>
 
-            <!-- Cancel Button -->
+            <!-- Hủy đơn -->
             <div *ngIf="canCancel() && !isCancelled">
-              <button (click)="openCancelModal()"
-                class="btn bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 w-100 rounded-pill fw-bold py-2 shadow-sm cancel-btn-hover d-inline-flex align-items-center justify-content-center transition-all"
-                style="font-size: 0.9rem;" [disabled]="isCancelling">
-                <i class="fa-solid fa-ban me-2 pt-1 pb-1"></i>
+              <button (click)="openCancelModal()" class="od-btn od-btn--cancel w-100" [disabled]="isCancelling">
+                <i class="fa-solid fa-ban"></i>
                 <span *ngIf="!isCancelling">Yêu cầu hủy đơn hàng</span>
                 <span *ngIf="isCancelling">Đang xử lý...</span>
               </button>
             </div>
 
-            <!-- Cancel Success Message -->
-            <div *ngIf="isCancelled">
-              <div
-                class="alert bg-success bg-opacity-10 text-success rounded-pill border-0 mb-0 py-2 d-flex align-items-center justify-content-center shadow-sm">
-                <i class="fa-solid fa-check-circle me-2"></i>
-                <span class="small fw-bold">Đã hủy thành công</span>
-              </div>
+            <div *ngIf="isCancelled" class="od-cancel-success">
+              <i class="fa-solid fa-check-circle me-2"></i>
+              <span>Đã hủy thành công</span>
             </div>
           </div>
         </div>
@@ -293,7 +248,7 @@
     </div>
   </div>
 
-  <!-- Cancel Order Modal -->
+  <!-- Cancel Modal -->
   <div class="modal fade" id="cancelOrderModal" tabindex="-1" aria-labelledby="cancelOrderModalLabel" aria-hidden="true"
     [class.show]="showCancelModal" [style.display]="showCancelModal ? 'block' : 'none'">
     <div class="modal-dialog modal-dialog-centered">
@@ -310,13 +265,12 @@
           <button type="button" class="btn-close shadow-none" (click)="closeCancelModal()" aria-label="Close"></button>
         </div>
         <div class="modal-body px-4 py-4">
-          <p class="text-dark mb-4 text-center fs-6">Bạn có chắc chắn muốn hủy đơn hàng <strong
-              class="text-success fs-5">#{{ orderId }}</strong> không?</p>
-
+          <p class="text-dark mb-4 text-center fs-6">Bạn có chắc chắn muốn hủy đơn hàng
+            <strong class="text-success fs-5">#{{ orderId }}</strong> không?
+          </p>
           <div class="mb-0 bg-light p-3 rounded-4 border border-light">
             <label for="cancelReason" class="form-label fw-bold text-muted small uppercase-tracking">Lý do hủy (Không
-              bắt
-              buộc)</label>
+              bắt buộc)</label>
             <textarea class="form-control rounded-3 border-light shadow-none bg-white py-2" id="cancelReason" rows="3"
               [(ngModel)]="cancelReason" placeholder="Hãy cho chúng tôi biết lý do..."></textarea>
           </div>
@@ -335,3 +289,4 @@
     </div>
   </div>
   <div class="modal-backdrop fade opacity-50" [class.show]="showCancelModal" *ngIf="showCancelModal"></div>
+</div>

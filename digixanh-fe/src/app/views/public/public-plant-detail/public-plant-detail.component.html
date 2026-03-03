@@ -79,7 +79,24 @@
 
       <!-- Title -->
       <div>
-        <h1 class="product-title">{{ plant.name }}</h1>
+        <div class="product-title-row">
+          <h1 class="product-title">{{ plant.name }}</h1>
+          <!-- Stock badge ngang hàng tên sản phẩm -->
+          @if (getStockStatus(plant.stockQuantity) === 'in-stock') {
+          <span class="stock-badge stock-in">
+            <i class="fa-solid fa-circle-check me-1"></i>Còn hàng
+            @if (plant.stockQuantity) { · {{ plant.stockQuantity }} sp }
+          </span>
+          } @else if (getStockStatus(plant.stockQuantity) === 'low-stock') {
+          <span class="stock-badge stock-low">
+            <i class="fa-solid fa-triangle-exclamation me-1"></i>Sắp hết · còn {{ plant.stockQuantity }} sp
+          </span>
+          } @else {
+          <span class="stock-badge stock-out">
+            <i class="fa-solid fa-circle-xmark me-1"></i>Hết hàng
+          </span>
+          }
+        </div>
         <p class="product-scientific">
           <i class="fa-solid fa-seedling me-1"></i>{{ plant.scientificName }}
         </p>
@@ -87,31 +104,20 @@
 
       <!-- Price -->
       <div class="price-block">
-        <div>
-          <div class="price-label">Giá bán lẻ</div>
-          <div class="price-main-row">
-            <div class="price-main">
-              <span class="price-currency">đ</span>
-              <span class="price-number">{{ plant.price | number:'1.0-0' }}</span>
-            </div>
 
-            <div class="stock-row">
-              @if (getStockStatus(plant.stockQuantity) === 'in-stock') {
-              <span class="stock-badge stock-in">
-                <i class="fa-solid fa-circle-check me-1"></i>Còn hàng
-                @if (plant.stockQuantity) { · {{ plant.stockQuantity }} sản phẩm }
-              </span>
-              } @else if (getStockStatus(plant.stockQuantity) === 'low-stock') {
-              <span class="stock-badge stock-low">
-                <i class="fa-solid fa-triangle-exclamation me-1"></i>Sắp hết · còn {{ plant.stockQuantity }} sp
-              </span>
-              } @else {
-              <span class="stock-badge stock-out">
-                <i class="fa-solid fa-circle-xmark me-1"></i>Hết hàng
-              </span>
-              }
-            </div>
+        <!-- Label + VAT note -->
+        <div class="price-block__top">
+          <div class="price-label">Giá bán lẻ</div>
+          <span class="price-vat-note">Đã bao gồm VAT</span>
+        </div>
+
+        <!-- Số giá + đơn vị -->
+        <div class="price-main-row">
+          <div class="price-main">
+            <span class="price-currency">đ</span>
+            <span class="price-number">{{ plant.price | number:'1.0-0' }}</span>
           </div>
+          <span class="price-unit">/ cây</span>
         </div>
       </div>
 

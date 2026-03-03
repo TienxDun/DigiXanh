@@ -1,4 +1,4 @@
-// ─────────────────────────────────────────────────────────────
+﻿// ─────────────────────────────────────────────────────────────
 // MY ORDERS – Design Tokens & Variables
 // ─────────────────────────────────────────────────────────────
 :host {
@@ -444,8 +444,8 @@
 // ─────────────────────────────────────────────────────────────
 .order-stepper {
   display: flex;
-  align-items: flex-start;
-  padding: 0.5rem 1rem 0.4rem;
+  align-items: center;
+  padding: 0.5rem 1.5rem 2rem; // padding ngang 1.5rem tránh sát lề
   border-top: 1px solid rgba(220, 240, 220, 0.5);
   gap: 0;
   overflow-x: auto;
@@ -459,9 +459,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.35rem;
     flex-shrink: 0;
     position: relative;
+    // Chiều cao cố định = dot height để __line luôn căn đúng tâm
+    height: 22px;
 
     &.done .order-stepper__dot {
       background: linear-gradient(135deg, #22c55e, #16a34a);
@@ -515,9 +516,14 @@
     font-weight: 600;
     color: #9ca3af;
     text-align: center;
-    max-width: 64px;
+    max-width: 72px;
     line-height: 1.2;
     white-space: nowrap;
+    // Tach khoi flex flow de khong anh huong chieu cao __step
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
 
     .active>& {
       color: #15803d;
@@ -532,9 +538,10 @@
     flex: 1;
     height: 2px;
     background: #e5e7eb;
-    margin-top: 12px; // căn giữa với dot
+    // margin-top bằng 0 vì container đã align-items: center
     min-width: 24px;
     transition: background 0.3s ease;
+    align-self: center;
 
     &.done {
       background: linear-gradient(90deg, #22c55e, #86efac);
