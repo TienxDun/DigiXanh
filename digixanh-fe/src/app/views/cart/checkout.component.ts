@@ -19,7 +19,7 @@ import { resolvePlantImageUrl } from '../../core/utils/image-url.util';
 })
 export class CheckoutComponent implements OnInit {
   readonly fallbackImageUrl = 'assets/images/plant-placeholder.svg';
-  
+
   private readonly destroyRef = inject(DestroyRef);
   private readonly cartService = inject(CartService);
   private readonly orderService = inject(OrderService);
@@ -193,7 +193,8 @@ export class CheckoutComponent implements OnInit {
     };
 
     if (this.isVNPayPayment) {
-      request.returnUrl = `${window.location.origin}/payment-return`;
+      const baseUri = document.baseURI;
+      request.returnUrl = baseUri.endsWith('/') ? `${baseUri}payment-return` : `${baseUri}/payment-return`;
     }
 
     this.orderService.createOrder(request)
