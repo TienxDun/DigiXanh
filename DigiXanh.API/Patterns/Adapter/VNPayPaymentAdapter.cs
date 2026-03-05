@@ -133,17 +133,19 @@ public class VNPayPaymentAdapter : IPaymentAdapter
 
     private static string ResolveReturnUrl(string? clientReturnUrl, string configuredReturnUrl, string configuredFrontendReturnUrl)
     {
-        if (IsValidAbsoluteHttpUrl(clientReturnUrl))
+        // Hệ thống chuẩn xử lý thanh toán: VNPay Return Url luôn trả về Backend API trước!
+        if (IsValidAbsoluteHttpUrl(configuredReturnUrl))
         {
-            return clientReturnUrl!.Trim();
+            return configuredReturnUrl;
         }
 
+        // Chỉ Fallback xuống Frontend nếu Backend cấu hình lỗi (Trường hợp rất ít xảy ra)
         if (IsValidAbsoluteHttpUrl(configuredFrontendReturnUrl))
         {
             return configuredFrontendReturnUrl;
         }
 
-        return configuredReturnUrl;
+        return clientReturnUrl ?? string.Empty;
     }
 
     private static bool IsPublicCallbackUrl(string? url)

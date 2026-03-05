@@ -192,10 +192,7 @@ export class CheckoutComponent implements OnInit {
       ...this.checkoutForm.value
     };
 
-    if (this.isVNPayPayment) {
-      const baseUri = document.baseURI;
-      request.returnUrl = baseUri.endsWith('/') ? `${baseUri}payment-return` : `${baseUri}/payment-return`;
-    }
+    // Đã xóa phần gán request.returnUrl (Ủy quyền cho Backend lo luồng Redirect chuẩn)
 
     this.orderService.createOrder(request)
       .pipe(takeUntilDestroyed(this.destroyRef))
